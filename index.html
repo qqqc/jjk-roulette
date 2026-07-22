@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>咒术转盘 · JJK Roulette</title>
+<style>
+:root {
+  --bg: #0a0a0c;
+  --bg2: #141418;
+  --red: #d4213d;
+  --red-glow: #ff3366;
+  --purple: #6b21a8;
+  --gold: #c9a84c;
+  --text: #e0d8d0;
+  --dim: #6b6560;
+  --radius: 12px;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: "PingFang SC","Microsoft YaHei","Noto Sans SC",sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+/* 背景咒纹 */
+body::before {
+  content:'';
+  position:fixed;
+  inset:0;
+  background: radial-gradient(ellipse at 50% 0%, rgba(212,33,61,.08) 0%, transparent 60%),
+              repeating-linear-gradient(45deg, rgba(255,255,255,.004) 0px, rgba(255,255,255,.004) 2px, transparent 2px, transparent 8px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.app { position:relative; z-index:1; max-width:700px; margin:0 auto; padding:16px; display:flex; flex-direction:column; align-items:center; gap:14px; min-height:100vh; }
+
+/* 标题 */
+.header { text-align:center; padding-top: 10px; }
+.header h1 { font-size:clamp(22px,5vw,34px); font-weight:900; letter-spacing:3px; background:linear-gradient(180deg, var(--red-glow) 0%, var(--red) 60%); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; text-shadow:none; }
+.header .sub { font-size:12px; color:var(--dim); letter-spacing:2px; margin-top:2px; }
+
+/* 分类标签 */
+.tabs { display:flex; flex-wrap:wrap; gap:8px; justify-content:center; width:100%; max-width:600px; }
+.tab {
+  padding: 8px 14px; border-radius: 20px; border:1px solid rgba(255,255,255,.12);
+  background:var(--bg2); color:var(--dim); cursor:pointer; font-size:13px;
+  white-space:nowrap; transition:all .25s; letter-spacing:1px;
+}
+.tab:hover { border-color:var(--red); color:var(--text); }
+.tab.active { background:var(--red); color:#fff; border-color:var(--red); box-shadow:0 0 18px rgba(212,33,61,.35); }
+
+/* 转盘容器 */
+.wheel-wrap { position:relative; width:min(85vw,420px); aspect-ratio:1; margin: 4px 0; }
+.wheel-wrap canvas { width:100%; height:100%; display:block; }
+
+/* 指针 */
+.pointer {
+  position:absolute; top:-6px; left:50%; transform:translateX(-50%);
+  width:0; height:0; border-left:16px solid transparent; border-right:16px solid transparent;
+  border-top:28px solid var(--red-glow);
+  filter: drop-shadow(0 0 8px var(--red-glow));
+  z-index: 10;
+}
+.pointer::after { content:''; position:absolute; top:-34px; left:-6px; width:12px; height:12px; background:var(--red-glow); border-radius:50%; box-shadow:0 0 12px var(--red-glow); }
+
+/* 按钮 */
+.btn-row { display:flex; gap:12px; flex-wrap:wrap; justify-content:center; }
+.btn {
+  padding: 12px 36px; border-radius: 28px; border:none; cursor:pointer;
+  font-size:16px; font-weight:700; letter-spacing:2px; transition:all .3s; position:relative; overflow:hidden;
+}
+.btn-spin { background:linear-gradient(135deg, var(--red), #a01a2f); color:#fff; box-shadow:0 4px 20px rgba(212,33,61,.4); }
+.btn-spin:hover:not(:disabled) { box-shadow:0 6px 30px rgba(255,51,102,.5); transform:translateY(-1px); }
+.btn-spin:active:not(:disabled) { transform:scale(.96); }
+.btn-spin:disabled { opacity:.4; cursor:not-allowed; }
+.btn-bgm { background:var(--bg2); color:var(--text); border:1px solid rgba(255,255,255,.15); font-size:13px; padding:10px 18px; letter-spacing:1px; }
+.btn-bgm.on { border-color:var(--gold); color:var(--gold); }
+.btn-reset { background:transparent; color:var(--dim); border:1px solid rgba(255,255,255,.1); font-size:12px; padding:8px 16px; }
+
+/* 结果面板 */
+.result-panel {
+  width:100%; max-width:600px; background:var(--bg2); border-radius:var(--radius);
+  border:1px solid rgba(255,255,255,.08); padding:16px 20px; text-align:center;
+  animation: fadeIn .4s ease;
+}
+.result-panel .cat { font-size:12px; color:var(--dim); letter-spacing:2px; }
+.result-panel .value { font-size:clamp(18px,4vw,26px); font-weight:800; color:var(--red-glow); margin:6px 0; }
+.result-panel .desc { font-size:13px; color:var(--dim); font-style:italic; line-height:1.6; }
+
+/* 历史记录 */
+.history { width:100%; max-width:600px; }
+.history h3 { font-size:13px; color:var(--dim); letter-spacing:2px; margin-bottom:8px; }
+.history-list { display:flex; flex-wrap:wrap; gap:8px; }
+.history-item {
+  background:var(--bg2); border:1px solid rgba(255,255,255,.06); border-radius:20px;
+  padding:6px 14px; font-size:12px; display:flex; align-items:center; gap:6px;
+  animation: popIn .3s ease;
+}
+.history-item .hi-icon { font-size:14px; }
+.history-item .hi-label { color:var(--dim); }
+.history-item .hi-value { color:var(--red-glow); font-weight:600; }
+
+/* BGM 提示 */
+.bgm-indicator { position:fixed; bottom:16px; right:16px; font-size:11px; color:var(--dim); z-index:5; display:flex; align-items:center; gap:6px; }
+.bgm-indicator .dot { width:6px; height:6px; border-radius:50%; background:var(--gold); animation:pulse 2s ease infinite; display:none; }
+.bgm-indicator.on .dot { display:block; }
+
+@keyframes fadeIn { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+@keyframes popIn { from{opacity:0;transform:scale(.8)} to{opacity:1;transform:scale(1)} }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+/* 响应式 */
+@media (max-width:480px) {
+  .app { padding:10px; gap:10px; }
+  .tab { padding:6px 10px; font-size:11px; letter-spacing:0; }
+  .wheel-wrap { width:82vw; }
+  .btn { padding:10px 28px; font-size:14px; }
+  .btn-bgm { padding:8px 14px; font-size:11px; }
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <div class="header">
+    <h1>咒 术 转 盘</h1>
+    <div class="sub">JUJUTSU KAISEN · ROULETTE</div>
+  </div>
+
+  <div class="tabs" id="tabs"></div>
+
+  <div class="wheel-wrap" id="wheelWrap">
+    <div class="pointer"></div>
+    <canvas id="wheelCanvas"></canvas>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn btn-spin" id="btnSpin" disabled>🌀 开 始 旋 转</button>
+    <button class="btn btn-bgm off" id="btnBgm" title="BGM">🔇 BGM</button>
+  </div>
+
+  <button class="btn btn-reset" id="btnReset">↺ 重置本轮</button>
+
+  <div class="result-panel" id="resultPanel" style="display:none"></div>
+  <div class="history" id="history"><h3>📋 本轮记录</h3><div class="history-list" id="historyList"></div></div>
+</div>
+
+<div class="bgm-indicator off" id="bgmIndicator"><span class="dot"></span>BGM</div>
+
+<script>
+// ==================== 咒术回战转盘 · 数据定义 ====================
+const CATEGORIES = {
+  identity: {
+    name:'身份·出身', icon:'🎭',
+    items:[
+      {label:'五条家嫡子',desc:'生于御三家之首，天生六眼，立于咒术界顶点',color:'#2a1040'},
+      {label:'禅院家弃子',desc:'生于御三家末席，无咒力孱弱，天与咒缚加身',color:'#1a1a2e'},
+      {label:'加茂家庶出',desc:'生于御三家之末，赤血操术的继承者，家族的棋子',color:'#2e1010'},
+      {label:'咒术高专学生',desc:'平凡的咒术师学徒，在任务与死亡间成长',color:'#102030'},
+      {label:'诅咒师',desc:'背叛咒术界的术师，为了私欲与力量不择手段',color:'#201010'},
+      {label:'天与咒缚者',desc:'完全丧失咒力，换来了超乎常人的肉体强度',color:'#1a2010'},
+      {label:'星浆体',desc:'与天元大人同化的容器，命运的齿轮从出生开始转动',color:'#301a30'},
+      {label:'千年前的术师',desc:'从平安时代苏醒的古老存在，掌握失传的秘术',color:'#102020'},
+      {label:'咒胎九相图',desc:'人与咒灵的混血，在诅咒中诞生的扭曲生命',color:'#1a1018'},
+      {label:'普通人',desc:'无咒力的凡人，在咒术的世界中挣扎求生',color:'#181818'},
+    ]
+  },
+  moral: {
+    name:'道德·善恶', icon:'⚖️',
+    items:[
+      {label:'秩序善 · 圣人',desc:'以拯救苍生为己任，不惜牺牲自我',color:'#e8d44d'},
+      {label:'中立善 · 义士',desc:'在力所能及的范围内行善，不违本心',color:'#c4a830'},
+      {label:'混沌善 · 侠客',desc:'我行我素的善良，无视规则但坚守底线',color:'#a08c20'},
+      {label:'秩序中立 · 执法者',desc:'规则即正义，善恶由秩序定义',color:'#8090a0'},
+      {label:'绝对中立 · 旁观者',desc:'不偏不倚，不介入任何一方的纷争',color:'#686868'},
+      {label:'混沌中立 · 浪人',desc:'随心所欲，善恶全凭当时心情',color:'#886848'},
+      {label:'秩序恶 · 暴君',desc:'以规则之名行恶，以秩序为武器压迫弱者',color:'#6a2030'},
+      {label:'中立恶 · 恶党',desc:'为达目的不择手段，纯粹的利己主义者',color:'#8a2020'},
+      {label:'混沌恶 · 破坏者',desc:'毫无逻辑的恶意，享受毁灭的愉悦',color:'#4a1020'},
+    ]
+  },
+  technique: {
+    name:'术式', icon:'🔮',
+    items:[
+      {label:'无下限术式',desc:'绝对的强者，由此而生的孤独——阿基里斯与龟的悖论',color:'#2a1040'},
+      {label:'十种影法术',desc:'以影子为媒介，调伏十种式神，以己身为祭',color:'#1a1a30'},
+      {label:'赤血操术',desc:'操控血液，诅咒之血代代相传，百敛·穿血',color:'#301010'},
+      {label:'咒言',desc:'言语即是诅咒，出口即为命令，但代价是反噬',color:'#201a10'},
+      {label:'傀儡操术',desc:'以机械之躯行咒术之道，傀儡即是延伸的自我',color:'#0a2a2a'},
+      {label:'冰凝术式',desc:'令万物冻结，绝对零度的冰霜女王',color:'#0a2a30'},
+      {label:'咒灵操术',desc:'吞噬咒灵，化为己用，最强的式神使役术',color:'#0a1030'},
+      {label:'构造术式',desc:'凭空造物，想象力即上限，术式即是创造',color:'#2a0a2a'},
+      {label:'重力术式',desc:'令万钧加身，碾碎一切反抗者',color:'#2a2a0a'},
+      {label:'时间术式',desc:'触碰时间法则，逆转因果，篡改过去与未来',color:'#301a0a'},
+      {label:'空间转移术式',desc:'撕裂虚空，无视距离，瞬身而至',color:'#2a0a10'},
+      {label:'反重力机构',desc:'否定一切外力，令万物悬浮于无',color:'#1a1a1a'},
+    ]
+  },
+  tool: {
+    name:'咒具', icon:'🗡️',
+    items:[
+      {label:'天逆鉾',desc:'传说中能破解一切术式的矛，令无下限失效的唯一武器',color:'#302010'},
+      {label:'黑绳',desc:'以千年诅咒编织的绳索，能干扰术式的发动',color:'#101010'},
+      {label:'游云',desc:'纯以咒力驱动，无固定形态的三节棍，越强则越强',color:'#2a2a30'},
+      {label:'释魂刀',desc:'能斩断灵魂与肉体的联结，对咒灵特攻',color:'#1a202a'},
+      {label:'龙星',desc:'传说中以龙牙打造的太刀，附有龍的诅咒',color:'#103030'},
+      {label:'万里锁',desc:'无限延伸的锁链，封锁与束缚的极致',color:'#2a1a10'},
+      {label:'七三分',desc:'宿儺的专属咒具，一刀七三，斩尽万物',color:'#301010'},
+      {label:'徒手',desc:'无咒具，以己身咒力为刃，最原始的战斗方式',color:'#1a1818'},
+    ]
+  },
+  skill: {
+    name:'高级技巧', icon:'⚡',
+    items:[
+      {label:'黑闪',desc:'咒力打击与物理打击偏差0.000001秒内，伤害提升至原来的2.5次方',color:'#1a1a1a'},
+      {label:'术式反转·赫',desc:'将反转术式注入无下限，产生排斥一切的绝对力量',color:'#2a1030'},
+      {label:'虚式·茈',desc:'苍与赫的融合，将假想质量灌入现实，抹除一切',color:'#301030'},
+      {label:'苍',desc:'将无下限术式顺转，产生吸引万物的蓝光',color:'#102040'},
+      {label:'简易领域',desc:'以自身为圆心展开的领域结界，不需结印的防御术',color:'#201a20'},
+      {label:'落花之情',desc:'以咒力覆盖全身，自动反击一切近身攻击',color:'#301a2a'},
+      {label:'极之番',desc:'术式的终极形态，耗尽一切咒力的最后一击',color:'#301010'},
+      {label:'领域展延',desc:'以咒力包裹自身，将领域的必中效果延伸至体外',color:'#1a3030'},
+      {label:'束缚强化',desc:'以代价换取力量，"我赌上我的生命"',color:'#2a1010'},
+      {label:'反转术式',desc:'将负向咒力相乘产生正向能量，是最稀有的治愈术',color:'#2a2a10'},
+    ]
+  },
+  event: {
+    name:'战斗事件', icon:'💥',
+    items:[
+      {label:'黑闪触发！',desc:'这一击恰好命中黑闪！伤害提高至2.5次方，再抽两次',color:'#10101a'},
+      {label:'领域对撞！',desc:'两个领域同时展开，互相侵蚀，必中VS必中',color:'#1a1030'},
+      {label:'术式觉醒！',desc:'濒死之际，你的术式在这一刻觉醒了全新的形态',color:'#301a30'},
+      {label:'天逆鉾破防',desc:'对手祭出天逆鉾，你的术式被强行解除！',color:'#2a1a10'},
+      {label:'束缚反噬',desc:'你违背了自己设下的束缚，咒力暴走反噬己身',color:'#301010'},
+      {label:'双人连携',desc:'你的同伴在最关键的时刻出手了！胜率+25%',color:'#102a20'},
+      {label:'暴走',desc:'咒力失控，不分敌我的无差别攻击',color:'#201010'},
+      {label:'濒死悟道',desc:'在死亡边缘，你领悟了咒力的核心——黑闪概率大幅上升',color:'#101a1a'},
+      {label:'关键掩护',desc:'有人为你挡住了致命一击，代价是...',color:'#1a1a2a'},
+      {label:'宿儺夺舍',desc:'体内的诅咒之王蠢蠢欲动，"把你的身体交给我"',color:'#2a1020'},
+    ]
+  },
+  domain: {
+    name:'领域展开', icon:'🌀',
+    items:[
+      {label:'无量空处',desc:'五条悟的领域——无限的信息灌入，令对手的大脑停止思考',color:'#102040'},
+      {label:'伏魔御厨子',desc:'宿儺的领域——异界之灶，斩尽领域内一切有咒力的存在',color:'#201010'},
+      {label:'嵌合暗翳庭',desc:'伏黑惠的领域——影子的海洋，十种影法术的完全体',color:'#0a0a20'},
+      {label:'自闭圆顿裹',desc:'真人的领域——触摸灵魂的绝对杀阵',color:'#202020'},
+      {label:'盖棺铁围山',desc:'漏瑚的领域——岩浆与火焰的炼狱',color:'#301010'},
+      {label:'荡蕴平线',desc:'陀艮的领域——无尽的海底深渊',color:'#102030'},
+      {label:'真贋相杀',desc:'秤金次的领域——以概率为武器的赌博领域',color:'#2a2010'},
+      {label:'三魂七魄',desc:'花御的领域——生命之力将吞噬一切',color:'#102010'},
+    ]
+  },
+  ending: {
+    name:'时代·结局', icon:'⌛',
+    items:[
+      {label:'平安京的诅咒',desc:'你回到了千年前的平安时代，成为了传说的一部分',color:'#1a1a2a'},
+      {label:'战国乱世',desc:'你在群雄割据的战国时代，用咒术开辟了自己的领地',color:'#2a1a10'},
+      {label:'现代高专',desc:'你留在了现代的咒术高专，培养着下一代的咒术师',color:'#202840'},
+      {label:'68年后',desc:'时光流转68年，你成为了活着的传说，但故人已不在',color:'#1a2020'},
+      {label:'被封印',desc:'你的存在太过强大，被咒术界联手封印于狱门疆之中',color:'#10101a'},
+      {label:'转生',desc:'死亡不是终点——你以全新的姿态转生到了新的时代',color:'#201a30'},
+      {label:'孤独成王',desc:'战胜了一切对手的你，发现自己站在了世界之巅——独自一人',color:'#1a1a1a'},
+      {label:'与诅咒和解',desc:'你体内的诅咒并非敌人——你学会了与它共存',color:'#2a1a2a'},
+    ]
+  },
+};
+
+// ==================== 音频引擎 ====================
+class AudioEngine {
+  constructor() {
+    this.ctx = null;
+    this.bgmOn = false;
+    this.bgmNodes = [];
+    this.initialized = false;
+  }
+
+  init() {
+    if (this.initialized) return;
+    try {
+      this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+      this.initialized = true;
+    } catch(e) { console.warn('Audio not supported'); }
+  }
+
+  // BGM: 暗黑氛围低音 + 咒力嗡鸣
+  startBgm() {
+    if (!this.ctx || this.bgmOn) return;
+    this.bgmOn = true;
+    const ctx = this.ctx;
+    const masterGain = ctx.createGain();
+    masterGain.gain.value = 0.08;
+    masterGain.connect(ctx.destination);
+    this.bgmNodes.push(masterGain);
+
+    // 低音嗡鸣层
+    const osc1 = ctx.createOscillator();
+    osc1.type = 'sawtooth';
+    osc1.frequency.value = 55;
+    const gain1 = ctx.createGain();
+    gain1.gain.value = 0.15;
+    const filter1 = ctx.createBiquadFilter();
+    filter1.type = 'lowpass';
+    filter1.frequency.value = 200;
+    osc1.connect(filter1).connect(gain1).connect(masterGain);
+    osc1.start();
+
+    // 中频氛围
+    const osc2 = ctx.createOscillator();
+    osc2.type = 'sine';
+    osc2.frequency.value = 110;
+    const gain2 = ctx.createGain();
+    gain2.gain.value = 0.08;
+    const lfo2 = ctx.createOscillator();
+    lfo2.frequency.value = 0.15;
+    lfo2.type = 'sine';
+    const lfoGain2 = ctx.createGain();
+    lfoGain2.gain.value = 15;
+    lfo2.connect(lfoGain2).connect(osc2.frequency);
+    lfo2.start();
+    osc2.connect(gain2).connect(masterGain);
+    osc2.start();
+
+    // 高频咒力嗡鸣
+    const osc3 = ctx.createOscillator();
+    osc3.type = 'triangle';
+    osc3.frequency.value = 880;
+    const gain3 = ctx.createGain();
+    gain3.gain.value = 0.02;
+    const lfo3 = ctx.createOscillator();
+    lfo3.frequency.value = 0.25;
+    lfo3.type = 'sawtooth';
+    const lfoGain3 = ctx.createGain();
+    lfoGain3.gain.value = 80;
+    lfo3.connect(lfoGain3).connect(osc3.frequency);
+    lfo3.start();
+    osc3.connect(gain3).connect(masterGain);
+    osc3.start();
+
+    this.bgmNodes.push(osc1,osc2,osc3,lfo2,lfo3);
+  }
+
+  stopBgm() {
+    this.bgmOn = false;
+    for (let n of this.bgmNodes) { try { n.stop(); } catch(e){} }
+    this.bgmNodes = [];
+  }
+
+  // 旋转音效: 齿轮转动 + 哒哒声
+  playTick() {
+    if (!this.ctx) return;
+    const ctx = this.ctx;
+    const osc = ctx.createOscillator();
+    osc.type = 'square';
+    osc.frequency.value = 800 + Math.random() * 400;
+    const gain = ctx.createGain();
+    gain.gain.setValueAtTime(0.03, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.04);
+    osc.connect(gain).connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.05);
+  }
+
+  // 结果音效: 咒术爆发感
+  playResult() {
+    if (!this.ctx) return;
+    const ctx = this.ctx;
+    const now = ctx.currentTime;
+
+    // 低频冲击
+    const osc1 = ctx.createOscillator();
+    osc1.type = 'sine';
+    osc1.frequency.setValueAtTime(120, now);
+    osc1.frequency.exponentialRampToValueAtTime(40, now + 0.4);
+    const gain1 = ctx.createGain();
+    gain1.gain.setValueAtTime(0.15, now);
+    gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
+    osc1.connect(gain1).connect(ctx.destination);
+    osc1.start(now);
+    osc1.stop(now + 0.5);
+
+    // 高频共鸣
+    const osc2 = ctx.createOscillator();
+    osc2.type = 'triangle';
+    osc2.frequency.setValueAtTime(600, now);
+    osc2.frequency.exponentialRampToValueAtTime(200, now + 0.3);
+    const gain2 = ctx.createGain();
+    gain2.gain.setValueAtTime(0.06, now);
+    gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+    osc2.connect(gain2).connect(ctx.destination);
+    osc2.start(now);
+    osc2.stop(now + 0.4);
+  }
+
+  // 按钮点击音
+  playClick() {
+    if (!this.ctx) return;
+    const ctx = this.ctx;
+    const osc = ctx.createOscillator();
+    osc.type = 'sine';
+    osc.frequency.value = 660;
+    const gain = ctx.createGain();
+    gain.gain.setValueAtTime(0.06, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.08);
+    osc.connect(gain).connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.1);
+  }
+}
+
+// ==================== 粒子系统 ====================
+class Particle {
+  constructor(x, y, color, size, vx, vy, life) {
+    this.x = x; this.y = y; this.color = color; this.size = size;
+    this.vx = vx; this.vy = vy; this.life = life; this.maxLife = life;
+    this.alpha = 1;
+  }
+  update(dt) {
+    this.x += this.vx * dt;
+    this.y += this.vy * dt;
+    this.vy += 40 * dt; // 轻微重力
+    this.life -= dt;
+    this.alpha = Math.max(0, this.life / this.maxLife);
+    this.size *= 0.998;
+  }
+  draw(ctx) {
+    ctx.save();
+    ctx.globalAlpha = this.alpha;
+    ctx.fillStyle = this.color;
+    ctx.shadowBlur = this.size * 3;
+    ctx.shadowColor = this.color;
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  }
+  get dead() { return this.life <= 0; }
+}
+
+class ParticleSystem {
+  constructor() { this.particles = []; }
+  emit(x, y, count, color, spread, size, life) {
+    for (let i = 0; i < count; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const speed = Math.random() * spread;
+      this.particles.push(new Particle(
+        x, y, color, size * (0.5 + Math.random()),
+        Math.cos(angle) * speed, Math.sin(angle) * speed - 60,
+        life * (0.6 + Math.random() * 0.4)
+      ));
+    }
+  }
+  update(dt) {
+    for (let p of this.particles) p.update(dt);
+    this.particles = this.particles.filter(p => !p.dead);
+  }
+  draw(ctx) {
+    for (let p of this.particles) p.draw(ctx);
+  }
+  clear() { this.particles = []; }
+}
+
+// ==================== 转盘渲染器 ====================
+class WheelRenderer {
+  constructor(canvas, items) {
+    this.canvas = canvas;
+    this.ctx = canvas.getContext('2d');
+    this.items = items;
+    this.angle = 0;
+    this.n = items.length;
+    this.resize();
+  }
+
+  resize() {
+    const wrap = this.canvas.parentElement;
+    const size = wrap.clientWidth;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    this.canvas.width = size * dpr;
+    this.canvas.height = size * dpr;
+    this.canvas.style.width = size + 'px';
+    this.canvas.style.height = size + 'px';
+    this.size = size;
+    this.cx = size / 2;
+    this.cy = size / 2;
+    this.radius = size / 2 - 14;
+    this.dpr = dpr;
+    this.draw();
+  }
+
+  draw() {
+    const ctx = this.ctx;
+    const dpr = this.dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, this.size, this.size);
+
+    const n = this.n;
+    const arc = (Math.PI * 2) / n;
+
+    // 外圈发光环
+    ctx.beginPath();
+    ctx.arc(this.cx, this.cy, this.radius + 6, 0, Math.PI * 2);
+    ctx.strokeStyle = 'rgba(212,33,61,0.3)';
+    ctx.lineWidth = 3;
+    ctx.shadowBlur = 15;
+    ctx.shadowColor = 'rgba(255,51,102,0.3)';
+    ctx.stroke();
+    ctx.shadowBlur = 0;
+
+    // 外圈边框
+    ctx.beginPath();
+    ctx.arc(this.cx, this.cy, this.radius + 2, 0, Math.PI * 2);
+    ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // 扇区
+    for (let i = 0; i < n; i++) {
+      const startAngle = this.angle + i * arc - Math.PI / 2;
+      const endAngle = startAngle + arc;
+
+      // 扇区填充
+      ctx.beginPath();
+      ctx.moveTo(this.cx, this.cy);
+      ctx.arc(this.cx, this.cy, this.radius, startAngle, endAngle);
+      ctx.closePath();
+      const color = this.items[i].color || '#333';
+      ctx.fillStyle = color;
+      ctx.fill();
+
+      // 扇区间隔线
+      ctx.beginPath();
+      ctx.moveTo(this.cx, this.cy);
+      ctx.arc(this.cx, this.cy, this.radius, startAngle, endAngle);
+      ctx.lineTo(this.cx, this.cy);
+      ctx.strokeStyle = 'rgba(201,168,76,0.5)';
+      ctx.lineWidth = 0.8;
+      ctx.stroke();
+
+      // 文字
+      ctx.save();
+      ctx.translate(this.cx, this.cy);
+      ctx.rotate(startAngle + arc / 2);
+      ctx.textAlign = 'right';
+      ctx.fillStyle = '#fff';
+      const fontSize = Math.max(9, this.radius * 0.09);
+      ctx.font = `bold ${fontSize}px "PingFang SC","Microsoft YaHei",sans-serif`;
+      ctx.shadowColor = 'rgba(0,0,0,0.7)';
+      ctx.shadowBlur = 2;
+      ctx.fillText(this.items[i].label, this.radius - 8, fontSize * 0.35);
+      ctx.shadowBlur = 0;
+      ctx.restore();
+    }
+
+    // 中心圆
+    const grad = ctx.createRadialGradient(this.cx, this.cy, 0, this.cx, this.cy, this.radius * 0.18);
+    grad.addColorStop(0, '#1a1a2e');
+    grad.addColorStop(0.7, '#0a0a0c');
+    grad.addColorStop(1, 'rgba(0,0,0,0.8)');
+    ctx.beginPath();
+    ctx.arc(this.cx, this.cy, this.radius * 0.16, 0, Math.PI * 2);
+    ctx.fillStyle = grad;
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(201,168,76,0.6)';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+
+    // 中心文字
+    ctx.fillStyle = '#c9a84c';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.font = `bold ${Math.max(11, this.radius * 0.1)}px serif`;
+    ctx.fillText('呪', this.cx, this.cy);
+  }
+}
+
+// ==================== 主应用 ====================
+const CAT_KEYS = ['identity','moral','technique','tool','skill','event','domain','ending'];
+
+class App {
+  constructor() {
+    this.state = {
+      category: 'identity',
+      results: [],
+      spinning: false,
+      targetAngle: 0,
+      spinVelocity: 0,
+      tickTimer: 0,
+      lastAngle: 0,
+      revolutions: 0,
+    };
+    this.audio = new AudioEngine();
+    this.particles = new ParticleSystem();
+    this.wheel = null;
+
+    this.initDOM();
+    this.initWheel();
+    this.addListeners();
+    this.lastFrameTime = performance.now();
+    requestAnimationFrame(t => this.loop(t));
+  }
+
+  initDOM() {
+    // 标签
+    const tabs = document.getElementById('tabs');
+    CAT_KEYS.forEach(key => {
+      const tab = document.createElement('button');
+      tab.className = 'tab';
+      tab.textContent = CATEGORIES[key].icon + ' ' + CATEGORIES[key].name;
+      tab.dataset.key = key;
+      tab.addEventListener('click', () => this.switchCategory(key));
+      tabs.appendChild(tab);
+    });
+    this.tabs = tabs;
+
+    // 按钮
+    this.btnSpin = document.getElementById('btnSpin');
+    this.btnBgm = document.getElementById('btnBgm');
+    this.btnReset = document.getElementById('btnReset');
+    this.resultPanel = document.getElementById('resultPanel');
+    this.historyList = document.getElementById('historyList');
+    this.bgmIndicator = document.getElementById('bgmIndicator');
+
+    this.btnSpin.addEventListener('click', () => this.spin());
+    this.btnBgm.addEventListener('click', () => this.audio.init() || (this.audio.bgmOn ? this.stopBgm() : this.startBgm()));
+    this.btnReset.addEventListener('click', () => this.reset());
+  }
+
+  initWheel() {
+    const canvas = document.getElementById('wheelCanvas');
+    this.wheel = new WheelRenderer(canvas, CATEGORIES[this.state.category].items);
+    this.btnSpin.disabled = false;
+    this.updateActiveTab();
+    window.addEventListener('resize', () => this.wheel.resize());
+  }
+
+  switchCategory(key) {
+    if (this.state.spinning) return;
+    this.audio.init();
+    this.audio.playClick();
+    this.state.category = key;
+    this.wheel.items = CATEGORIES[key].items;
+    this.wheel.n = this.wheel.items.length;
+    this.wheel.angle = 0;
+    this.state.targetAngle = 0;
+    this.state.spinVelocity = 0;
+    this.state.lastAngle = 0;
+    this.wheel.draw();
+    this.resultPanel.style.display = 'none';
+    this.updateActiveTab();
+  }
+
+  updateActiveTab() {
+    [...this.tabs.children].forEach(t => t.classList.toggle('active', t.dataset.key === this.state.category));
+  }
+
+  spin() {
+    if (this.state.spinning) return;
+    this.audio.init();
+    this.audio.playClick();
+    this.state.spinning = true;
+    this.btnSpin.disabled = true;
+    this.resultPanel.style.display = 'none';
+    this.particles.clear();
+
+    // 随机目标角度: 至少转5圈 + 随机偏移
+    const n = this.wheel.n;
+    const arc = (Math.PI * 2) / n;
+    const targetIndex = Math.floor(Math.random() * n);
+    const jitter = (Math.random() - 0.5) * arc * 0.7;
+    const fullSpins = (5 + Math.floor(Math.random() * 5)) * Math.PI * 2;
+    this.state.targetAngle = fullSpins + targetIndex * arc + arc / 2 + jitter;
+    this.state.revolutions = 0;
+  }
+
+  stop() {
+    this.state.spinning = false;
+    this.btnSpin.disabled = false;
+
+    // 计算结果
+    const n = this.wheel.n;
+    const arc = (Math.PI * 2) / n;
+    let rawAngle = (this.wheel.angle - Math.PI / 2) % (Math.PI * 2);
+    if (rawAngle < 0) rawAngle += Math.PI * 2;
+    const pointerAngle = 0; // 指针在顶部 (0°)
+    const adjustedAngle = (pointerAngle - rawAngle + Math.PI * 2) % (Math.PI * 2);
+    const index = Math.floor(adjustedAngle / arc) % n;
+
+    const item = this.wheel.items[index];
+    this.showResult(item);
+    this.state.results.push({ category: CATEGORIES[this.state.category].name, ...item });
+    this.updateHistory();
+
+    // 粒子爆发 (中量: 60个粒子在指针处)
+    const canvasRect = this.wheel.canvas.getBoundingClientRect();
+    const px = this.wheel.cx;
+    const py = 20;
+    this.particles.emit(px, py, 60, '#ff3366', 180, 4, 1.5);
+    this.particles.emit(px, py, 30, '#ffcc00', 140, 3, 1.2);
+    this.particles.emit(px, py, 20, '#ffffff', 100, 2.5, 0.8);
+
+    this.audio.playResult();
+  }
+
+  showResult(item) {
+    this.resultPanel.style.display = 'block';
+    this.resultPanel.innerHTML = `
+      <div class="cat">${CATEGORIES[this.state.category].icon} ${CATEGORIES[this.state.category].name}</div>
+      <div class="value">${item.label}</div>
+      <div class="desc">${item.desc}</div>
+    `;
+  }
+
+  updateHistory() {
+    this.historyList.innerHTML = this.state.results.map(r => `
+      <div class="history-item">
+        <span class="hi-icon">${CATEGORIES[this.getKeyByResult(r)]?.icon || '◆'}</span>
+        <span class="hi-label">${r.category}:</span>
+        <span class="hi-value">${r.label}</span>
+      </div>
+    `).join('');
+  }
+
+  getKeyByResult(result) {
+    for (let key of CAT_KEYS) {
+      if (CATEGORIES[key].name === result.category) return key;
+    }
+    return null;
+  }
+
+  reset() {
+    this.audio.init();
+    this.audio.playClick();
+    this.state.results = [];
+    this.historyList.innerHTML = '';
+    this.resultPanel.style.display = 'none';
+    this.particles.clear();
+  }
+
+  startBgm() {
+    this.audio.startBgm();
+    this.btnBgm.textContent = '🔊 BGM';
+    this.btnBgm.classList.add('on');
+    this.btnBgm.classList.remove('off');
+    this.bgmIndicator.classList.add('on');
+    this.bgmIndicator.classList.remove('off');
+  }
+
+  stopBgm() {
+    this.audio.stopBgm();
+    this.btnBgm.textContent = '🔇 BGM';
+    this.btnBgm.classList.remove('on');
+    this.btnBgm.classList.add('off');
+    this.bgmIndicator.classList.remove('on');
+    this.bgmIndicator.classList.add('off');
+  }
+
+  addListeners() {
+    // 键盘空格旋转
+    document.addEventListener('keydown', e => {
+      if (e.code === 'Space' && !this.state.spinning) {
+        e.preventDefault();
+        this.spin();
+      }
+    });
+    // 点击canvas也可旋转
+    this.wheel.canvas.addEventListener('click', () => {
+      if (!this.state.spinning) this.spin();
+    });
+  }
+
+  loop(timestamp) {
+    const dt = Math.min((timestamp - this.lastFrameTime) / 1000, 0.1);
+    this.lastFrameTime = timestamp;
+
+    if (this.state.spinning) {
+      const d = this.state.targetAngle - this.wheel.angle;
+      const absD = Math.abs(d);
+
+      if (absD < 0.003) {
+        this.wheel.angle = this.state.targetAngle;
+        this.wheel.draw();
+        this.stop();
+      } else {
+        // ease-out cubic
+        const speed = absD * 0.08 + 0.015;
+        this.wheel.angle += Math.sign(d) * Math.min(speed, absD);
+        this.wheel.draw();
+
+        // tick 音效
+        this.state.tickTimer += dt;
+        const items = this.wheel.n;
+        const arc = (Math.PI * 2) / items;
+        const tickInterval = Math.max(0.015, speed * 0.3);
+        if (this.state.tickTimer > tickInterval) {
+          this.state.tickTimer = 0;
+          this.audio.playTick();
+        }
+
+        // 旋转时微量粒子
+        const canvas = this.wheel.canvas;
+        const rect = canvas.getBoundingClientRect();
+        const edgeX = this.wheel.cx + Math.cos(this.wheel.angle) * this.wheel.radius;
+        const edgeY = this.wheel.cy + Math.sin(this.wheel.angle) * this.wheel.radius;
+        if (Math.random() < 0.3) {
+          this.particles.emit(edgeX, edgeY, 1, '#ff336644', 30, 1.5, 0.4);
+        }
+      }
+    }
+
+    // 更新粒子
+    this.particles.update(dt);
+
+    // 渲染层叠
+    this.wheel.draw();
+    this.particles.draw(this.wheel.ctx);
+
+    // 高亮当前指向的扇区
+    // (在 draw 之后做轻微发光指示)
+    if (!this.state.spinning) {
+      const ctx = this.wheel.ctx;
+      const dpr = this.wheel.dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      const n = this.wheel.n;
+      const arc = (Math.PI * 2) / n;
+      let rawAngle = (this.wheel.angle - Math.PI / 2) % (Math.PI * 2);
+      if (rawAngle < 0) rawAngle += Math.PI * 2;
+      const adjusted = (-rawAngle + Math.PI * 2) % (Math.PI * 2);
+      const idx = Math.floor(adjusted / arc) % n;
+      const startA = this.wheel.angle + idx * arc - Math.PI / 2;
+      // 高亮指针所指扇区
+      ctx.beginPath();
+      ctx.moveTo(this.wheel.cx, this.wheel.cy);
+      ctx.arc(this.wheel.cx, this.wheel.cy, this.wheel.radius + 3, startA, startA + arc);
+      ctx.closePath();
+      ctx.strokeStyle = 'rgba(255,51,102,0.4)';
+      ctx.lineWidth = 3;
+      ctx.stroke();
+    }
+
+    requestAnimationFrame(t => this.loop(t));
+  }
+}
+
+// ==================== 启动 ====================
+const app = new App();
+</script>
+</body>
+</html>
