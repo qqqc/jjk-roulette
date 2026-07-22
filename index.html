@@ -185,7 +185,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
 
 <div class="app" id="app">
   <div class="top-bar" id="topBar">
-    <span class="p-name" id="topPhase" onclick="App.togglePhaseMenu()">🧬 身份奠基</span>
+    <span class="p-name" id="topPhase" onclick="switchPhase(curPhase)">🧬 身份奠基</span>
     <div class="p-dots" id="topDots"></div>
   </div>
   <div class="sidebar" id="sidebar">
@@ -196,7 +196,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
     </div>
     <div class="sb-phases" id="sbPhases"></div>
     <div class="sb-events" id="sbEvents"></div>
-    <div class="sb-footer"><div class="sb-edit" onclick="App.toggleEditor()">⚙️ 编辑数据</div></div>
+    <div class="sb-footer"><div class="sb-edit" onclick="toggleEditor()">⚙️ 编辑数据</div></div>
   </div>
   <div class="center-area" id="centerArea">
     <div class="round-title" id="roundTitle"></div>
@@ -204,10 +204,10 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
       <div class="ptr"></div>
       <canvas id="wheelCanvas"></canvas>
       <canvas class="p-canvas" id="pCanvas"></canvas>
-      <div class="center-btn" id="centerBtn" onclick="App.centerClick()">呪</div>
+      <div class="center-btn" id="centerBtn" onclick="centerClick()">呪</div>
     </div>
-    <button class="btn-spin" id="btnSpin" onclick="App.spin()">🌀 点击旋转</button>
-    <button class="btn-next" id="btnNext" onclick="App.goNext()">→ 下一轮</button>
+    <button class="btn-spin" id="btnSpin" onclick="spin()">🌀 点击旋转</button>
+    <button class="btn-next" id="btnNext" onclick="goNext()">→ 下一轮</button>
     <div class="result-panel" id="resultPanel"></div>
   </div>
   <div class="right-panel" id="rightPanel">
@@ -226,8 +226,8 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
 <div class="tab-view" id="tvPerson"></div>
 <div class="tab-view" id="tvHist"></div>
 
-<div class="editor-overlay" id="edOverlay" onclick="App.toggleEditor()"></div>
-<div class="editor-panel" id="edPanel"><div class="ep-header"><h3>🛠 数据编辑器</h3><span class="ep-close" onclick="App.toggleEditor()">✕</span></div><div class="ep-body" id="edBody"></div><div class="ep-footer"><button class="primary" onclick="App.edSave()">💾 保存到本地</button><button onclick="App.edExport()">📥 导出JSON</button><button onclick="App.edImport()">📤 导入JSON</button><button onclick="App.edReset()">🗑 重置</button></div></div>
+<div class="editor-overlay" id="edOverlay" onclick="toggleEditor()"></div>
+<div class="editor-panel" id="edPanel"><div class="ep-header"><h3>🛠 数据编辑器</h3><span class="ep-close" onclick="toggleEditor()">✕</span></div><div class="ep-body" id="edBody"></div><div class="ep-footer"><button class="primary" onclick="edSave()">💾 保存到本地</button><button onclick="edExport()">📥 导出JSON</button><button onclick="edImport()">📤 导入JSON</button><button onclick="edReset()">🗑 重置</button></div></div>
 
 <div id="toastContainer"></div>
 
@@ -381,13 +381,13 @@ function refreshSidebar(){
     const done=p.rounds.length>0&&p.rounds.every(r=>isRoundDone(r)||(r.cond&&!state.traits.includes(r.cond)));
     const isCur=i===curPhase;const locked=i>curPhase&&!isPhaseDone()&&i!==curPhase;
     let cls='sb-phase';if(locked)cls+=' locked';if(isCur)cls+=' active';if(done&&!isCur)cls+=' done';
-    return `<div class="${cls}" onclick="App.switchPhase(${i})"><span class="sp-dot"></span><span class="sp-name">${p.icon} ${p.name}</span></div>`;
+    return `<div class="${cls}" onclick="switchPhase(${i})"><span class="sp-dot"></span><span class="sp-name">${p.icon} ${p.name}</span></div>`;
   }).join('');
   const sbEv=document.getElementById('sbEvents');const ar=activeRounds();
   sbEv.innerHTML=ar.map((r,i)=>{
     const done=isRoundDone(r);const cur=r.id===rd().id;
     let cls='sb-evt';if(cur)cls+=' cur';if(done)cls+=' done';
-    return `<div class="${cls}" onclick="App.goRound(${i})"><span class="se-dot"></span><span class="se-num">${done?'✓':(i+1)}</span><span class="se-title">${r.icon} ${r.title}</span></div>`;
+    return `<div class="${cls}" onclick="goRound(${i})"><span class="se-dot"></span><span class="se-num">${done?'✓':(i+1)}</span><span class="se-title">${r.icon} ${r.title}</span></div>`;
   }).join('');
 }
 function refreshRound(){
