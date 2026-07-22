@@ -2,549 +2,646 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>咒术转盘 · JJK Roulette</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+<title>咒术转盘 · JJK</title>
 <style>
 :root {
-  --bg: #060608;
-  --bg2: #12121a;
-  --red: #c41e3a;
-  --red-glow: #ff3050;
-  --purple: #6b21a8;
-  --gold: #c9a84c;
-  --text: #e0d8d0;
-  --dim: #6b6560;
-  --radius: 14px;
+  --bg:#060608; --bg2:#12121a; --bg3:#1a1a24;
+  --red:#c41e3a; --red-glow:#ff3050;
+  --purple:#6b21a8; --gold:#c9a84c;
+  --text:#e0d8d0; --dim:#6b6560; --r:12px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:"PingFang SC","Microsoft YaHei",sans-serif;min-height:100vh;overflow-x:hidden;-webkit-tap-highlight-color:transparent;user-select:none}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;background:radial-gradient(ellipse 80% 60% at 50% -10%,rgba(196,30,58,.10) 0%,transparent 55%),radial-gradient(ellipse 60% 40% at 50% 100%,rgba(107,33,168,.06) 0%,transparent 55%)}
+
+/* ─── 背景粒子 ─── */
+.bg-particles{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.bg-p{position:absolute;border-radius:50%;background:var(--red-glow);opacity:0;animation:floatUp linear infinite}
+@keyframes floatUp{0%{transform:translateY(105vh) scale(0);opacity:0}10%{opacity:.4}90%{opacity:.1}100%{transform:translateY(-10vh) scale(1.5);opacity:0}}
+
+/* ─── 主容器 ─── */
+.app{position:relative;z-index:1;display:flex;flex-direction:column;min-height:100vh;padding-bottom:70px}
+@media(min-width:768px){
+  .app{display:grid;grid-template-columns:200px 1fr 260px;min-height:100vh;padding:0;}
+  .app{padding-bottom:0}
 }
 
-* { margin:0; padding:0; box-sizing:border-box; }
+/* ─── 顶部栏(移动端) ─── */
+.top-bar{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--bg2);border-bottom:1px solid rgba(255,255,255,.06);flex-shrink:0;gap:8px}
+.top-bar .phase-label{font-size:11px;color:var(--dim);letter-spacing:1px}
+.top-bar .phase-name{font-size:14px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.top-bar .phase-icon{font-size:18px}
+.progress-dots{display:flex;gap:6px;align-items:center;flex-shrink:0}
+.progress-dots .pd{width:10px;height:10px;border-radius:50%;border:1.5px solid rgba(255,255,255,.15);transition:all .3s;flex-shrink:0}
+.progress-dots .pd.done{background:var(--gold);border-color:var(--gold)}
+.progress-dots .pd.current{background:var(--red);border-color:var(--red);box-shadow:0 0 10px rgba(255,48,80,.5)}
+@media(min-width:768px){.top-bar{display:none}}
 
-body {
-  background: var(--bg);
-  color: var(--text);
-  font-family: "PingFang SC","Microsoft YaHei","Noto Sans SC",sans-serif;
-  min-height: 100vh;
-  overflow-x: hidden;
-  -webkit-tap-highlight-color: transparent;
-  user-select: none;
-}
+/* ─── 左侧栏(桌面) ─── */
+.sidebar{display:none;background:var(--bg2);border-right:1px solid rgba(255,255,255,.06);flex-direction:column;padding:20px 14px;gap:16px;overflow-y:auto}
+.sidebar .sb-phase{font-size:11px;color:var(--dim);letter-spacing:1px}
+.sidebar .sb-title{font-size:13px;font-weight:700;margin-bottom:2px}
+.sidebar .sb-divider{height:1px;background:rgba(255,255,255,.06);margin:4px 0}
+.steps{display:flex;flex-direction:column;gap:4px}
+.step{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;cursor:pointer;transition:.25s;border:1px solid transparent;font-size:12px}
+.step:hover{border-color:rgba(255,255,255,.1)}
+.step .step-dot{width:10px;height:10px;border-radius:50%;border:2px solid rgba(255,255,255,.2);flex-shrink:0;transition:.3s}
+.step.done .step-dot{background:var(--gold);border-color:var(--gold)}
+.step.current{background:rgba(196,30,58,.1);border-color:rgba(196,30,58,.3)}
+.step.current .step-dot{background:var(--red);border-color:var(--red);box-shadow:0 0 8px rgba(255,48,80,.4)}
+.step.done{opacity:.5}
+.step .step-num{font-size:10px;color:var(--dim);width:16px;text-align:center}
+.step .step-label{color:var(--dim);font-size:12px}
+.step.current .step-label{color:var(--text);font-weight:600}
+.down-phases{margin-top:auto}
+.down-phases .dp{display:flex;align-items:center;gap:8px;padding:6px 0;font-size:11px;color:var(--dim);opacity:.3}
+@media(min-width:768px){.sidebar{display:flex}}
 
-/* —— 背景氛围 —— */
-body::before {
-  content:''; position:fixed; inset:0; pointer-events:none; z-index:0;
-  background:
-    radial-gradient(ellipse 80% 60% at 50% -10%, rgba(196,30,58,.12) 0%, transparent 55%),
-    radial-gradient(ellipse 60% 40% at 50% 100%, rgba(107,33,168,.08) 0%, transparent 55%);
-}
-body::after {
-  content:''; position:fixed; inset:0; pointer-events:none; z-index:0;
-  background:
-    repeating-linear-gradient(0deg, rgba(255,255,255,.006) 0px, rgba(255,255,255,.006) 1px, transparent 1px, transparent 3px),
-    repeating-linear-gradient(90deg, rgba(255,255,255,.003) 0px, rgba(255,255,255,.003) 1px, transparent 1px, transparent 6px);
-  mask-image: radial-gradient(ellipse 70% 70% at 50% 40%, black 30%, transparent 70%);
-}
+/* ─── 中央区域 ─── */
+.center-area{flex:1;display:flex;flex-direction:column;align-items:center;padding:12px 14px;gap:10px;overflow-y:auto}
+/* 桌面端中央加 padding-top */
+@media(min-width:768px){.center-area{padding-top:24px}}
 
-/* 飘落咒力粒子 */
-.particles-bg { position:fixed; inset:0; pointer-events:none; z-index:0; overflow:hidden; }
-.particle-bg {
-  position:absolute; width:3px; height:3px; border-radius:50%;
-  background:var(--red-glow); opacity:0;
-  animation: floatUp linear infinite;
-}
-@keyframes floatUp {
-  0% { transform:translateY(105vh) scale(0); opacity:0; }
-  10% { opacity:0.6; }
-  90% { opacity:0.2; }
-  100% { transform:translateY(-10vh) scale(1.5); opacity:0; }
-}
+/* 桌面端阶段标题 */
+.pc-phase-header{display:none;text-align:center}
+.pc-phase-header .pph-label{font-size:11px;color:var(--dim);letter-spacing:2px}
+.pc-phase-header .pph-name{font-size:18px;font-weight:800;margin-top:2px}
+@media(min-width:768px){.pc-phase-header{display:block}}
 
-/* —— 主容器 —— */
-.app { position:relative; z-index:1; max-width:700px; margin:0 auto; padding:12px 16px 24px; display:flex; flex-direction:column; align-items:center; gap:12px; min-height:100vh; }
+/* 轮次标题 */
+.round-title{font-size:16px;font-weight:700;text-align:center;letter-spacing:1px}
+.round-title .rt-icon{margin-right:6px}
 
-/* —— 标题 —— */
-.header { text-align:center; padding-top:6px; }
-.header .jp { font-size:13px; color:var(--gold); letter-spacing:5px; font-family:serif; margin-bottom:2px; }
-.header h1 {
-  font-size:clamp(26px,6vw,42px); font-weight:900; letter-spacing:6px;
-  background:linear-gradient(180deg, #ff5070 0%, var(--red) 40%, #801028 100%);
-  -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
-  filter:drop-shadow(0 0 12px rgba(255,48,80,.4));
-  line-height:1.2;
-}
-.header .divider { width:80px; height:2px; margin:6px auto; background:linear-gradient(90deg, transparent, var(--gold), transparent); }
-.header .sub { font-size:11px; color:var(--dim); letter-spacing:4px; }
+/* 转盘 */
+.wheel-wrap{position:relative;width:min(80vw,380px);aspect-ratio:1;flex-shrink:0}
+.wheel-wrap canvas{width:100%;height:100%}
+.wheel-wrap .pointer{position:absolute;top:-10px;left:50%;transform:translateX(-50%);z-index:10;width:0;height:0;border-left:16px solid transparent;border-right:16px solid transparent;border-top:30px solid var(--red-glow);filter:drop-shadow(0 0 8px var(--red-glow))}
+.wheel-wrap .pointer::before{content:'';position:absolute;top:-32px;left:-4px;width:8px;height:14px;background:var(--red-glow);border-radius:4px;box-shadow:0 0 8px var(--red-glow)}
+.wheel-wrap .p-canvas{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:8}
+.center-dot{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:5;width:20%;aspect-ratio:1;border-radius:50%;background:radial-gradient(circle,#1e1e2e 0%,#0a0a0c 100%);border:2px solid rgba(201,168,76,.5);cursor:pointer;display:flex;align-items:center;justify-content:center;font-family:serif;font-size:clamp(14px,3.5vw,20px);color:var(--gold);box-shadow:0 0 20px rgba(0,0,0,.5),inset 0 0 10px rgba(0,0,0,.3);transition:.25s}
+.center-dot:hover{border-color:var(--gold);box-shadow:0 0 30px rgba(201,168,76,.3)}
 
-/* —— 进度指示器 —— */
-.progress { display:flex; gap:8px; justify-content:center; flex-wrap:wrap; }
-.progress .dot {
-  width:10px; height:10px; border-radius:50%; background:rgba(255,255,255,.08);
-  border:1px solid rgba(255,255,255,.12); transition:all .4s;
-}
-.progress .dot.done { background:var(--red); border-color:var(--red); box-shadow:0 0 8px rgba(255,48,80,.6); }
-.progress .dot.current { background:rgba(255,48,80,.5); border-color:var(--red-glow); animation:dotPulse 1.2s ease infinite; }
-@keyframes dotPulse { 0%,100%{box-shadow:0 0 4px rgba(255,48,80,.3)} 50%{box-shadow:0 0 14px rgba(255,48,80,.8)} }
+/* 旋转按钮 */
+.btn-spin{width:100%;max-width:340px;padding:13px;border-radius:28px;border:none;cursor:pointer;font-size:16px;font-weight:700;letter-spacing:2px;background:linear-gradient(135deg,#e0304a,#901030);color:#fff;box-shadow:0 4px 22px rgba(224,48,74,.35);transition:.3s;animation:btnGlow 2s ease infinite}
+.btn-spin:disabled{opacity:.45;cursor:not-allowed;animation:none}
+@keyframes btnGlow{0%,100%{box-shadow:0 4px 22px rgba(224,48,74,.35)}50%{box-shadow:0 6px 34px rgba(255,48,80,.55)}}
 
-/* —— 分类标签 —— */
-.tabs { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; width:100%; max-width:600px; }
-.tab {
-  padding:10px 6px; border-radius:10px; border:1px solid rgba(255,255,255,.1);
-  background:var(--bg2); color:var(--dim); cursor:pointer; font-size:12px;
-  text-align:center; transition:all .3s; position:relative; letter-spacing:1px;
-}
-.tab:hover { border-color:rgba(255,255,255,.3); color:var(--text); }
-.tab.active { background:linear-gradient(135deg, #2d0f18, #1a0f20); border-color:var(--red); color:#fff; box-shadow:0 0 16px rgba(196,30,58,.25); }
-.tab.done { opacity:.45; border-color:rgba(107,101,96,.2); background:transparent; }
-.tab.done::after { content:' ✓'; color:var(--gold); font-size:10px; }
+/* 结果面板 */
+.result-panel{width:100%;max-width:500px;background:var(--bg2);border-radius:var(--r);padding:14px 18px;text-align:center;animation:fadeIn .35s ease;display:none}
+.result-panel .rp-cat{font-size:11px;color:var(--dim);letter-spacing:2px}
+.result-panel .rp-value{font-size:clamp(18px,4vw,24px);font-weight:800;margin:4px 0 6px;letter-spacing:1px}
+.result-panel .rp-desc{font-size:12px;color:var(--dim);line-height:1.6}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 
-/* —— 轮盘区域 —— */
-.wheel-area { position:relative; width:100%; display:flex; flex-direction:column; align-items:center; }
-.wheel-wrap { position:relative; width:min(82vw,400px); aspect-ratio:1; margin:4px 0; }
-.wheel-wrap canvas { width:100%; height:100%; display:block; filter:drop-shadow(0 0 30px rgba(196,30,58,.2)); }
+/* ─── 右侧面板(桌面) ─── */
+.right-panel{display:none;background:var(--bg2);border-left:1px solid rgba(255,255,255,.06);flex-direction:column;overflow-y:auto}
+@media(min-width:768px){.right-panel{display:flex}}
+.rp-section{border-bottom:1px solid rgba(255,255,255,.04)}
+.rp-section-header{display:flex;align-items:center;gap:8px;padding:14px 14px 8px;font-size:12px;font-weight:700;letter-spacing:1px;color:var(--dim)}
+.rp-person{padding:8px 14px 14px;display:flex;flex-direction:column;gap:6px}
+.rp-person .pp-row{display:flex;justify-content:space-between;font-size:12px;padding:4px 8px;border-radius:6px;background:rgba(255,255,255,.02)}
+.rp-person .pp-key{color:var(--dim)}
+.rp-person .pp-val{color:var(--text);font-weight:600}
+.rp-history{padding:8px 14px 14px;display:flex;flex-direction:column;gap:6px;max-height:45vh;overflow-y:auto}
+.rp-history .h-item{display:flex;gap:8px;align-items:flex-start;font-size:11px;padding:6px 8px;border-radius:6px;background:rgba(255,255,255,.02);border-left:3px solid transparent}
+.rp-history .h-item .h-dot{width:6px;height:6px;border-radius:3px;margin-top:4px;flex-shrink:0}
+.rp-history .h-item .h-label{color:var(--dim);flex-shrink:0}
+.rp-history .h-item .h-val{color:var(--text);font-weight:600}
 
-/* 指针 */
-.pointer {
-  position:absolute; top:-10px; left:50%; transform:translateX(-50%); z-index:10;
-  width:0; height:0;
-  border-left:18px solid transparent; border-right:18px solid transparent;
-  border-top:34px solid var(--red-glow);
-  filter:drop-shadow(0 0 10px var(--red-glow));
-  transition:filter .3s;
-}
-.pointer::before {
-  content:''; position:absolute; top:-36px; left:-4px;
-  width:8px; height:16px; background:var(--red-glow); border-radius:4px; box-shadow:0 0 10px var(--red-glow);
-}
-.pointer.spinning { filter:drop-shadow(0 0 22px var(--red-glow)) brightness(1.4); animation:ptrVibrate .08s linear infinite; }
-@keyframes ptrVibrate { 0%,100%{transform:translateX(-50%) translateY(0)} 50%{transform:translateX(-50%) translateY(2px)} }
+/* ─── Tab 视图(移动端) ─── */
+.tab-view{display:none;flex:1;overflow-y:auto;padding:14px}
+.tab-view.active{display:block}
+@media(min-width:768px){.tab-view{display:none!important}}
 
-/* 中心按钮叠层 */
-.center-btn {
-  position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); z-index:5;
-  width:22%; aspect-ratio:1; border-radius:50%;
-  background:radial-gradient(circle, #1e1e2e 0%, #0a0a0c 100%);
-  border:2px solid rgba(201,168,76,.5); cursor:pointer;
-  display:flex; align-items:center; justify-content:center;
-  font-family:serif; font-size:clamp(14px,4vw,22px); color:var(--gold);
-  box-shadow:0 0 20px rgba(0,0,0,.5), inset 0 0 10px rgba(0,0,0,.3);
-  transition:all .25s;
-}
-.center-btn:hover { border-color:var(--gold); box-shadow:0 0 30px rgba(201,168,76,.3), inset 0 0 16px rgba(0,0,0,.4); }
-.center-btn:active { transform:translate(-50%,-50%) scale(.92); }
+.tab-person-card{background:var(--bg2);border-radius:var(--r);padding:16px;display:flex;flex-direction:column;gap:8px}
+.tab-person-card .tpc-title{font-size:11px;color:var(--dim);letter-spacing:2px;margin-bottom:4px}
+.tab-person-card .tpc-row{display:flex;justify-content:space-between;padding:5px 8px;border-radius:6px;background:rgba(255,255,255,.015);font-size:13px}
+.tab-person-card .tpc-key{color:var(--dim)}
+.tab-person-card .tpc-val{font-weight:600}
+.tab-person-card .tpc-empty{color:var(--dim);font-style:italic;font-size:12px}
 
-/* —— 按钮 —— */
-.btn-row { display:flex; gap:10px; flex-wrap:wrap; justify-content:center; align-items:center; }
-.btn {
-  padding:12px 30px; border-radius:28px; border:none; cursor:pointer;
-  font-size:15px; font-weight:700; letter-spacing:2px; transition:all .3s;
-}
-.btn-spin {
-  background:linear-gradient(135deg, #e0304a, #901030); color:#fff;
-  box-shadow:0 0 0 rgba(224,48,74,0);
-  animation:btnGlow 2s ease infinite;
-  position:relative;
-}
-.btn-spin::after {
-  content:''; position:absolute; inset:-3px; border-radius:30px; border:2px solid transparent;
-  animation:btnRing 2s ease infinite; pointer-events:none;
-}
-@keyframes btnGlow { 0%,100%{box-shadow:0 4px 24px rgba(224,48,74,.35)} 50%{box-shadow:0 6px 34px rgba(255,48,80,.55)} }
-@keyframes btnRing { 0%,100%{border-color:rgba(255,48,80,0);transform:scale(1)} 50%{border-color:rgba(255,48,80,.3);transform:scale(1.04)} 100%{border-color:rgba(255,48,80,0);transform:scale(1)} }
-.btn-spin:disabled { opacity:.5; cursor:not-allowed; animation:none; }
-.btn-spin:disabled::after { animation:none; border-color:transparent; }
-.btn-spin:active:not(:disabled) { transform:scale(.94); }
+.tab-history-list{display:flex;flex-direction:column;gap:8px}
+.tab-history-list .th-item{display:flex;gap:10px;align-items:flex-start;font-size:13px;padding:10px 12px;border-radius:10px;background:var(--bg2);border-left:3px solid transparent}
+.tab-history-list .th-dot{width:8px;height:8px;border-radius:3px;margin-top:3px;flex-shrink:0}
+.tab-history-list .th-body{display:flex;flex-direction:column;gap:2px}
+.tab-history-list .th-label{color:var(--dim);font-size:10px;letter-spacing:1px}
+.tab-history-list .th-val{font-weight:600}
+.tab-history-list .th-desc{color:var(--dim);font-size:11px;line-height:1.5;margin-top:2px}
 
-.btn-bgm { background:var(--bg2); color:var(--text); border:1px solid rgba(255,255,255,.12); font-size:12px; padding:10px 16px; letter-spacing:1px; }
-.btn-bgm.on { border-color:var(--gold); color:var(--gold); }
-.btn-reset { background:transparent; color:var(--dim); border:1px solid rgba(255,255,255,.08); font-size:11px; padding:8px 14px; }
+.tab-empty{text-align:center;padding:40px 20px;color:var(--dim);font-size:13px}
 
-/* —— 结果面板 —— */
-.result-panel {
-  width:100%; max-width:600px; background:var(--bg2); border-radius:var(--radius);
-  border-left:4px solid var(--red); padding:18px 20px; text-align:center;
-  animation:resultIn .5s cubic-bezier(.16,1,.3,1); position:relative; overflow:hidden;
-}
-.result-panel::before {
-  content:''; position:absolute; top:-30px; right:-30px; width:120px; height:120px; border-radius:50%;
-  background:radial-gradient(circle, rgba(196,30,58,.1) 0%, transparent 70%); pointer-events:none;
-}
-.result-panel .cat { font-size:11px; color:var(--dim); letter-spacing:3px; text-transform:uppercase; }
-.result-panel .value { font-size:clamp(20px,5vw,30px); font-weight:900; margin:4px 0 6px; letter-spacing:2px; }
-.result-panel .desc { font-size:13px; color:var(--dim); font-style:italic; line-height:1.7; max-width:500px; margin:0 auto; }
-@keyframes resultIn { from{opacity:0;transform:translateY(20px) scale(.94)} to{opacity:1;transform:translateY(0) scale(1)} }
+/* ─── 底部 Tab 栏(移动端) ─── */
+.bottom-tabs{position:fixed;bottom:0;left:0;right:0;z-index:50;display:flex;background:var(--bg2);border-top:1px solid rgba(255,255,255,.08);padding:4px 0 env(safe-area-inset-bottom,4px) 0}
+.bottom-tabs .bt{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:6px 0;cursor:pointer;color:var(--dim);font-size:11px;gap:3px;transition:.25s;position:relative}
+.bottom-tabs .bt.active{color:#fff}
+.bottom-tabs .bt .bt-icon{font-size:20px}
+.bottom-tabs .bt .bt-badge{position:absolute;top:2px;left:calc(50% + 12px);min-width:16px;height:16px;border-radius:8px;background:var(--red);color:#fff;font-size:9px;display:flex;align-items:center;justify-content:center;padding:0 4px;display:none}
+.bottom-tabs .bt .bt-badge.show{display:flex}
+@media(min-width:768px){.bottom-tabs{display:none}}
 
-/* —— 历史 —— */
-.history { width:100%; max-width:600px; }
-.history h3 { font-size:12px; color:var(--dim); letter-spacing:3px; margin-bottom:8px; }
-.history-list { display:flex; gap:6px; overflow-x:auto; padding-bottom:6px; scroll-snap-type:x mandatory; -webkit-overflow-scrolling:touch; }
-.history-list::-webkit-scrollbar { height:2px; }
-.history-list::-webkit-scrollbar-thumb { background:rgba(255,255,255,.08); border-radius:2px; }
-.history-item {
-  flex-shrink:0; background:var(--bg2); border:1px solid rgba(255,255,255,.06); border-radius:10px;
-  padding:8px 14px; display:flex; align-items:center; gap:8px; scroll-snap-align:start;
-  animation:popIn .35s cubic-bezier(.16,1,.3,1); border-left-width:3px;
-}
-.history-item .hi-dot { width:8px; height:8px; border-radius:3px; flex-shrink:0; }
-.history-item .hi-label { font-size:10px; color:var(--dim); }
-.history-item .hi-value { font-size:13px; color:var(--text); font-weight:600; }
-@keyframes popIn { from{opacity:0;transform:scale(.8)} to{opacity:1;transform:scale(1)} }
+/* ─── BGM 按钮 ─── */
+.bgm-btn{position:fixed;top:10px;right:10px;z-index:55;padding:8px 12px;border-radius:18px;border:1px solid rgba(255,255,255,.1);background:var(--bg2);color:var(--dim);font-size:11px;cursor:pointer;letter-spacing:1px;transition:.25s}
+.bgm-btn.on{border-color:var(--gold);color:var(--gold)}
 
-/* 角色卡按钮 */
-.char-card-btn {
-  display:none; margin-top:8px; padding:12px 28px; border-radius:28px;
-  background:linear-gradient(135deg, var(--gold), #8a7030); color:#1a1a1a;
-  font-weight:800; font-size:15px; letter-spacing:3px; border:none; cursor:pointer;
-  box-shadow:0 4px 20px rgba(201,168,76,.3); transition:all .3s;
-}
-.char-card-btn.show { display:block; }
-.char-card-btn:hover { box-shadow:0 6px 30px rgba(201,168,76,.5); transform:translateY(-2px); }
-
-/* BGM 指示器 */
-.bgm-indicator { position:fixed; bottom:16px; right:16px; font-size:10px; color:var(--dim); z-index:5; display:flex; align-items:center; gap:6px; }
-.bgm-indicator .dot { width:5px; height:5px; border-radius:50%; background:var(--gold); animation:pulse 2s ease infinite; display:none; }
-.bgm-indicator.on .dot { display:block; }
-@keyframes pulse { 0%,100%{opacity:.3} 50%{opacity:1} }
-
-/* 响应式 */
-@media (max-width:480px) {
-  .app { padding:8px 10px 20px; gap:10px; }
-  .tabs { grid-template-columns:repeat(4,1fr); gap:5px; }
-  .tab { padding:8px 2px; font-size:11px; letter-spacing:0; border-radius:8px; }
-  .wheel-wrap { width:85vw; }
-  .btn { padding:10px 22px; font-size:13px; letter-spacing:1px; }
-  .btn-bgm { padding:8px 12px; font-size:10px; }
-  .center-btn { width:18%; }
-  .pointer { border-top-width:26px; border-left-width:14px; border-right-width:14px; }
-  .header h1 { letter-spacing:3px; }
-}
+/* ─── Toast ─── */
+.toast{position:fixed;top:60px;left:50%;transform:translateX(-50%);z-index:60;background:var(--bg2);border:1px solid rgba(255,255,255,.1);padding:10px 20px;border-radius:20px;font-size:13px;color:var(--text);animation:toastIn .4s ease,toastOut .3s ease 1.8s forwards;pointer-events:none}
+@keyframes toastIn{from{opacity:0;transform:translateX(-50%) translateY(-10px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+@keyframes toastOut{from{opacity:1}to{opacity:0}}
 </style>
 </head>
 <body>
 
-<!-- 飘落粒子背景 -->
-<div class="particles-bg" id="particlesBg"></div>
+<div class="bg-particles" id="bgParticles"></div>
 
-<div class="app">
-  <div class="header">
-    <div class="jp">呪 術 廻 戦</div>
-    <h1>咒 术 转 盘</h1>
-    <div class="divider"></div>
-    <div class="sub">JUJUTSU KAISEN · ROULETTE</div>
+<div class="app" id="app">
+  <!-- 移动端顶部栏 -->
+  <div class="top-bar" id="topBar">
+    <div style="display:flex;align-items:center;gap:8px;overflow:hidden">
+      <span class="phase-icon" id="topPhaseIcon"></span>
+      <div style="overflow:hidden">
+        <div class="phase-label" id="topPhaseLabel"></div>
+        <div class="phase-name" id="topPhaseName"></div>
+      </div>
+    </div>
+    <div class="progress-dots" id="topProgress"></div>
   </div>
 
-  <!-- 进度指示器 -->
-  <div class="progress" id="progress"></div>
+  <!-- 桌面左侧栏 -->
+  <div class="sidebar" id="sidebar"></div>
 
-  <!-- 分类标签 -->
-  <div class="tabs" id="tabs"></div>
-
-  <!-- 转盘 -->
-  <div class="wheel-area">
+  <!-- 中央区域 -->
+  <div class="center-area" id="centerArea">
+    <div class="pc-phase-header" id="pcPhaseHeader"></div>
+    <div class="round-title" id="roundTitle"></div>
     <div class="wheel-wrap" id="wheelWrap">
       <div class="pointer" id="pointer"></div>
       <canvas id="wheelCanvas"></canvas>
-      <div class="center-btn" id="centerBtn" title="点击旋转">呪</div>
+      <canvas class="p-canvas" id="pCanvas"></canvas>
+      <div class="center-dot" id="centerDot">呪</div>
+    </div>
+    <button class="btn-spin" id="btnSpin">🌀 点击旋转</button>
+    <div class="result-panel" id="resultPanel"></div>
+  </div>
+
+  <!-- 桌面右侧面板 -->
+  <div class="right-panel" id="rightPanel">
+    <div class="rp-section">
+      <div class="rp-section-header">👤 当前人物</div>
+      <div class="rp-person" id="rpPerson"></div>
+    </div>
+    <div class="rp-section">
+      <div class="rp-section-header">📋 事件历史</div>
+      <div class="rp-history" id="rpHistory"></div>
     </div>
   </div>
 
-  <!-- 按钮 -->
-  <div class="btn-row">
-    <button class="btn btn-spin" id="btnSpin">🌀 开 始 旋 转</button>
-    <button class="btn btn-bgm off" id="btnBgm">🔇 BGM</button>
-    <button class="btn btn-reset" id="btnReset">↺ 重置本轮</button>
-  </div>
-
-  <!-- 结果面板 -->
-  <div class="result-panel" id="resultPanel" style="display:none"></div>
-
-  <!-- 历史记录 -->
-  <div class="history" id="history">
-    <h3>📋 本轮记录</h3>
-    <div class="history-list" id="historyList"></div>
-  </div>
-
-  <!-- 角色卡按钮 -->
-  <button class="char-card-btn" id="charCardBtn" onclick="alert('角色卡功能即将上线！')">🎴 生成角色卡</button>
+  <!-- 移动端 Tab 视图 -->
+  <div class="tab-view active" id="tabWheel"></div>
+  <div class="tab-view" id="tabPerson"></div>
+  <div class="tab-view" id="tabHistory"></div>
 </div>
 
-<div class="bgm-indicator off" id="bgmIndicator"><span class="dot"></span>BGM</div>
+<!-- 移动端底部 Tab -->
+<div class="bottom-tabs" id="bottomTabs">
+  <div class="bt active" data-tab="wheel"><span class="bt-icon">🎯</span><span>转盘</span><span class="bt-badge" id="btBadgeWheel"></span></div>
+  <div class="bt" data-tab="person"><span class="bt-icon">👤</span><span>人物</span><span class="bt-badge" id="btBadgePerson"></span></div>
+  <div class="bt" data-tab="history"><span class="bt-icon">📋</span><span>历史</span><span class="bt-badge" id="btBadgeHistory"></span></div>
+</div>
 
+<button class="bgm-btn off" id="bgmBtn" onclick="App.toggleBgm()">🔇 BGM</button>
+<div id="toastContainer"></div>
+
+<script>const EMBEDDED_DATA={
+  "title": "咒术转盘 · JJK Roulette",
+  "subtitle_jp": "呪 術 廻 戦",
+  "subtitle_en": "JUJUTSU KAISEN · ROULETTE",
+  "phases": [
+    {
+      "id": "phase1",
+      "name": "身份奠基",
+      "icon": "🧬",
+      "rounds": [
+        {
+          "id": "identity",
+          "title": "穿越后的身份",
+          "icon": "🎭",
+          "desc": "决定你在咒术世界的出身立场。身份影响后续术式池与评价起点。",
+          "propertyKey": "身份",
+          "items": [
+            { "label": "普通人", "weight": 4, "desc": "无咒力的凡人，在咒术的世界中挣扎求生，却拥有最不可测的潜力。", "color": "#1a1a20" },
+            { "label": "咒术高层", "weight": 1, "desc": "咒术界权力核心的一员。生于御三家或咒术世家，手握规则与资源。", "color": "#201830" },
+            { "label": "咒灵", "weight": 1, "desc": "人类负面情绪中诞生的诅咒。以恐惧为食，以毁灭为本能。", "color": "#301020" },
+            { "label": "式神", "weight": 1, "desc": "被术师召唤并役使的灵体。你的存在与召唤者共生共存。", "color": "#0a2020" },
+            { "label": "咒骸", "weight": 1, "desc": "以咒力为核心驱动的人造物。非生非死，超越常理的造物。", "color": "#1a1a2a" },
+            { "label": "咒术师", "weight": 1, "desc": "掌握咒力、行使术式的正统术师。高专毕业，以拔除咒灵为业。", "color": "#102040" },
+            { "label": "诅咒师", "weight": 1, "desc": "叛离咒术界的术师。为私欲与力量不择手段，被咒术界追捕。", "color": "#300a0a" }
+          ]
+        },
+        {
+          "id": "timeline",
+          "title": "穿越的时间线",
+          "icon": "⏳",
+          "desc": "你降临于哪个时代？时代决定世界观基调和可用的咒术体系。",
+          "propertyKey": "时代",
+          "items": [
+            { "label": "未知时间", "weight": 1, "desc": "模糊混沌的时间点。你无法确定自己身在何处——这既是诅咒，也是自由。", "color": "#1a1a1a" },
+            { "label": "平安京", "weight": 1, "desc": "千年前的诅咒全盛期。宿傩横行的时代，咒术还是方术的雏形。", "color": "#2a1a10" },
+            { "label": "战国乱世", "weight": 1, "desc": "群雄割据的黑暗时代。咒术与兵戈交织，生死一线间。", "color": "#1a2a10" },
+            { "label": "现代", "weight": 1, "desc": "咒术高专的黄金时代。五条悟诞生，咒术界的平衡被彻底改写。", "color": "#102030" },
+            { "label": "68年后", "weight": 1, "desc": "时光流转68年。故人已去，新的秩序在废墟中重建。", "color": "#0a1a1a" },
+            { "label": "千年前", "weight": 1, "desc": "比平安京更久远的时代。咒术尚未成型，诅咒以最原始的形式存在。", "color": "#1a1018" },
+            { "label": "咒术全盛期", "weight": 1, "desc": "术式百花齐放的时代。强者辈出，领域与极之番被逐一开发。", "color": "#201820" },
+            { "label": "末法时代", "weight": 1, "desc": "咒力从世界消退。术师凋零，诅咒却愈发猖獗——最后的天选之人。", "color": "#181818" }
+          ]
+        },
+        {
+          "id": "location",
+          "title": "穿越的地点",
+          "icon": "📍",
+          "desc": "你降落在咒术世界的哪个角落？地点影响初始资源与成长环境。",
+          "propertyKey": "地点",
+          "items": [
+            { "label": "咒术高专", "weight": 1, "desc": "东京都立咒术高专——教育年轻术师的学府，也是最安全的庇护所。", "color": "#102040" },
+            { "label": "咒术高专(京都)", "weight": 1, "desc": "京都咒术高专——传统派的大本营，比东京更为严苛。", "color": "#201030" },
+            { "label": "诅咒之地", "weight": 1, "desc": "被诅咒侵蚀的废土。咒灵横行，但也是磨练实力的最佳战场。", "color": "#301010" },
+            { "label": "御三家宅邸", "weight": 1, "desc": "五条、禅院或加茂家的深处。权力与阴谋交织的核心。", "color": "#2a1a2a" },
+            { "label": "诅咒之胎", "weight": 1, "desc": "咒灵的巢穴深处。你诞生于诅咒的核心，生来就与死亡为伴。", "color": "#201010" },
+            { "label": "人间都市", "weight": 1, "desc": "普通的城市街区。结界保护着凡人，但暗处藏着不为人知的恐怖。", "color": "#1a1a2a" },
+            { "label": "封印之地", "weight": 1, "desc": "古老术式封印的遗迹。被遗忘的力量在此沉睡，等待被唤醒。", "color": "#10101a" },
+            { "label": "异界裂缝", "weight": 1, "desc": "现实与诅咒世界的交界处。法则紊乱，一切皆有可能。", "color": "#1a101a" }
+          ]
+        },
+        {
+          "id": "stats",
+          "title": "穿越的数据值",
+          "icon": "📊",
+          "desc": "你的初始评价等级。受身份影响——强大的出身带来更高的起点。",
+          "propertyKey": "评级",
+          "items": [
+            { "label": "SSS 传说级", "weight": 1, "desc": "咒术界的传说。天生拥有超越一切常理的天赋与咒力。", "color": "#ffcc00" },
+            { "label": "SS 顶级", "weight": 2, "desc": "万里挑一的逸才。在咒术史的任何一个时代都能留下名字。", "color": "#e8a020" },
+            { "label": "S 超一级", "weight": 2, "desc": "远超同级的天赋。距离传说的境界只有一步之遥。", "color": "#d08030" },
+            { "label": "A 一级", "weight": 3, "desc": "优秀的咒术师。足以拔除大多数咒灵，在战场上独当一面。", "color": "#8840a0" },
+            { "label": "B 准一级", "weight": 2, "desc": "合格的术师。在正确的训练下可以成长为可靠的战力。", "color": "#4060b0" },
+            { "label": "C 见习级", "weight": 1, "desc": "初出茅庐的新人。潜力未开发，前路漫长但并非毫无希望。", "color": "#408060" }
+          ]
+        },
+        {
+          "id": "moral",
+          "title": "道德水平",
+          "icon": "⚖️",
+          "desc": "你的善恶立场。道德影响事件走向、同伴关系，以及最终的归属。",
+          "propertyKey": "道德",
+          "items": [
+            { "label": "1·混沌恶", "weight": 1, "desc": "毫无逻辑的恶意。以毁灭与痛苦为乐，诅咒的化身。", "color": "#4a1020" },
+            { "label": "2·中立恶", "weight": 1, "desc": "为个人利益不择手段。没有善恶，只有得失。", "color": "#6a2020" },
+            { "label": "3·秩序恶", "weight": 1, "desc": "以规则为武器压迫弱者。冷静而残忍的暴君。", "color": "#8a2030" },
+            { "label": "4·混沌中立", "weight": 1, "desc": "随心所欲的浪人。善恶全凭心情，不受任何约束。", "color": "#886848" },
+            { "label": "5·绝对中立", "weight": 1, "desc": "不偏不倚的旁观者。命运如何流转，我只做自己的选择。", "color": "#686868" },
+            { "label": "6·秩序中立", "weight": 1, "desc": "规则即正义。善恶不是标准，秩序才是。", "color": "#8090a0" },
+            { "label": "7·混沌善", "weight": 1, "desc": "我行我素的侠客。不拘泥于规则，但底线从不丢失。", "color": "#a08c20" },
+            { "label": "8·中立善", "weight": 1, "desc": "在力所能及处行善。不是圣人，但心有善念。", "color": "#c4a830" },
+            { "label": "9·秩序善", "weight": 1, "desc": "以拯救苍生为己任。即使牺牲自己也在所不惜。", "color": "#e8d44d" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "phase2",
+      "name": "能力构筑",
+      "icon": "🔮",
+      "rounds": []
+    },
+    {
+      "id": "phase3",
+      "name": "成长事件",
+      "icon": "⚡",
+      "rounds": []
+    },
+    {
+      "id": "phase4",
+      "name": "战斗模拟",
+      "icon": "⚔️",
+      "rounds": []
+    },
+    {
+      "id": "phase5",
+      "name": "结局判定",
+      "icon": "⌛",
+      "rounds": []
+    }
+  ]
+}
+;</script>
 <script>
-// ==================== 数据定义 ====================
-const CATEGORIES = {
-  identity:{name:'身份·出身',icon:'🎭',items:[{label:'五条家嫡子',desc:'生于御三家之首，天生六眼，立于咒术界顶点',color:'#2a1040'},{label:'禅院家弃子',desc:'生于御三家末席，无咒力孱弱，天与咒缚加身',color:'#1a1a2e'},{label:'加茂家庶出',desc:'生于御三家之末，赤血操术的继承者，家族的棋子',color:'#2e1010'},{label:'咒术高专学生',desc:'平凡的咒术师学徒，在任务与死亡间成长',color:'#102030'},{label:'诅咒师',desc:'背叛咒术界的术师，为了私欲与力量不择手段',color:'#201010'},{label:'天与咒缚者',desc:'完全丧失咒力，换来了超乎常人的肉体强度',color:'#1a2010'},{label:'星浆体',desc:'与天元大人同化的容器，命运的齿轮从出生开始转动',color:'#301a30'},{label:'千年前的术师',desc:'从平安时代苏醒的古老存在，掌握失传的秘术',color:'#102020'},{label:'咒胎九相图',desc:'人与咒灵的混血，在诅咒中诞生的扭曲生命',color:'#1a1018'},{label:'普通人',desc:'无咒力的凡人，在咒术的世界中挣扎求生',color:'#181818'}]},
-  moral:{name:'道德·善恶',icon:'⚖️',items:[{label:'秩序善·圣人',desc:'以拯救苍生为己任，不惜牺牲自我',color:'#e8d44d'},{label:'中立善·义士',desc:'在力所能及的范围内行善，不违本心',color:'#c4a830'},{label:'混沌善·侠客',desc:'我行我素的善良，无视规则但坚守底线',color:'#a08c20'},{label:'秩序中立·执法者',desc:'规则即正义，善恶由秩序定义',color:'#8090a0'},{label:'绝对中立·旁观者',desc:'不偏不倚，不介入任何一方的纷争',color:'#686868'},{label:'混沌中立·浪人',desc:'随心所欲，善恶全凭当时心情',color:'#886848'},{label:'秩序恶·暴君',desc:'以规则之名行恶，以秩序为武器压迫弱者',color:'#6a2030'},{label:'中立恶·恶党',desc:'为达目的不择手段，纯粹的利己主义者',color:'#8a2020'},{label:'混沌恶·破坏者',desc:'毫无逻辑的恶意，享受毁灭的愉悦',color:'#4a1020'}]},
-  technique:{name:'术式',icon:'🔮',items:[{label:'无下限术式',desc:'绝对的强者，由此而生的孤独——阿基里斯与龟的悖论',color:'#2a1040'},{label:'十种影法术',desc:'以影子为媒介，调伏十种式神，以己身为祭',color:'#1a1a30'},{label:'赤血操术',desc:'操控血液，诅咒之血代代相传，百敛·穿血',color:'#301010'},{label:'咒言',desc:'言语即是诅咒，出口即为命令，但代价是反噬',color:'#201a10'},{label:'傀儡操术',desc:'以机械之躯行咒术之道，傀儡即是延伸的自我',color:'#0a2a2a'},{label:'冰凝术式',desc:'令万物冻结，绝对零度的冰霜女王',color:'#0a2a30'},{label:'咒灵操术',desc:'吞噬咒灵，化为己用，最强的式神使役术',color:'#0a1030'},{label:'构造术式',desc:'凭空造物，想象力即上限，术式即是创造',color:'#2a0a2a'},{label:'重力术式',desc:'令万钧加身，碾碎一切反抗者',color:'#2a2a0a'},{label:'时间术式',desc:'触碰时间法则，逆转因果，篡改过去与未来',color:'#301a0a'},{label:'空间术式',desc:'撕裂虚空，无视距离，瞬身而至',color:'#2a0a10'},{label:'反重力机构',desc:'否定一切外力，令万物悬浮于无',color:'#1a1a1a'}]},
-  tool:{name:'咒具',icon:'🗡️',items:[{label:'天逆鉾',desc:'传说中能破解一切术式的矛，令无下限失效的唯一武器',color:'#302010'},{label:'黑绳',desc:'以千年诅咒编织的绳索，能干扰术式的发动',color:'#101010'},{label:'游云',desc:'纯以咒力驱动，无固定形态的三节棍，越强则越强',color:'#2a2a30'},{label:'释魂刀',desc:'能斩断灵魂与肉体的联结，对咒灵特攻',color:'#1a202a'},{label:'龙星',desc:'传说中以龙牙打造的太刀，附有龍的诅咒',color:'#103030'},{label:'万里锁',desc:'无限延伸的锁链，封锁与束缚的极致',color:'#2a1a10'},{label:'七三分',desc:'宿儺的专属咒具，一刀七三，斩尽万物',color:'#301010'},{label:'徒手',desc:'无咒具，以己身咒力为刃，最原始的战斗方式',color:'#1a1818'}]},
-  skill:{name:'高级技巧',icon:'⚡',items:[{label:'黑闪',desc:'咒力打击与物理打击偏差0.000001秒内，伤害提升至2.5次方',color:'#1a1a1a'},{label:'术式反转·赫',desc:'将反转术式注入无下限，产生排斥一切的绝对力量',color:'#2a1030'},{label:'虚式·茈',desc:'苍与赫的融合，将假想质量灌入现实，抹除一切',color:'#301030'},{label:'苍',desc:'将无下限术式顺转，产生吸引万物的蓝光',color:'#102040'},{label:'简易领域',desc:'以自身为圆心展开的领域结界，不需结印的防御术',color:'#201a20'},{label:'落花之情',desc:'以咒力覆盖全身，自动反击一切近身攻击',color:'#301a2a'},{label:'极之番',desc:'术式的终极形态，耗尽一切咒力的最后一击',color:'#301010'},{label:'领域展延',desc:'以咒力包裹自身，将领域的必中效果延伸至体外',color:'#1a3030'},{label:'束缚强化',desc:'以代价换取力量，"我赌上我的生命"',color:'#2a1010'},{label:'反转术式',desc:'将负向咒力相乘产生正向能量，最稀有的治愈术',color:'#2a2a10'}]},
-  event:{name:'战斗事件',icon:'💥',items:[{label:'黑闪触发！',desc:'这一击恰好命中黑闪！伤害提高至2.5次方，再抽两次',color:'#10101a'},{label:'领域对撞！',desc:'两个领域同时展开，互相侵蚀，必中VS必中',color:'#1a1030'},{label:'术式觉醒！',desc:'濒死之际，你的术式在这一刻觉醒了全新的形态',color:'#301a30'},{label:'天逆鉾破防',desc:'对手祭出天逆鉾，你的术式被强行解除！',color:'#2a1a10'},{label:'束缚反噬',desc:'你违背了自己设下的束缚，咒力暴走反噬己身',color:'#301010'},{label:'双人连携',desc:'你的同伴在最关键的时刻出手了！胜率+25%',color:'#102a20'},{label:'暴走',desc:'咒力失控，不分敌我的无差别攻击',color:'#201010'},{label:'濒死悟道',desc:'在死亡边缘，你领悟了咒力的核心——黑闪概率大幅上升',color:'#101a1a'},{label:'关键掩护',desc:'有人为你挡住了致命一击……代价是……',color:'#1a1a2a'},{label:'宿儺夺舍',desc:'体内的诅咒之王蠢蠢欲动，"把你的身体交给我"',color:'#2a1020'}]},
-  domain:{name:'领域展开',icon:'🌀',items:[{label:'无量空处',desc:'五条悟的领域——无限的信息灌入，令对手大脑停止思考',color:'#102040'},{label:'伏魔御厨子',desc:'宿儺的领域——异界之灶，斩尽领域内一切有咒力的存在',color:'#201010'},{label:'嵌合暗翳庭',desc:'伏黑惠的领域——影子的海洋，十种影法术的完全体',color:'#0a0a20'},{label:'自闭圆顿裹',desc:'真人的领域——触摸灵魂的绝对杀阵',color:'#202020'},{label:'盖棺铁围山',desc:'漏瑚的领域——岩浆与火焰的炼狱',color:'#301010'},{label:'荡蕴平线',desc:'陀艮的领域——无尽的海底深渊',color:'#102030'},{label:'真贋相杀',desc:'秤金次的领域——以概率为武器的赌博领域',color:'#2a2010'},{label:'三魂七魄',desc:'花御的领域——生命之力将吞噬一切',color:'#102010'}]},
-  ending:{name:'时代·结局',icon:'⌛',items:[{label:'平安京的诅咒',desc:'你回到了千年前的平安时代，成为了传说的一部分',color:'#1a1a2a'},{label:'战国乱世',desc:'你在群雄割据的战国时代，用咒术开辟了自己的领地',color:'#2a1a10'},{label:'现代高专',desc:'你留在了现代的咒术高专，培养着下一代的咒术师',color:'#202840'},{label:'68年后',desc:'时光流转68年，你成为了活着的传说，但故人已不在',color:'#1a2020'},{label:'被封印',desc:'你的存在太过强大，被咒术界联手封印于狱门疆之中',color:'#10101a'},{label:'转生',desc:'死亡不是终点——你以全新的姿态转生到了新的时代',color:'#201a30'},{label:'孤独成王',desc:'战胜了一切对手，你发现自己站在了世界之巅——独自一人',color:'#1a1a1a'},{label:'与诅咒和解',desc:'你体内的诅咒并非敌人——你学会了与它共存',color:'#2a1a2a'}]},
-};
-const CAT_KEYS = ['identity','moral','technique','tool','skill','event','domain','ending'];
+// ============================== DATA ==============================
+let DATA = null;
+let currentPhaseIdx = 0;
+let currentRoundIdx = 0;
 
-// ==================== 背景粒子 ====================
-function createBgParticles() {
-  const container = document.getElementById('particlesBg');
-  for (let i = 0; i < 25; i++) {
-    const p = document.createElement('div');
-    p.className = 'particle-bg';
-    p.style.left = Math.random() * 100 + '%';
-    p.style.width = p.style.height = (1.5 + Math.random() * 3) + 'px';
-    p.style.animationDuration = (8 + Math.random() * 18) + 's';
-    p.style.animationDelay = Math.random() * 15 + 's';
-    p.style.background = Math.random() < 0.5 ? 'var(--red-glow)' : 'var(--gold)';
-    container.appendChild(p);
-  }
+async function loadData(){
+  try{const r=await fetch('data.json');DATA=await r.json()}catch(e){console.log('fetch failed, using embedded data');try{DATA=EMBEDDED_DATA}catch(x){alert('Data load failed')}}
+  App.init();
 }
-createBgParticles();
+loadData();
 
-// ==================== 音频引擎 ====================
+// ============================== AUDIO ==============================
 class AudioEngine {
-  constructor() { this.ctx = null; this.bgmOn = false; this.bgmNodes = []; this.initialized = false; }
-  init() { if(this.initialized) return; try{this.ctx=new (window.AudioContext||window.webkitAudioContext)();this.initialized=true;}catch(e){} }
-  startBgm() {
+  constructor(){this.ctx=null;this.bgmOn=false;this.nodes=[];this.ok=false}
+  init(){if(this.ok)return;try{this.ctx=new(window.AudioContext||window.webkitAudioContext)();this.ok=true}catch(e){}}
+  startBgm(){
     if(!this.ctx||this.bgmOn)return;this.bgmOn=true;const c=this.ctx;
-    const mg=c.createGain();mg.gain.value=.08;mg.connect(c.destination);this.bgmNodes.push(mg);
-    const o1=c.createOscillator();o1.type='sawtooth';o1.frequency.value=55;const g1=c.createGain();g1.gain.value=.12;
-    const f1=c.createBiquadFilter();f1.type='lowpass';f1.frequency.value=180;o1.connect(f1).connect(g1).connect(mg);o1.start();
-    const o2=c.createOscillator();o2.type='sine';o2.frequency.value=110;const g2=c.createGain();g2.gain.value=.06;
-    const l2=c.createOscillator();l2.frequency.value=.15;l2.type='sine';const lg2=c.createGain();lg2.gain.value=12;
+    const mg=c.createGain();mg.gain.value=.07;mg.connect(c.destination);this.nodes.push(mg);
+    const o1=c.createOscillator();o1.type='sawtooth';o1.frequency.value=55;const g1=c.createGain();g1.gain.value=.10;
+    const f1=c.createBiquadFilter();f1.type='lowpass';f1.frequency.value=160;o1.connect(f1).connect(g1).connect(mg);o1.start();
+    const o2=c.createOscillator();o2.type='sine';o2.frequency.value=110;const g2=c.createGain();g2.gain.value=.05;
+    const l2=c.createOscillator();l2.frequency.value=.15;l2.type='sine';const lg2=c.createGain();lg2.gain.value=10;
     l2.connect(lg2).connect(o2.frequency);l2.start();o2.connect(g2).connect(mg);o2.start();
-    const o3=c.createOscillator();o3.type='triangle';o3.frequency.value=880;const g3=c.createGain();g3.gain.value=.02;
-    const l3=c.createOscillator();l3.frequency.value=.22;l3.type='sawtooth';const lg3=c.createGain();lg3.gain.value=60;
+    const o3=c.createOscillator();o3.type='triangle';o3.frequency.value=880;const g3=c.createGain();g3.gain.value=.015;
+    const l3=c.createOscillator();l3.frequency.value=.2;l3.type='sawtooth';const lg3=c.createGain();lg3.gain.value=50;
     l3.connect(lg3).connect(o3.frequency);l3.start();o3.connect(g3).connect(mg);o3.start();
-    this.bgmNodes.push(o1,o2,o3,l2,l3);
+    this.nodes.push(o1,o2,o3,l2,l3);
   }
-  stopBgm() { this.bgmOn=false;for(let n of this.bgmNodes)try{n.stop()}catch(e){};this.bgmNodes=[]; }
-  playTick() {
-    if(!this.ctx)return;const c=this.ctx;
-    const o=c.createOscillator();o.type='square';o.frequency.value=700+Math.random()*500;
-    const g=c.createGain();g.gain.setValueAtTime(.025,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+.03);
-    o.connect(g).connect(c.destination);o.start();o.stop(c.currentTime+.04);
-  }
-  playResult() {
-    if(!this.ctx)return;const c=this.ctx;const n=c.currentTime;
-    const o1=c.createOscillator();o1.type='sine';o1.frequency.setValueAtTime(100,n);o1.frequency.exponentialRampToValueAtTime(35,n+.45);
-    const g1=c.createGain();g1.gain.setValueAtTime(.18,n);g1.gain.exponentialRampToValueAtTime(.001,n+.55);
-    o1.connect(g1).connect(c.destination);o1.start(n);o1.stop(n+.55);
-    const o2=c.createOscillator();o2.type='triangle';o2.frequency.setValueAtTime(550,n);o2.frequency.exponentialRampToValueAtTime(180,n+.35);
-    const g2=c.createGain();g2.gain.setValueAtTime(.07,n);g2.gain.exponentialRampToValueAtTime(.001,n+.4);
-    o2.connect(g2).connect(c.destination);o2.start(n);o2.stop(n+.4);
-  }
-  playClick() {
-    if(!this.ctx)return;const c=this.ctx;
-    const o=c.createOscillator();o.type='sine';o.frequency.value=600;
-    const g=c.createGain();g.gain.setValueAtTime(.05,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+.07);
-    o.connect(g).connect(c.destination);o.start();o.stop(c.currentTime+.08);
-  }
+  stopBgm(){this.bgmOn=false;for(let n of this.nodes)try{n.stop()}catch(e){};this.nodes=[]}
+  tick(){if(!this.ctx)return;const c=this.ctx;const o=c.createOscillator();o.type='square';o.frequency.value=700+Math.random()*400;const g=c.createGain();g.gain.setValueAtTime(.02,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+.03);o.connect(g).connect(c.destination);o.start();o.stop(c.currentTime+.04)}
+  result(){if(!this.ctx)return;const c=this.ctx,n=c.currentTime;const o1=c.createOscillator();o1.type='sine';o1.frequency.setValueAtTime(100,n);o1.frequency.exponentialRampToValueAtTime(35,n+.4);const g1=c.createGain();g1.gain.setValueAtTime(.15,n);g1.gain.exponentialRampToValueAtTime(.001,n+.5);o1.connect(g1).connect(c.destination);o1.start(n);o1.stop(n+.5);const o2=c.createOscillator();o2.type='triangle';o2.frequency.setValueAtTime(500,n);o2.frequency.exponentialRampToValueAtTime(180,n+.3);const g2=c.createGain();g2.gain.setValueAtTime(.05,n);g2.gain.exponentialRampToValueAtTime(.001,n+.35);o2.connect(g2).connect(c.destination);o2.start(n);o2.stop(n+.4)}
+  click(){if(!this.ctx)return;const c=this.ctx;const o=c.createOscillator();o.type='sine';o.frequency.value=600;const g=c.createGain();g.gain.setValueAtTime(.04,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+.06);o.connect(g).connect(c.destination);o.start();o.stop(c.currentTime+.07)}
 }
 
-// ==================== 粒子系统 ====================
-class Particle {
-  constructor(x,y,color,size,vx,vy,life){this.x=x;this.y=y;this.color=color;this.size=size;this.vx=vx;this.vy=vy;this.life=life;this.maxLife=life;this.alpha=1;}
-  update(dt){this.x+=this.vx*dt;this.y+=this.vy*dt;this.vy+=30*dt;this.life-=dt;this.alpha=Math.max(0,this.life/this.maxLife);this.size*=.997;}
-  draw(ctx){ctx.save();ctx.globalAlpha=this.alpha;ctx.fillStyle=this.color;ctx.shadowBlur=this.size*4;ctx.shadowColor=this.color;ctx.beginPath();ctx.arc(this.x,this.y,this.size,0,Math.PI*2);ctx.fill();ctx.restore();}
-  get dead(){return this.life<=0;}
-}
-class ParticleSystem {
-  constructor(){this.particles=[];}
-  emit(x,y,count,color,spread,size,life){for(let i=0;i<count;i++){const a=Math.random()*Math.PI*2;const s=Math.random()*spread;this.particles.push(new Particle(x,y,color,size*(.5+Math.random()),Math.cos(a)*s,Math.sin(a)*s-50,life*(.6+Math.random()*.4)));}}
-  update(dt){for(let p of this.particles)p.update(dt);this.particles=this.particles.filter(p=>!p.dead);}
-  draw(ctx){for(let p of this.particles)p.draw(ctx);}
-  clear(){this.particles=[];}
+// ============================== PARTICLES ==============================
+class Particle{constructor(x,y,c,s,vx,vy,l){this.x=x;this.y=y;this.c=c;this.s=s;this.vx=vx;this.vy=vy;this.l=l;this.ml=l;this.a=1}update(dt){this.x+=this.vx*dt;this.y+=this.vy*dt;this.vy+=25*dt;this.l-=dt;this.a=Math.max(0,this.l/this.ml);this.s*=.997}get dead(){return this.l<=0}}
+class ParticleSystem{constructor(canvas){this.canvas=canvas;this.ctx=canvas.getContext('2d');this.particles=[]}
+  emit(x,y,n,c,sp,sz,l){for(let i=0;i<n;i++){const a=Math.random()*Math.PI*2,s=Math.random()*sp;this.particles.push(new Particle(x,y,c,sz*(.5+Math.random()),Math.cos(a)*s,Math.sin(a)*s-40,l*(.6+Math.random()*.4)))}
+  }
+  update(dt){for(let p of this.particles)p.update(dt);this.particles=this.particles.filter(p=>!p.dead)}
+  draw(w,h){const ctx=this.ctx;ctx.clearRect(0,0,w,h);for(let p of this.particles){ctx.save();ctx.globalAlpha=p.a;ctx.fillStyle=p.c;ctx.shadowBlur=p.s*4;ctx.shadowColor=p.c;ctx.beginPath();ctx.arc(p.x,p.y,p.s,0,Math.PI*2);ctx.fill();ctx.restore()}}
+  clear(){this.particles=[]}
 }
 
-// ==================== 转盘渲染 ====================
-class WheelRenderer {
-  constructor(canvas,items){
-    this.canvas=canvas;this.ctx=canvas.getContext('2d');this.items=items;this.angle=0;this.n=items.length;this.resize();
-  }
-  resize(){
-    const wrap=this.canvas.parentElement;const size=wrap.clientWidth;
-    const dpr=Math.min(window.devicePixelRatio||1,2);
-    this.canvas.width=size*dpr;this.canvas.height=size*dpr;
-    this.canvas.style.width=size+'px';this.canvas.style.height=size+'px';
-    this.size=size;this.cx=size/2;this.cy=size/2;this.radius=size/2-18;this.dpr=dpr;this.draw();
-  }
-  draw(){
-    const ctx=this.ctx,dpr=this.dpr;ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,this.size,this.size);
-    const n=this.n,arc=Math.PI*2/n,cx=this.cx,cy=this.cy,r=this.radius;
-
-    // 外圈装饰：金色刻度环
-    for(let i=0;i<48;i++){
-      const a=(i/48)*Math.PI*2-Math.PI/2,rr=r+10;
-      ctx.beginPath();ctx.moveTo(cx+Math.cos(a)*(rr-3),cy+Math.sin(a)*(rr-3));
-      ctx.lineTo(cx+Math.cos(a)*rr,cy+Math.sin(a)*rr);
-      ctx.strokeStyle=i%3===0?'rgba(201,168,76,.7)':'rgba(201,168,76,.2)';
-      ctx.lineWidth=i%3===0?1.5:.6;ctx.stroke();
-    }
-
-    // 外圈发光环
-    ctx.beginPath();ctx.arc(cx,cy,r+12,0,Math.PI*2);ctx.strokeStyle='rgba(196,30,58,.2)';ctx.lineWidth=4;ctx.shadowBlur=20;ctx.shadowColor='rgba(196,30,58,.4)';ctx.stroke();ctx.shadowBlur=0;
-    ctx.beginPath();ctx.arc(cx,cy,r+2,0,Math.PI*2);ctx.strokeStyle='rgba(255,255,255,.1)';ctx.lineWidth=1.5;ctx.stroke();
-
-    // 扇区
-    for(let i=0;i<n;i++){
-      const sa=this.angle+i*arc-Math.PI/2,ea=sa+arc;
-      // 径向渐变扇区
-      const grad=ctx.createRadialGradient(cx,cy,r*.2,cx,cy,r);
-      const baseColor=this.items[i].color||'#333';
-      grad.addColorStop(0,baseColor);
-      grad.addColorStop(.6,baseColor);
-      grad.addColorStop(1,this._darken(baseColor,.4));
-      ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,r,sa,ea);ctx.closePath();
-      ctx.fillStyle=grad;ctx.fill();
-      // 金线分隔
-      ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,r,sa,ea);ctx.lineTo(cx,cy);
-      ctx.strokeStyle='rgba(201,168,76,.35)';ctx.lineWidth=.7;ctx.stroke();
-      // 文字 + 发光
-      ctx.save();ctx.translate(cx,cy);ctx.rotate(sa+arc/2);
-      ctx.textAlign='right';const fs=Math.max(10,r*.095);
-      ctx.font=`bold ${fs}px "PingFang SC","Microsoft YaHei",sans-serif`;
-      ctx.fillStyle='#fff';ctx.shadowColor='rgba(255,255,255,.5)';ctx.shadowBlur=4;
-      ctx.fillText(this.items[i].label,r-10,fs*.35);
-      ctx.shadowBlur=0;ctx.restore();
-    }
-  }
-  _darken(hex,amount){
-    const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
-    return `rgb(${Math.floor(r*(1-amount))},${Math.floor(g*(1-amount))},${Math.floor(b*(1-amount))})`;
-  }
+// ============================== WHEEL RENDERER ==============================
+class WheelRenderer{constructor(canvas,items){this.canvas=canvas;this.ctx=canvas.getContext('2d');this.items=items;this.angle=0;this.buildSectors();this.resize()}
+  buildSectors(){const totalW=this.items.reduce((s,i)=>s+(i.weight||1),0);this.sectors=this.items.map(i=>({...i,arc:(i.weight||1)/totalW*Math.PI*2}));this.n=this.sectors.length}
+  resize(){const w=this.canvas.parentElement.clientWidth;const dpr=Math.min(window.devicePixelRatio||1,2);this.canvas.width=w*dpr;this.canvas.height=w*dpr;this.canvas.style.width=w+'px';this.canvas.style.height=w+'px';this.s=w;this.cx=w/2;this.cy=w/2;this.r=w/2-18;this.dpr=dpr;this.draw()}
+  draw(){const ctx=this.ctx,d=this.dpr;ctx.setTransform(d,0,0,d,0,0);ctx.clearRect(0,0,this.s,this.s);const cx=this.cx,cy=this.cy,r=this.r;let a=this.angle-Math.PI/2;
+  // 外圈
+  ctx.beginPath();ctx.arc(cx,cy,r+10,0,Math.PI*2);ctx.strokeStyle='rgba(196,30,58,.18)';ctx.lineWidth=3;ctx.shadowBlur=12;ctx.shadowColor='rgba(196,30,58,.3)';ctx.stroke();ctx.shadowBlur=0;
+  // 刻度
+  for(let i=0;i<48;i++){const aa=i/48*Math.PI*2-Math.PI/2;ctx.beginPath();ctx.moveTo(cx+Math.cos(aa)*(r+6),cy+Math.sin(aa)*(r+6));ctx.lineTo(cx+Math.cos(aa)*(r+11),cy+Math.sin(aa)*(r+11));ctx.strokeStyle=i%3===0?'rgba(201,168,76,.5)':'rgba(201,168,76,.15)';ctx.lineWidth=i%3===0?1.2:.5;ctx.stroke()}
+  // 扇区
+  for(let s of this.sectors){const sa=a,ea=a+s.arc;const grad=ctx.createRadialGradient(cx,cy,r*.15,cx,cy,r);grad.addColorStop(0,s.color||'#333');grad.addColorStop(.6,s.color||'#333');grad.addColorStop(1,this._dark(s.color,.4));ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,r,sa,ea);ctx.closePath();ctx.fillStyle=grad;ctx.fill();ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,r,sa,ea);ctx.lineTo(cx,cy);ctx.strokeStyle='rgba(201,168,76,.3)';ctx.lineWidth=.6;ctx.stroke();
+  // 文字
+  ctx.save();ctx.translate(cx,cy);ctx.rotate(sa+s.arc/2);const fs=Math.max(9,r*.09);ctx.font=`bold ${fs}px "PingFang SC","Microsoft YaHei",sans-serif`;ctx.textAlign='right';ctx.fillStyle='#fff';ctx.shadowColor='rgba(255,255,255,.4)';ctx.shadowBlur=3;ctx.fillText(s.label,r-10,fs*.35);ctx.shadowBlur=0;ctx.restore();a=ea}
+  // 中心
+  const grad=ctx.createRadialGradient(cx,cy,0,cx,cy,r*.16);grad.addColorStop(0,'#1a1a2e');grad.addColorStop(.7,'#0a0a0c');grad.addColorStop(1,'rgba(0,0,0,.8)');ctx.beginPath();ctx.arc(cx,cy,r*.14,0,Math.PI*2);ctx.fillStyle=grad;ctx.fill();ctx.strokeStyle='rgba(201,168,76,.5)';ctx.lineWidth=1.2;ctx.stroke()}
+  _dark(h,amt){const r=parseInt(h.slice(1,3),16),g=parseInt(h.slice(3,5),16),b=parseInt(h.slice(5,7),16);return `rgb(${Math.floor(r*(1-amt))},${Math.floor(g*(1-amt))},${Math.floor(b*(1-amt))})`}
 }
 
-// ==================== 主应用 ====================
-class App {
-  constructor(){
-    this.state={category:'identity',results:[],spinning:false,targetAngle:0,spinStartAngle:0,spinStartTime:0,spinDuration:0,lastAngle:0};
-    this.audio=new AudioEngine();this.particles=new ParticleSystem();this.wheel=null;
-    this.initDOM();this.initWheel();this.addListeners();
-    this.lastFrameTime=performance.now();requestAnimationFrame(t=>this.loop(t));
-  }
+// ============================== TOAST ==============================
+function showToast(msg){const c=document.getElementById('toastContainer');const d=document.createElement('div');d.className='toast';d.textContent=msg;c.appendChild(d);setTimeout(()=>d.remove(),2200)}
 
-  initDOM(){
-    this.tabs=document.getElementById('tabs');this.progress=document.getElementById('progress');
-    this.btnSpin=document.getElementById('btnSpin');this.btnBgm=document.getElementById('btnBgm');
-    this.btnReset=document.getElementById('btnReset');this.resultPanel=document.getElementById('resultPanel');
-    this.historyList=document.getElementById('historyList');this.pointer=document.getElementById('pointer');
-    this.charCardBtn=document.getElementById('charCardBtn');this.bgmIndicator=document.getElementById('bgmIndicator');
-    this.centerBtn=document.getElementById('centerBtn');
+// ============================== APP ==============================
+const App = {
+  audio: new AudioEngine(),
+  particles: null,
+  wheel: null,
+  state: {spinning:false,targetAngle:0,spinStartAngle:0,spinStartTime:0,spinDuration:0,lastAngle:0,results:[],currentTab:'wheel',notifyNewResult:false},
 
-    // 标签
-    CAT_KEYS.forEach(k=>{
-      const tab=document.createElement('button');tab.className='tab';tab.textContent=CATEGORIES[k].icon+' '+CATEGORIES[k].name;
-      tab.dataset.key=k;tab.addEventListener('click',()=>this.switchCategory(k));this.tabs.appendChild(tab);
-    });
-    // 进度
-    CAT_KEYS.forEach(()=>{const d=document.createElement('div');d.className='dot';this.progress.appendChild(d);});
+  init(){
+    if(!DATA||!DATA.phases.length)return;
+    // 背景粒子
+    const bg=document.getElementById('bgParticles');
+    for(let i=0;i<20;i++){const p=document.createElement('div');p.className='bg-p';p.style.left=Math.random()*100+'%';p.style.width=p.style.height=(1.5+Math.random()*3)+'px';p.style.animationDuration=(8+Math.random()*18)+'s';p.style.animationDelay=Math.random()*15+'s';p.style.background=Math.random()<.5?'var(--red-glow)':'var(--gold)';bg.appendChild(p)}
 
-    this.btnSpin.addEventListener('click',()=>this.spin());
-    this.btnBgm.addEventListener('click',()=>{this.audio.init();this.audio.bgmOn?this.stopBgm():this.startBgm();});
-    this.btnReset.addEventListener('click',()=>this.reset());
-    this.centerBtn.addEventListener('click',()=>{if(!this.state.spinning)this.spin();});
-  }
+    this.wheelCanvas=document.getElementById('wheelCanvas');
+    this.pCanvas=document.getElementById('pCanvas');
+    this.particles=new ParticleSystem(this.pCanvas);
+    this.audio.init();
 
-  initWheel(){
-    const canvas=document.getElementById('wheelCanvas');
-    this.wheel=new WheelRenderer(canvas,CATEGORIES[this.state.category].items);
-    this.btnSpin.disabled=false;this.updateUI();window.addEventListener('resize',()=>this.wheel.resize());
-  }
+    this.renderPhase();
+    this.renderRound();
+    this.renderSidebar();
+    this.renderRightPanel();
+    this.renderTabs();
+    this.bindEvents();
+    this.resized();
+    window.addEventListener('resize',()=>this.resized());
+    requestAnimationFrame(t=>this.loop(t));
+  },
 
-  switchCategory(key){
-    if(this.state.spinning)return;this.audio.init();this.audio.playClick();
-    this.state.category=key;this.wheel.items=CATEGORIES[key].items;this.wheel.n=this.wheel.items.length;
-    this.wheel.angle=0;this.state.targetAngle=0;this.wheel.draw();
-    this.resultPanel.style.display='none';this.updateUI();
-  }
+  get phase(){return DATA.phases[currentPhaseIdx]},
+  get round(){return this.phase.rounds[currentRoundIdx]},
+  get results(){return this.state.results},
+  get isRoundDone(){return this.results.some(r=>r.roundId===this.round.id)},
 
-  updateUI(){
-    // 标签状态
-    [...this.tabs.children].forEach(t=>{
-      const k=t.dataset.key;t.classList.remove('active','done');
-      if(k===this.state.category)t.classList.add('active');
-    });
+  // ─── 渲染 ───
+  resized(){
+    const s=this.wheelCanvas.parentElement.clientWidth,dpr=Math.min(window.devicePixelRatio||1,2);
+    this.pCanvas.width=s*dpr;this.pCanvas.height=s*dpr;
+    this.pCanvas.style.width=s+'px';this.pCanvas.style.height=s+'px';
+    this.particles.ctx.setTransform(dpr,0,0,dpr,0,0);
+    if(this.wheel)this.wheel.resize();
+  },
+
+  renderPhase(){
+    // 顶部栏
+    document.getElementById('topPhaseIcon').textContent=this.phase.icon;
+    document.getElementById('topPhaseLabel').textContent='阶段'+(currentPhaseIdx+1);
+    document.getElementById('topPhaseName').textContent=this.phase.name;
+    // 桌面阶段标题
+    document.getElementById('pcPhaseHeader').innerHTML=`<div class="pph-label">阶段${currentPhaseIdx+1}</div><div class="pph-name">${this.phase.icon} ${this.phase.name}</div>`;
     // 进度点
-    const cats=this.state.results.map(r=>{for(let k of CAT_KEYS)if(CATEGORIES[k].name===r.category)return k;return null;});
-    [...this.progress.children].forEach((d,i)=>{
-      d.classList.remove('done','current');if(cats.includes(CAT_KEYS[i]))d.classList.add('done');
-    });
-    if(!this.state.spinning){
-      const idx=CAT_KEYS.indexOf(this.state.category);
-      if(!cats.includes(this.state.category))this.progress.children[idx]?.classList.add('current');
-    }
-    // 已完成标签打勾
-    [...this.tabs.children].forEach(t=>{if(cats.includes(t.dataset.key)&&t.dataset.key!==this.state.category)t.classList.add('done');});
+    const dots=document.getElementById('topProgress');dots.innerHTML='';
+    this.phase.rounds.forEach((r,i)=>{const d=document.createElement('span');d.className='pd';if(this.results.some(rr=>rr.roundId===r.id))d.classList.add('done');if(i===currentRoundIdx&&!this.isRoundDone)d.classList.add('current');dots.appendChild(d)});
+  },
 
-    // 角色卡按钮
-    this.charCardBtn.classList.toggle('show',cats.filter((c,i,a)=>a.indexOf(c)===i).length>=8);
-  }
+  renderRound(){
+    const r=this.round;
+    document.getElementById('roundTitle').innerHTML=`<span class="rt-icon">${r.icon}</span> 第${currentRoundIdx+1}转：${r.title}`;
+    // 重建转盘
+    this.wheel=new WheelRenderer(this.wheelCanvas,r.items);
+    this.wheel.buildSectors();
+    this.wheel.angle=0;
+    this.state.targetAngle=0;
+    this.wheel.draw();
+    document.getElementById('resultPanel').style.display='none';
+    document.getElementById('btnSpin').disabled=false;
+    document.getElementById('btnSpin').textContent='🌀 点击旋转';
+    // 更新粒子canvas尺寸
+    this.resized();
+  },
+
+  renderSidebar(){
+    if(window.innerWidth<768)return;
+    const sb=document.getElementById('sidebar');
+    const ph=this.phase;
+    let html=`<div class="sb-phase">阶段${currentPhaseIdx+1}</div><div class="sb-title">${ph.icon} ${ph.name}</div><div class="sb-divider"></div><div class="steps">`;
+    ph.rounds.forEach((r,i)=>{
+      const done=this.results.some(rr=>rr.roundId===r.id);
+      const cur=i===currentRoundIdx&&!done;
+      html+=`<div class="step ${done?'done':''} ${cur?'current':''}" data-round="${i}" onclick="App.goRound(${i})"><span class="step-dot"></span><span class="step-num">${done?'✓':(i+1)}</span><span class="step-label">${r.title}</span></div>`;
+    });
+    html+='</div><div class="down-phases">';
+    DATA.phases.forEach((p,i)=>{
+      if(i>currentPhaseIdx)html+=`<div class="dp">🔒 阶段${i+1} ${p.name}</div>`;
+    });
+    html+='</div>';
+    sb.innerHTML=html;
+  },
+
+  renderRightPanel(){
+    if(window.innerWidth<768)return;
+    // 人物
+    const person=document.getElementById('rpPerson');
+    const keys=this.phase.rounds.map(r=>r.propertyKey).filter(Boolean);
+    const vals={};this.results.forEach(r=>{if(r.propertyKey)vals[r.propertyKey]=r.label});
+    if(keys.length===0){person.innerHTML='<div style="font-size:11px;color:var(--dim);padding:8px">暂无数据</div>';}
+    else{person.innerHTML=keys.map(k=>`<div class="pp-row"><span class="pp-key">${k}</span><span class="pp-val">${vals[k]||'——'}</span></div>`).join('');}
+    // 历史
+    const hist=document.getElementById('rpHistory');
+    if(this.results.length===0){hist.innerHTML='<div style="font-size:11px;color:var(--dim);padding:8px">尚未抽取</div>';}
+    else{hist.innerHTML=this.results.map(r=>`<div class="h-item" style="border-left-color:${r.color||'#333'}"><span class="h-dot" style="background:${r.color||'#333'}"></span><span class="h-label">${r.roundTitle}:</span><span class="h-val">${r.label}</span></div>`).join('');}
+  },
+
+  renderTabs(){
+    // 人物 Tab
+    const tp=document.getElementById('tabPerson');
+    const keys=this.phase.rounds.map(r=>r.propertyKey).filter(Boolean);
+    const vals={};this.results.forEach(r=>{if(r.propertyKey)vals[r.propertyKey]=r.label});
+    if(keys.length===0){tp.innerHTML='<div class="tab-empty">暂无人物数据</div>';}
+    else{let h=`<div class="tab-person-card"><div class="tpc-title">👤 当前人物状态</div>`;keys.forEach(k=>{h+=`<div class="tpc-row"><span class="tpc-key">${k}</span><span class="tpc-val">${vals[k]||'——'}</span></div>`});h+='</div>';tp.innerHTML=h;}
+    // 历史 Tab
+    const th=document.getElementById('tabHistory');
+    if(this.results.length===0){th.innerHTML='<div class="tab-empty">暂无事件记录<br>回到转盘开始抽取吧</div>';}
+    else{let h='<div class="tab-history-list">';this.results.forEach(r=>{h+=`<div class="th-item" style="border-left-color:${r.color||'#333'}"><span class="th-dot" style="background:${r.color||'#333'}"></span><div class="th-body"><span class="th-label">${r.roundTitle}</span><span class="th-val">${r.label}</span><span class="th-desc">${r.desc}</span></div></div>`});h+='</div>';th.innerHTML=h;}
+  },
+
+  // ─── 事件 ───
+  bindEvents(){
+    document.getElementById('btnSpin').addEventListener('click',()=>this.spin());
+    document.getElementById('centerDot').addEventListener('click',()=>{if(!this.state.spinning)this.spin()});
+    document.getElementById('wheelCanvas').addEventListener('click',()=>{if(!this.state.spinning)this.spin()});
+    document.addEventListener('keydown',e=>{if(e.code==='Space'&&!this.state.spinning){e.preventDefault();this.spin()}});
+    // 底部Tab
+    document.querySelectorAll('.bottom-tabs .bt').forEach(bt=>{
+      bt.addEventListener('click',()=>{
+        const tab=bt.dataset.tab;
+        this.setTab(tab);
+        this.audio.init();this.audio.click();
+      });
+    });
+  },
+
+  setTab(tab){
+    this.state.currentTab=tab;
+    document.querySelectorAll('.bottom-tabs .bt').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));
+    document.querySelectorAll('.tab-view').forEach(v=>v.classList.remove('active'));
+    const view=document.getElementById(tab==='wheel'?'tabWheel':tab==='person'?'tabPerson':'tabHistory');
+    if(view)view.classList.add('active');
+    // 清除通知
+    if(tab==='wheel'){this.state.notifyNewResult=false;this.updateBadges()}
+  },
+
+  updateBadges(){
+    const badgeW=document.getElementById('btBadgeWheel');
+    if(this.state.notifyNewResult){badgeW.classList.add('show');badgeW.textContent='新';}else{badgeW.classList.remove('show')}
+    const badgeH=document.getElementById('btBadgeHistory');
+    if(this.results.length>0&&this.state.currentTab!=='history'){badgeH.classList.add('show');badgeH.textContent=this.results.length}else{badgeH.classList.remove('show')}
+    const badgeP=document.getElementById('btBadgePerson');
+    const keys=this.phase.rounds.map(r=>r.propertyKey).filter(Boolean);
+    const filled=keys.filter(k=>this.results.some(r=>r.propertyKey===k)).length;
+    if(filled>0&&this.state.currentTab!=='person'){badgeP.classList.add('show');badgeP.textContent=filled}else{badgeP.classList.remove('show')}
+  },
+
+  goRound(idx){
+    if(this.state.spinning)return;
+    const done=this.results.some(r=>r.roundId===this.phase.rounds[idx].id);
+    if(done&&idx!==currentRoundIdx){showToast('该轮已抽取，无法重复');return}
+    currentRoundIdx=idx;
+    this.renderPhase();this.renderRound();this.renderSidebar();
+    this.wheel.angle=0;this.state.targetAngle=0;this.wheel.draw();
+    document.getElementById('resultPanel').style.display='none';
+  },
 
   spin(){
-    if(this.state.spinning)return;this.audio.init();this.audio.playClick();
-    this.state.spinning=true;this.btnSpin.disabled=true;this.btnSpin.textContent='⏳ 旋转中…';
-    this.resultPanel.style.display='none';this.particles.clear();
-    this.pointer.classList.add('spinning');
+    if(this.state.spinning||this.isRoundDone)return;
+    this.audio.init();this.audio.click();
+    this.state.spinning=true;
+    document.getElementById('btnSpin').disabled=true;
+    document.getElementById('btnSpin').textContent='⏳ 旋转中…';
+    document.getElementById('resultPanel').style.display='none';
+    this.particles.clear();
 
-    // 随机目标，持续3-5秒
-    const n=this.wheel.n,arc=Math.PI*2/n;
-    const targetIndex=Math.floor(Math.random()*n);
-    const jitter=(Math.random()-.5)*arc*.6;
+    // 目标
+    const sectors=this.wheel.sectors;
+    const totalW=sectors.reduce((s,se)=>s+(se.weight||1),0);
+    let r=Math.random()*totalW;
+    let targetIdx=0;
+    for(let i=0;i<sectors.length;i++){r-=sectors[i].weight||1;if(r<=0){targetIdx=i;break}}
+    const arc=sectors[targetIdx].arc;
+    const jitter=(Math.random()-.5)*arc*.7;
+    let cumArc=0;for(let i=0;i<targetIdx;i++)cumArc+=sectors[i].arc;
     const fullSpins=(6+Math.floor(Math.random()*4))*Math.PI*2;
-    this.state.targetAngle=this.wheel.angle+fullSpins+targetIndex*arc+arc/2+jitter;
+    this.state.targetAngle=this.wheel.angle+fullSpins-cumArc-arc/2+jitter;
     this.state.spinStartAngle=this.wheel.angle;
     this.state.spinStartTime=performance.now();
-    this.state.spinDuration=3000+Math.random()*2000; // 3-5秒
-  }
+    this.state.spinDuration=3000+Math.random()*2000;
+  },
 
   stop(){
-    this.state.spinning=false;this.btnSpin.disabled=false;this.btnSpin.textContent='🌀 开 始 旋 转';
-    this.pointer.classList.remove('spinning');
+    this.state.spinning=false;
+    document.getElementById('btnSpin').disabled=false;
+    document.getElementById('btnSpin').textContent='🌀 点击旋转';
 
-    const n=this.wheel.n,arc=Math.PI*2/n;
-    let raw=(this.wheel.angle-Math.PI/2)%(Math.PI*2);if(raw<0)raw+=Math.PI*2;
-    const adjusted=(-raw+Math.PI*2)%(Math.PI*2);
-    const index=Math.floor(adjusted/arc)%n;
-    const item=this.wheel.items[index];
+    // 计算结果
+    const sectors=this.wheel.sectors;
+    let norm=(-this.wheel.angle)%(Math.PI*2);if(norm<0)norm+=Math.PI*2;
+    let cum=0;let idx=0;
+    for(let i=0;i<sectors.length;i++){cum+=sectors[i].arc;if(norm<cum){idx=i;break}}
 
-    this.showResult(item);
-    this.state.results.push({category:CATEGORIES[this.state.category].name,...item});
-    this.updateHistory();this.updateUI();
+    const item=sectors[idx];
+    const result={roundId:this.round.id,roundTitle:`${this.round.icon} ${this.round.title}`,propertyKey:this.round.propertyKey,label:item.label,desc:item.desc||'',color:item.color||'#333'};
+    this.state.results.push(result);
 
-    // 粒子爆发
-    this.particles.emit(this.wheel.cx,18,70,'#ff3050',200,4.5,1.8);
-    this.particles.emit(this.wheel.cx,18,35,'#ffcc00',160,3.5,1.4);
-    this.particles.emit(this.wheel.cx,18,25,'#ffffff',120,2.5,1);
+    // 显示结果
+    const panel=document.getElementById('resultPanel');
+    panel.style.display='block';
+    panel.style.borderLeft=`4px solid ${item.color||'#333'}`;
+    panel.innerHTML=`<div class="rp-cat">${this.round.icon} ${this.round.title}</div><div class="rp-value" style="color:${item.color||'#333'};text-shadow:0 0 14px ${item.color||'#333'}88">${item.label}</div><div class="rp-desc">${item.desc||''}</div>`;
 
-    this.audio.playResult();
-  }
+    this.audio.result();
 
-  showResult(item){
-    this.resultPanel.style.display='block';
-    const c=item.color||'#333';
-    this.resultPanel.style.borderLeftColor=c;
-    this.resultPanel.style.boxShadow=`0 0 30px ${c}20`;
-    this.resultPanel.innerHTML=`
-      <div class="cat">${CATEGORIES[this.state.category].icon} ${CATEGORIES[this.state.category].name}</div>
-      <div class="value" style="color:${c};text-shadow:0 0 18px ${c}88">${item.label}</div>
-      <div class="desc">${item.desc}</div>
-    `;
-  }
+    // 粒子
+    this.particles.emit(this.wheel.cx,20,60,item.color||'#ff3050',200,4,2);
+    this.particles.emit(this.wheel.cx,20,30,'#ffcc00',140,3,1.4);
+    this.particles.emit(this.wheel.cx,20,20,'#fff',100,2.5,1);
 
-  updateHistory(){
-    this.historyList.innerHTML=this.state.results.map(r=>{
-      const c=r.color||'#333';const key=CAT_KEYS.find(k=>CATEGORIES[k].name===r.category);
-      return `<div class="history-item" style="border-left-color:${c}"><span class="hi-dot" style="background:${c}"></span><span class="hi-label">${r.category}:</span><span class="hi-value">${r.label}</span></div>`;
-    }).join('');
-  }
+    // 自动跳到下一轮（如果没完成）
+    const allDone=this.phase.rounds.every(r=>this.results.some(rr=>rr.roundId===r.id));
+    if(!allDone){
+      for(let i=0;i<this.phase.rounds.length;i++){
+        if(!this.results.some(rr=>rr.roundId===this.phase.rounds[i].id)){currentRoundIdx=i;break}
+      }
+    }
 
-  reset(){this.audio.init();this.audio.playClick();this.state.results=[];this.historyList.innerHTML='';this.resultPanel.style.display='none';this.particles.clear();this.charCardBtn.classList.remove('show');this.updateUI();}
+    // 如果用户不在转盘Tab，标记通知
+    if(this.state.currentTab!=='wheel'){this.state.notifyNewResult=true}
 
-  startBgm(){this.audio.startBgm();this.btnBgm.textContent='🔊 BGM';this.btnBgm.classList.add('on');this.btnBgm.classList.remove('off');this.bgmIndicator.classList.add('on');this.bgmIndicator.classList.remove('off');}
-  stopBgm(){this.audio.stopBgm();this.btnBgm.textContent='🔇 BGM';this.btnBgm.classList.remove('on');this.btnBgm.classList.add('off');this.bgmIndicator.classList.remove('on');this.bgmIndicator.classList.add('off');}
+    // 刷新所有视图
+    this.renderPhase();this.renderRound();this.renderSidebar();this.renderRightPanel();this.renderTabs();this.updateBadges();
 
-  addListeners(){
-    document.addEventListener('keydown',e=>{if(e.code==='Space'&&!this.state.spinning){e.preventDefault();this.spin();}});
-  }
+    if(this.state.currentTab!=='wheel'){showToast('🎯 结果已生成，前往转盘Tab查看')}
+  },
 
+  toggleBgm(){
+    this.audio.init();
+    const btn=document.getElementById('bgmBtn');
+    if(this.audio.bgmOn){this.audio.stopBgm();btn.textContent='🔇 BGM';btn.classList.remove('on')}
+    else{this.audio.startBgm();btn.textContent='🔊 BGM';btn.classList.add('on')}
+  },
+
+  // ─── 游戏循环 ───
+  lastFrameTime: performance.now(),
   loop(timestamp){
     const dt=Math.min((timestamp-this.lastFrameTime)/1000,.1);this.lastFrameTime=timestamp;
 
@@ -552,45 +649,43 @@ class App {
       const elapsed=timestamp-this.state.spinStartTime;
       const dur=this.state.spinDuration;
       const progress=Math.min(elapsed/dur,1);
-      // easeOutCubic: 1-(1-t)^3
       const eased=1-Math.pow(1-progress,3);
       this.wheel.angle=this.state.spinStartAngle+(this.state.targetAngle-this.state.spinStartAngle)*eased;
-
-      // tick音效
-      if(progress<.95){
-        const speed=Math.abs(this.wheel.angle-this.state.lastAngle);
-        if(speed>.03&&Math.random()<.4)this.audio.playTick();
-        this.state.lastAngle=this.wheel.angle;
-      }
-      // 边缘粒子
-      if(Math.random()<.35){
-        const ex=this.wheel.cx+Math.cos(this.wheel.angle)*this.wheel.radius;
-        const ey=this.wheel.cy+Math.sin(this.wheel.angle)*this.wheel.radius;
-        this.particles.emit(ex,ey,1,'#ff305080',25,1.2,.35);
-      }
-
-      if(progress>=1){this.wheel.angle=this.state.targetAngle;this.wheel.draw();this.stop();}
+      // tick
+      if(progress<.95){const speed=Math.abs(this.wheel.angle-this.state.lastAngle);if(speed>.03&&Math.random()<.3)this.audio.tick();this.state.lastAngle=this.wheel.angle}
+      // 粒子
+      if(Math.random()<.06){const ex=this.wheel.cx+Math.cos(this.wheel.angle)*this.wheel.radius;const ey=this.wheel.cy+Math.sin(this.wheel.angle)*this.wheel.radius;this.particles.emit(ex,ey,1,'#ff305080',20,1,.3)}
+      if(progress>=1){this.wheel.angle=this.state.targetAngle;this.wheel.draw();this.stop()}
     }
 
     this.particles.update(dt);
     this.wheel.draw();
-    // 静止时高亮指针扇区
+    // 高亮
     if(!this.state.spinning){
-      const ctx=this.wheel.ctx,dpr=this.wheel.dpr;ctx.setTransform(dpr,0,0,dpr,0,0);
-      const n=this.wheel.n,arc=Math.PI*2/n;
-      let raw=(this.wheel.angle-Math.PI/2)%(Math.PI*2);if(raw<0)raw+=Math.PI*2;
-      const adj=(-raw+Math.PI*2)%(Math.PI*2);const idx=Math.floor(adj/arc)%n;
-      const sa=this.wheel.angle+idx*arc-Math.PI/2;
+      const ctx=this.wheel.ctx,d=this.wheel.dpr;ctx.setTransform(d,0,0,d,0,0);
+      const sectors=this.wheel.sectors;
+      let norm=(-this.wheel.angle)%(Math.PI*2);if(norm<0)norm+=Math.PI*2;
+      let cum=0,idx=0;
+      for(let i=0;i<sectors.length;i++){cum+=sectors[i].arc;if(norm<cum){idx=i;break}}
+      let sa=this.wheel.angle-Math.PI/2;for(let i=0;i<idx;i++)sa+=sectors[i].arc;
       ctx.beginPath();ctx.moveTo(this.wheel.cx,this.wheel.cy);
-      ctx.arc(this.wheel.cx,this.wheel.cy,this.wheel.radius+4,sa,sa+arc);ctx.closePath();
-      ctx.strokeStyle='rgba(255,48,80,.5)';ctx.lineWidth=3;ctx.stroke();
+      ctx.arc(this.wheel.cx,this.wheel.cy,this.wheel.r+3,sa,sa+sectors[idx].arc);ctx.closePath();
+      ctx.strokeStyle='rgba(255,48,80,.45)';ctx.lineWidth=3;ctx.stroke();
     }
-    this.particles.draw(this.wheel.ctx);
+    // 粒子画
+    const ps=this.wheel.s;
+    this.particles.ctx.setTransform(this.wheel.dpr,0,0,this.wheel.dpr,0,0);
+    this.particles.ctx.clearRect(0,0,ps,ps);
+    for(let p of this.particles.particles){
+      const ctx=this.particles.ctx;
+      ctx.save();ctx.globalAlpha=p.a;ctx.fillStyle=p.c;
+      ctx.shadowBlur=p.s*4;ctx.shadowColor=p.c;
+      ctx.beginPath();ctx.arc(p.x,p.y,p.s,0,Math.PI*2);ctx.fill();ctx.restore();
+    }
+
     requestAnimationFrame(t=>this.loop(t));
   }
-}
-
-const app = new App();
+};
 </script>
 </body>
 </html>
