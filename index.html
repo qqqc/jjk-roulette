@@ -336,17 +336,17 @@ function buildWheel(items){
   return{canvas,ctx:canvas.getContext('2d'),size:w,dpr,cx:w/2,cy:w/2,radius:w/2-14,
     sectors:items.map(i=>({...i,arc:(i.w||1)/totalW*Math.PI*2})),
     draw(){const ctx=this.ctx,dpr=this.dpr;ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,this.size,this.size);
-      const n=this.sectors.length,arc=Math.PI*2/n;
       ctx.beginPath();ctx.arc(this.cx,this.cy,this.radius+6,0,Math.PI*2);ctx.strokeStyle='rgba(212,33,61,0.3)';ctx.lineWidth=3;ctx.shadowBlur=15;ctx.shadowColor='rgba(255,51,102,0.3)';ctx.stroke();ctx.shadowBlur=0;
       ctx.beginPath();ctx.arc(this.cx,this.cy,this.radius+2,0,Math.PI*2);ctx.strokeStyle='rgba(255,255,255,0.15)';ctx.lineWidth=2;ctx.stroke();
-      for(let i=0;i<n;i++){const startAngle=wheel.angle+i*arc-Math.PI/2,endAngle=startAngle+arc;const s=this.sectors[i];
-        ctx.beginPath();ctx.moveTo(this.cx,this.cy);ctx.arc(this.cx,this.cy,this.radius,startAngle,endAngle);ctx.closePath();
+      let a=wheel.angle-Math.PI/2;
+      for(let s of this.sectors){const sa=a,ea=a+s.arc;
+        ctx.beginPath();ctx.moveTo(this.cx,this.cy);ctx.arc(this.cx,this.cy,this.radius,sa,ea);ctx.closePath();
         ctx.fillStyle=s.c||'#333';ctx.fill();
-        ctx.beginPath();ctx.moveTo(this.cx,this.cy);ctx.arc(this.cx,this.cy,this.radius,startAngle,endAngle);ctx.lineTo(this.cx,this.cy);
+        ctx.beginPath();ctx.moveTo(this.cx,this.cy);ctx.arc(this.cx,this.cy,this.radius,sa,ea);ctx.lineTo(this.cx,this.cy);
         ctx.strokeStyle='rgba(201,168,76,0.5)';ctx.lineWidth=.8;ctx.stroke();
-        ctx.save();ctx.translate(this.cx,this.cy);ctx.rotate(startAngle+arc/2);ctx.textAlign='right';ctx.fillStyle='#fff';
+        ctx.save();ctx.translate(this.cx,this.cy);ctx.rotate(sa+s.arc/2);ctx.textAlign='right';ctx.fillStyle='#fff';
         const fs=Math.max(9,this.radius*.09);ctx.font=`bold ${fs}px "PingFang SC","Microsoft YaHei",sans-serif`;
-        ctx.shadowColor='rgba(0,0,0,0.7)';ctx.shadowBlur=2;ctx.fillText(s.l,this.radius-8,fs*.35);ctx.shadowBlur=0;ctx.restore();}
+        ctx.shadowColor='rgba(0,0,0,0.7)';ctx.shadowBlur=2;ctx.fillText(s.l,this.radius-8,fs*.35);ctx.shadowBlur=0;ctx.restore();a=ea;}
       const grad=ctx.createRadialGradient(this.cx,this.cy,0,this.cx,this.cy,this.radius*.18);
       grad.addColorStop(0,'#1a1a2e');grad.addColorStop(.7,'#0a0a0c');grad.addColorStop(1,'rgba(0,0,0,0.8)');
       ctx.beginPath();ctx.arc(this.cx,this.cy,this.radius*.16,0,Math.PI*2);ctx.fillStyle=grad;ctx.fill();
