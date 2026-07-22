@@ -5,403 +5,527 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
 <title>咒术转盘 · JJK</title>
 <style>
-:root{--bg:#060608;--bg2:#12121a;--bg3:#1a1a24;--red:#c41e3a;--red-glow:#ff3050;--purple:#6b21a8;--gold:#c9a84c;--text:#e0d8d0;--dim:#6b6560;--r:12px}
+:root{--bg:#060608;--bg2:#12121a;--bg3:#1a1a24;--red:#c41e3a;--glow:#ff3050;--purple:#6b21a8;--gold:#c9a84c;--text:#e0d8d0;--dim:#6b6560;--r:12px}
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:var(--bg);color:var(--text);font-family:"PingFang SC","Microsoft YaHei",sans-serif;min-height:100vh;overflow-x:hidden;-webkit-tap-highlight-color:transparent;user-select:none}
+/* 背景花纹 */
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;background:radial-gradient(ellipse 80% 50% at 50% -10%,rgba(196,30,58,.10) 0%,transparent 50%),radial-gradient(ellipse 60% 40% at 50% 100%,rgba(107,33,168,.06) 0%,transparent 50%),repeating-conic-gradient(from 0deg,rgba(255,48,80,.012) 0% .5%,transparent .5% 3%);mask-image:radial-gradient(ellipse 60% 60% at 50% 40%,black 20%,transparent 70%);animation:bgSpin 120s linear infinite}
+@keyframes bgSpin{to{transform:rotate(360deg)}}
+/* 四角咒字 */
+.c-seal{position:fixed;pointer-events:none;z-index:0;font-family:serif;opacity:.04;animation:sealF 28s ease-in-out infinite}
+.c-seal.a{top:3%;left:4%;font-size:clamp(60px,10vw,130px);color:var(--glow)}
+.c-seal.b{top:4%;right:4%;font-size:clamp(50px,8vw,110px);color:var(--gold);animation-delay:-9s}
+.c-seal.c{bottom:3%;left:4%;font-size:clamp(70px,12vw,150px);color:var(--gold);animation-delay:-18s}
+.c-seal.d{bottom:4%;right:4%;font-size:clamp(55px,9vw,120px);color:var(--glow);animation-delay:-5s}
+@keyframes sealF{0%,100%{transform:translateY(0)rotate(0deg)}33%{transform:translateY(-15px)rotate(3deg)}66%{transform:translateY(10px)rotate(-2deg)}}
+/* 光点 */
+.dots-bg{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.dot{position:absolute;border-radius:50%;background:var(--glow);opacity:0;animation:dotUp linear infinite}
+@keyframes dotUp{0%{transform:translateY(105vh)scale(0);opacity:0}10%{opacity:.3}90%{opacity:.06}100%{transform:translateY(-10vh)scale(1.5);opacity:0}}
 
-/* ─── 层1: 红紫光晕 ─── */
-body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;background:radial-gradient(ellipse 80% 50% at 50% -10%,rgba(196,30,58,.10) 0%,transparent 50%),radial-gradient(ellipse 60% 40% at 50% 100%,rgba(107,33,168,.06) 0%,transparent 50%)}
-/* ─── 层2: 螺旋咒纹 ─── */
-body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;background:repeating-conic-gradient(from 0deg,rgba(255,48,80,.015) 0% .5%,transparent .5% 3%);mask-image:radial-gradient(ellipse 60% 60% at 50% 40%,black 20%,transparent 70%);animation:sealSpin 120s linear infinite}
-@keyframes sealSpin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+/* 主容器 */
+.app{position:relative;z-index:1;display:flex;flex-direction:column;min-height:100vh;padding-bottom:64px}
+@media(min-width:768px){.app{display:grid;grid-template-columns:240px 1fr 250px;min-height:100vh;padding:0}}
 
-/* ─── 层3: 角落咒字 ─── */
-.corner-seal{position:fixed;pointer-events:none;z-index:0;font-family:serif;opacity:.05;animation:cornerFloat 20s ease-in-out infinite}
-.corner-seal.tl{top:5%;left:5%;font-size:clamp(60px,10vw,120px);color:var(--red-glow)}
-.corner-seal.tr{top:5%;right:5%;font-size:clamp(50px,8vw,100px);color:var(--gold);animation-delay:-7s}
-.corner-seal.bl{bottom:5%;left:5%;font-size:clamp(70px,12vw,140px);color:var(--gold);animation-delay:-14s}
-.corner-seal.br{bottom:5%;right:5%;font-size:clamp(55px,9vw,110px);color:var(--red-glow);animation-delay:-3s}
-@keyframes cornerFloat{0%,100%{transform:translateY(0) rotate(0deg)}33%{transform:translateY(-15px) rotate(3deg)}66%{transform:translateY(10px) rotate(-2deg)}}
-
-/* ─── 飘落粒子 ─── */
-.bg-particles{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
-.bg-p{position:absolute;border-radius:50%;background:var(--red-glow);opacity:0;animation:floatUp linear infinite}
-@keyframes floatUp{0%{transform:translateY(105vh) scale(0);opacity:0}10%{opacity:.35}90%{opacity:.08}100%{transform:translateY(-10vh) scale(1.5);opacity:0}}
-
-/* ─── 主容器 ─── */
-.app{position:relative;z-index:1;display:flex;flex-direction:column;min-height:100vh;padding-bottom:70px}
-@media(min-width:768px){.app{display:grid;grid-template-columns:200px 1fr 260px;min-height:100vh;padding:0}}
-
-/* ─── 顶部栏(移动端) ─── */
-.top-bar{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--bg2);border-bottom:1px solid rgba(255,255,255,.06);flex-shrink:0;gap:8px}
-.top-bar .phase-label{font-size:11px;color:var(--dim);letter-spacing:1px}
-.top-bar .phase-name{font-size:14px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.top-bar .phase-icon{font-size:18px}
-.progress-dots{display:flex;gap:6px;align-items:center;flex-shrink:0}
-.progress-dots .pd{width:10px;height:10px;border-radius:50%;border:1.5px solid rgba(255,255,255,.15);transition:all .3s;flex-shrink:0}
-.progress-dots .pd.done{background:var(--gold);border-color:var(--gold)}
-.progress-dots .pd.current{background:var(--red);border-color:var(--red);box-shadow:0 0 10px rgba(255,48,80,.5)}
+/* 顶部栏(移动) */
+.top-bar{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:var(--bg2);border-bottom:1px solid rgba(255,255,255,.05);flex-shrink:0;gap:6px}
+.top-bar .p-name{font-size:13px;font-weight:700;cursor:pointer}
+.p-dots{display:flex;gap:5px}
+.p-dots span{width:9px;height:9px;border-radius:50%;border:1.5px solid rgba(255,255,255,.12);transition:.3s}
+.p-dots span.done{background:var(--gold);border-color:var(--gold)}
+.p-dots span.cur{background:var(--red);border-color:var(--red);box-shadow:0 0 8px var(--glow)}
 @media(min-width:768px){.top-bar{display:none}}
 
-/* ─── 左侧栏(桌面) ─── */
-.sidebar{display:none;background:var(--bg2);border-right:1px solid rgba(255,255,255,.06);flex-direction:column;padding:20px 14px;gap:16px;overflow-y:auto}
-.sidebar .sb-phase{font-size:11px;color:var(--dim);letter-spacing:1px}
-.sidebar .sb-title{font-size:13px;font-weight:700;margin-bottom:2px}
-.sidebar .sb-divider{height:1px;background:rgba(255,255,255,.06);margin:4px 0}
-.steps{display:flex;flex-direction:column;gap:4px}
-.step{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;cursor:pointer;transition:.25s;border:1px solid transparent;font-size:12px}
-.step:hover{border-color:rgba(255,255,255,.1)}
-.step .step-dot{width:10px;height:10px;border-radius:50%;border:2px solid rgba(255,255,255,.2);flex-shrink:0;transition:.3s}
-.step.done .step-dot{background:var(--gold);border-color:var(--gold)}
-.step.current{background:rgba(196,30,58,.1);border-color:rgba(196,30,58,.3)}
-.step.current .step-dot{background:var(--red);border-color:var(--red);box-shadow:0 0 8px rgba(255,48,80,.4)}
-.step.done{opacity:.5}
-.step .step-num{font-size:10px;color:var(--dim);width:16px;text-align:center}
-.step .step-label{color:var(--dim);font-size:12px}
-.step.current .step-label{color:var(--text);font-weight:600}
-.down-phases{margin-top:auto}
-.down-phases .dp{display:flex;align-items:center;gap:8px;padding:6px 0;font-size:11px;color:var(--dim);opacity:.3}
+/* 左侧栏 */
+.sidebar{display:none;background:var(--bg2);border-right:1px solid rgba(255,255,255,.05);flex-direction:column;overflow-y:auto}
 @media(min-width:768px){.sidebar{display:flex}}
+.sb-header{padding:16px 14px 10px;flex-shrink:0}
+.sb-header .sbl{font-size:10px;color:var(--dim);letter-spacing:2px}
+.sb-header .sbn{font-size:15px;font-weight:800;margin:2px 0}
+.sb-header .sbd{height:1px;background:rgba(255,255,255,.04);margin:8px 0}
+.sb-phases{padding:0 8px;flex-shrink:0}
+.sb-phase{display:flex;align-items:center;gap:8px;padding:7px 8px;border-radius:7px;cursor:pointer;transition:.2s;font-size:11px;margin:2px 0}
+.sb-phase:hover{background:rgba(255,255,255,.03)}
+.sb-phase .sp-dot{width:8px;height:8px;border-radius:50%;border:2px solid rgba(255,255,255,.18);flex-shrink:0;transition:.2s}
+.sb-phase.active{background:rgba(196,30,58,.08);border:1px solid rgba(196,30,58,.25)}
+.sb-phase.active .sp-dot{background:var(--red);border-color:var(--red);box-shadow:0 0 6px var(--glow)}
+.sb-phase.done .sp-dot{background:var(--gold);border-color:var(--gold)}
+.sb-phase.locked{opacity:.3;cursor:default}
+.sb-phase .sp-name{color:var(--dim);font-size:11px}
+.sb-phase.active .sp-name{color:var(--text);font-weight:600}
+.sb-events{flex:1;overflow-y:auto;padding:8px 10px}
+.sb-evt{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:6px;cursor:pointer;transition:.2s;font-size:11px;border:1px solid transparent}
+.sb-evt:hover{background:rgba(255,255,255,.02)}
+.sb-evt .se-dot{width:7px;height:7px;border-radius:50%;border:2px solid rgba(255,255,255,.15);flex-shrink:0;transition:.2s}
+.sb-evt.cur .se-dot{background:var(--red);border-color:var(--red);box-shadow:0 0 6px var(--glow)}
+.sb-evt.done .se-dot{background:var(--gold);border-color:var(--gold)}
+.sb-evt.cur{background:rgba(196,30,58,.06);border-color:rgba(196,30,58,.2)}
+.sb-evt.done{opacity:.5}
+.sb-evt .se-num{color:var(--dim);font-size:9px;width:14px;text-align:center}
+.sb-evt .se-title{color:var(--dim);font-size:11px}
+.sb-evt.cur .se-title{color:var(--text);font-weight:600}
+.sb-evt.locked{opacity:.3;cursor:default}
+.sb-footer{flex-shrink:0;padding:10px 14px;border-top:1px solid rgba(255,255,255,.04)}
+.sb-edit{display:flex;align-items:center;gap:6px;cursor:pointer;font-size:10px;color:var(--dim);padding:6px 10px;border-radius:6px;border:1px solid rgba(255,255,255,.08);transition:.2s}
+.sb-edit:hover{color:var(--text);border-color:rgba(255,255,255,.2)}
 
-/* ─── 中央区域 ─── */
-.center-area{flex:1;display:flex;flex-direction:column;align-items:center;padding:12px 14px;gap:10px;overflow-y:auto}
-@media(min-width:768px){.center-area{padding-top:24px}}
-
-.pc-phase-header{display:none;text-align:center}
-.pc-phase-header .pph-label{font-size:11px;color:var(--dim);letter-spacing:2px}
-.pc-phase-header .pph-name{font-size:18px;font-weight:800;margin-top:2px}
-@media(min-width:768px){.pc-phase-header{display:block}}
-
-.round-title{font-size:16px;font-weight:700;text-align:center;letter-spacing:1px}
-
-/* ─── 转盘 ─── */
+/* 中央 */
+.center-area{flex:1;display:flex;flex-direction:column;align-items:center;padding:10px 12px;gap:8px;overflow-y:auto}
+@media(min-width:768px){.center-area{padding-top:20px}}
+.round-title{font-size:15px;font-weight:700;text-align:center}
+/* 转盘 */
 .wheel-wrap{position:relative;width:min(80vw,380px);aspect-ratio:1;flex-shrink:0}
 .wheel-wrap canvas{width:100%;height:100%}
-.wheel-wrap .pointer{position:absolute;top:-10px;left:50%;transform:translateX(-50%);z-index:10;width:0;height:0;border-left:16px solid transparent;border-right:16px solid transparent;border-top:30px solid var(--red-glow);filter:drop-shadow(0 0 8px var(--red-glow))}
-.wheel-wrap .pointer::before{content:'';position:absolute;top:-32px;left:-4px;width:8px;height:14px;background:var(--red-glow);border-radius:4px;box-shadow:0 0 8px var(--red-glow)}
-.wheel-wrap .p-canvas{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:8}
-.center-dot{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:5;width:20%;aspect-ratio:1;border-radius:50%;background:radial-gradient(circle,#1e1e2e 0%,#0a0a0c 100%);border:2px solid rgba(201,168,76,.5);cursor:pointer;display:flex;align-items:center;justify-content:center;font-family:serif;font-size:clamp(14px,3.5vw,20px);color:var(--gold);box-shadow:0 0 20px rgba(0,0,0,.5),inset 0 0 10px rgba(0,0,0,.3);transition:.25s}
-.center-dot:hover{border-color:var(--gold);box-shadow:0 0 30px rgba(201,168,76,.3)}
-
-/* ─── 旋转按钮 ─── */
-.btn-spin{width:100%;max-width:340px;padding:13px;border-radius:28px;border:none;cursor:pointer;font-size:16px;font-weight:700;letter-spacing:2px;background:linear-gradient(135deg,#e0304a,#901030);color:#fff;box-shadow:0 4px 22px rgba(224,48,74,.35);transition:.3s;animation:btnGlow 2s ease infinite}
-.btn-spin:disabled{opacity:.45;cursor:not-allowed;animation:none}
-.btn-next{display:none;width:100%;max-width:340px;padding:11px;border-radius:28px;border:1px solid var(--gold);cursor:pointer;font-size:14px;font-weight:700;letter-spacing:1px;background:transparent;color:var(--gold);transition:.3s}
+.wheel-wrap .ptr{position:absolute;top:-8px;left:50%;transform:translateX(-50%);z-index:10;width:0;height:0;border-left:14px solid transparent;border-right:14px solid transparent;border-top:26px solid var(--glow);filter:drop-shadow(0 0 6px var(--glow))}
+.wheel-wrap .ptr::after{content:'';position:absolute;top:-28px;left:-3px;width:7px;height:12px;background:var(--glow);border-radius:4px;box-shadow:0 0 6px var(--glow)}
+.p-canvas{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:8}
+.center-btn{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:5;width:20%;aspect-ratio:1;border-radius:50%;background:radial-gradient(circle,#1e1e2e,#0a0a0c);border:2px solid rgba(201,168,76,.45);cursor:pointer;display:flex;align-items:center;justify-content:center;font-family:serif;font-size:clamp(14px,3.5vw,20px);color:var(--gold);box-shadow:0 0 18px rgba(0,0,0,.5);transition:.2s}
+.center-btn:hover{border-color:var(--gold);box-shadow:0 0 28px rgba(201,168,76,.25)}
+/* 按钮 */
+.btn-spin{width:100%;max-width:320px;padding:12px;border-radius:26px;border:none;cursor:pointer;font-size:15px;font-weight:700;letter-spacing:2px;background:linear-gradient(135deg,#e0304a,#901030);color:#fff;box-shadow:0 4px 20px rgba(224,48,74,.35);transition:.3s;animation:btnGlow 2s ease infinite}
+.btn-spin:disabled{opacity:.4;cursor:not-allowed;animation:none}
+@keyframes btnGlow{0%,100%{box-shadow:0 4px 20px rgba(224,48,74,.35)}50%{box-shadow:0 6px 32px rgba(255,48,80,.55)}}
+.btn-next{display:none;width:100%;max-width:320px;padding:10px;border-radius:26px;border:1px solid var(--gold);cursor:pointer;font-size:14px;font-weight:700;letter-spacing:1px;background:transparent;color:var(--gold);transition:.3s}
 .btn-next:hover{border-color:#fff;color:#fff}
-.btn-next.show{display:block}
-@keyframes btnGlow{0%,100%{box-shadow:0 4px 22px rgba(224,48,74,.35)}50%{box-shadow:0 6px 34px rgba(255,48,80,.55)}}
-
-/* ─── 结果面板 ─── */
-.result-panel{width:100%;max-width:500px;background:var(--bg2);border-radius:var(--r);padding:14px 18px;text-align:center;animation:fadeIn .35s ease;display:none}
-.result-panel .rp-cat{font-size:11px;color:var(--dim);letter-spacing:2px}
-.result-panel .rp-value{font-size:clamp(18px,4vw,24px);font-weight:800;margin:4px 0 6px;letter-spacing:1px}
+/* 结果面板 */
+.result-panel{width:100%;max-width:480px;background:var(--bg2);border-radius:var(--r);padding:14px 18px;text-align:center;animation:fadeIn .35s ease;display:none}
+.result-panel .rp-cat{font-size:10px;color:var(--dim);letter-spacing:2px}
+.result-panel .rp-val{font-size:clamp(18px,4vw,24px);font-weight:800;margin:4px 0 6px;letter-spacing:1px}
 .result-panel .rp-desc{font-size:13px;color:rgba(224,216,208,.7);line-height:1.6;margin-top:4px}
 @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 
-/* ─── 右侧面板(桌面) ─── */
-.right-panel{display:none;background:var(--bg2);border-left:1px solid rgba(255,255,255,.06);flex-direction:column;overflow-y:auto}
+/* 右侧面板 */
+.right-panel{display:none;background:var(--bg2);border-left:1px solid rgba(255,255,255,.05);flex-direction:column;overflow-y:auto}
 @media(min-width:768px){.right-panel{display:flex}}
-.rp-section{border-bottom:1px solid rgba(255,255,255,.04)}
-.rp-section-header{display:flex;align-items:center;gap:8px;padding:14px 14px 8px;font-size:12px;font-weight:700;letter-spacing:1px;color:var(--dim)}
-.rp-person{padding:8px 14px 14px;display:flex;flex-direction:column;gap:6px}
-.rp-person .pp-row{display:flex;justify-content:space-between;font-size:12px;padding:4px 8px;border-radius:6px;background:rgba(255,255,255,.02)}
-.rp-person .pp-key{color:var(--dim)}
-.rp-person .pp-val{color:var(--text);font-weight:600}
-.rp-history{padding:8px 14px 14px;display:flex;flex-direction:column;gap:6px;max-height:45vh;overflow-y:auto}
-.rp-history .h-item{display:flex;gap:8px;align-items:flex-start;font-size:11px;padding:6px 8px;border-radius:6px;background:rgba(255,255,255,.02);border-left:3px solid transparent}
-.rp-history .h-item .h-dot{width:6px;height:6px;border-radius:3px;margin-top:4px;flex-shrink:0}
-.rp-history .h-item .h-label{color:var(--dim);flex-shrink:0}
-.rp-history .h-item .h-val{color:var(--text);font-weight:600}
+.rp-sec{border-bottom:1px solid rgba(255,255,255,.03)}
+.rp-sec h4{padding:12px 12px 6px;font-size:11px;color:var(--dim);letter-spacing:1px}
+.rp-traits{padding:6px 12px 12px;display:flex;flex-wrap:wrap;gap:4px}
+.rp-traits .tag{padding:3px 8px;border-radius:10px;font-size:10px;background:rgba(255,255,255,.05);color:var(--text);border:1px solid rgba(255,255,255,.08)}
+.rp-traits .empty{color:var(--dim);font-size:10px;padding:4px}
+.rp-hist{padding:6px 12px 12px;display:flex;flex-direction:column;gap:4px;max-height:45vh;overflow-y:auto}
+.rp-hist .rh{display:flex;gap:6px;align-items:flex-start;font-size:10px;padding:3px 6px;border-radius:4px;background:rgba(255,255,255,.012);border-left:3px solid transparent}
+.rp-hist .rh .rhd{width:5px;height:5px;border-radius:2px;margin-top:3px;flex-shrink:0}
 
-/* ─── Tab 视图(移动端) ─── */
-.tab-view{display:none;flex:1;overflow-y:auto;padding:14px}
-.tab-view.active{display:block}
+/* 底部Tab(移动端) */
+.btm-tabs{position:fixed;bottom:0;left:0;right:0;z-index:50;display:flex;background:var(--bg2);border-top:1px solid rgba(255,255,255,.06);padding:3px 0 env(safe-area-inset-bottom,3px)}
+.btm-tabs .bt{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:5px 0;cursor:pointer;color:var(--dim);font-size:10px;gap:2px;transition:.2s;position:relative}
+.btm-tabs .bt.active{color:#fff}
+.btm-tabs .bt .bti{font-size:18px}
+.btm-tabs .bt .btb{position:absolute;top:2px;left:calc(50% + 10px);min-width:15px;height:15px;border-radius:8px;background:var(--red);color:#fff;font-size:9px;display:none;align-items:center;justify-content:center;padding:0 3px}
+@media(min-width:768px){.btm-tabs{display:none}}
+/* 移动Tab视图 */
+.tab-view{display:none;padding:12px;overflow-y:auto;background:var(--bg)}
+.tab-view.on{display:block}
 @media(min-width:768px){.tab-view{display:none!important}}
+.tab-card{background:var(--bg2);border-radius:var(--r);padding:14px}
+.tab-card h4{font-size:10px;color:var(--dim);letter-spacing:2px;margin-bottom:8px}
+.tab-card .tr{display:flex;justify-content:space-between;font-size:12px;padding:3px 6px;border-radius:4px;background:rgba(255,255,255,.012)}
+.tab-card .tr .tk{color:var(--dim)}
+.tab-card .tr .tv{font-weight:600}
+.tab-card .tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}
+.tab-card .tags .tag{padding:2px 8px;border-radius:10px;font-size:10px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08)}
+.th-list{display:flex;flex-direction:column;gap:6px}
+.th-list .th{display:flex;gap:8px;align-items:flex-start;font-size:12px;padding:8px 10px;border-radius:8px;background:var(--bg2);border-left:3px solid transparent}
+.th-list .th .thd{width:7px;height:7px;border-radius:3px;margin-top:3px;flex-shrink:0}
+.th-list .th .thb{display:flex;flex-direction:column;gap:2px}
+.th-list .th .thl{color:var(--dim);font-size:9px;letter-spacing:1px}
+.th-list .th .thv{font-weight:600}
+.th-list .th .thdesc{color:rgba(224,216,208,.65);font-size:11px;line-height:1.5;margin-top:2px}
+.empty{text-align:center;padding:30px;color:var(--dim);font-size:12px}
+/* Toast */
+.toast{position:fixed;top:50px;left:50%;transform:translateX(-50%);z-index:70;background:var(--bg2);border:1px solid rgba(255,255,255,.08);padding:8px 18px;border-radius:18px;font-size:12px;color:var(--text);pointer-events:none;animation:toastIn .3s ease,toastOut .3s ease 1.6s forwards}
+@keyframes toastIn{from{opacity:0;transform:translateX(-50%) translateY(-8px)}}
+@keyframes toastOut{to{opacity:0;transform:translateX(-50%) translateY(-8px)}}
 
-.tab-person-card{background:var(--bg2);border-radius:var(--r);padding:16px;display:flex;flex-direction:column;gap:8px}
-.tab-person-card .tpc-title{font-size:11px;color:var(--dim);letter-spacing:2px;margin-bottom:4px}
-.tab-person-card .tpc-row{display:flex;justify-content:space-between;padding:5px 8px;border-radius:6px;background:rgba(255,255,255,.015);font-size:13px}
-.tab-person-card .tpc-key{color:var(--dim)}
-.tab-person-card .tpc-val{font-weight:600}
-.tab-history-list{display:flex;flex-direction:column;gap:8px}
-.tab-history-list .th-item{display:flex;gap:10px;align-items:flex-start;font-size:13px;padding:10px 12px;border-radius:10px;background:var(--bg2);border-left:3px solid transparent}
-.tab-history-list .th-dot{width:8px;height:8px;border-radius:3px;margin-top:3px;flex-shrink:0}
-.tab-history-list .th-body{display:flex;flex-direction:column;gap:2px}
-.tab-history-list .th-label{color:var(--dim);font-size:10px;letter-spacing:1px}
-.tab-history-list .th-val{font-weight:600}
-.tab-history-list .th-desc{color:rgba(224,216,208,.7);font-size:12px;line-height:1.5;margin-top:3px}
-.tab-empty{text-align:center;padding:40px 20px;color:var(--dim);font-size:13px}
+/* 编辑面板 */
+.editor-overlay{display:none;position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.7)}
+.editor-panel{position:fixed;top:0;right:0;bottom:0;width:min(420px,100vw);z-index:101;background:var(--bg);border-left:1px solid rgba(255,255,255,.08);display:flex;flex-direction:column;transform:translateX(100%);transition:transform .3s ease}
+.editor-panel.open{transform:translateX(0)}
+.editor-panel .ep-header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid rgba(255,255,255,.06);flex-shrink:0}
+.ep-header h3{font-size:14px;font-weight:700;letter-spacing:1px}
+.ep-close{cursor:pointer;font-size:20px;color:var(--dim);transition:.2s}
+.ep-close:hover{color:var(--text)}
+.ep-body{flex:1;overflow-y:auto;padding:12px 16px}
+.ep-body .ep-phase{margin-bottom:12px}
+.ep-body .ep-phase-header{display:flex;align-items:center;gap:8px;cursor:pointer;padding:8px 0;font-size:13px;font-weight:700;border-bottom:1px solid rgba(255,255,255,.04)}
+.ep-body .ep-round{padding:6px 0 6px 16px;border-left:2px solid rgba(255,255,255,.06);margin:6px 0}
+.ep-body .ep-round-header{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--dim);margin-bottom:4px}
+.ep-body .ep-round-header input{background:var(--bg2);border:1px solid rgba(255,255,255,.1);color:var(--text);padding:3px 6px;border-radius:4px;font-size:11px;width:120px}
+.ep-body .ep-item{display:flex;align-items:center;gap:6px;padding:4px 6px;margin:2px 0;border-radius:4px;background:rgba(255,255,255,.02);font-size:11px;flex-wrap:wrap}
+.ep-item input[type=text]{background:var(--bg2);border:1px solid rgba(255,255,255,.1);color:var(--text);padding:3px 6px;border-radius:4px;font-size:10px;width:90px}
+.ep-item input[type=text].w{width:40px}
+.ep-item input[type=color]{width:22px;height:22px;border:none;cursor:pointer;background:transparent;padding:0}
+.ep-item textarea{background:var(--bg2);border:1px solid rgba(255,255,255,.1);color:var(--text);padding:4px 6px;border-radius:4px;font-size:10px;width:100%;min-width:200px;resize:vertical;font-family:inherit}
+.ep-item .tag-row{display:flex;flex-wrap:wrap;gap:3px;align-items:center;margin-top:4px}
+.ep-item .tag-chip{display:flex;align-items:center;gap:2px;padding:1px 6px;border-radius:8px;background:rgba(255,48,80,.15);color:var(--glow);font-size:9px}
+.ep-item .tag-chip .x{cursor:pointer;font-size:10px;opacity:.6}
+.ep-item .tag-chip .x:hover{opacity:1}
+.ep-actions{display:flex;gap:4px;flex-shrink:0;margin-top:4px}
+.ep-actions button{font-size:9px;padding:3px 8px;border-radius:4px;border:1px solid rgba(255,255,255,.1);background:transparent;color:var(--dim);cursor:pointer;transition:.2s}
+.ep-actions button:hover{color:var(--text);border-color:rgba(255,255,255,.3)}
+.ep-actions button.del:hover{color:var(--red);border-color:var(--red)}
+.ep-footer{flex-shrink:0;padding:12px 16px;border-top:1px solid rgba(255,255,255,.06);display:flex;gap:8px;flex-wrap:wrap}
+.ep-footer button{padding:8px 16px;border-radius:18px;border:1px solid rgba(255,255,255,.15);background:var(--bg2);color:var(--text);cursor:pointer;font-size:11px;letter-spacing:1px;transition:.2s}
+.ep-footer button:hover{background:var(--bg3)}
+.ep-footer button.primary{background:var(--red);border-color:var(--red);color:#fff}
+.ep-footer button.primary:hover{background:#d42a4a}
 
-/* ─── 底部 Tab 栏(移动端) ─── */
-.bottom-tabs{position:fixed;bottom:0;left:0;right:0;z-index:50;display:flex;background:var(--bg2);border-top:1px solid rgba(255,255,255,.08);padding:4px 0 env(safe-area-inset-bottom,4px) 0}
-.bottom-tabs .bt{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:6px 0;cursor:pointer;color:var(--dim);font-size:11px;gap:3px;transition:.25s;position:relative}
-.bottom-tabs .bt.active{color:#fff}
-.bottom-tabs .bt .bt-icon{font-size:20px}
-.bottom-tabs .bt .bt-badge{position:absolute;top:2px;left:calc(50% + 12px);min-width:16px;height:16px;border-radius:8px;background:var(--red);color:#fff;font-size:9px;display:flex;align-items:center;justify-content:center;padding:0 4px}
-@media(min-width:768px){.bottom-tabs{display:none}}
-
-/* ─── Toast ─── */
-.toast{position:fixed;top:60px;left:50%;transform:translateX(-50%);z-index:60;background:var(--bg2);border:1px solid rgba(255,255,255,.1);padding:10px 20px;border-radius:20px;font-size:13px;color:var(--text);animation:toastIn .4s ease,toastOut .3s ease 1.8s forwards;pointer-events:none}
-@keyframes toastIn{from{opacity:0;transform:translateX(-50%) translateY(-10px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
-@keyframes toastOut{from{opacity:1}to{opacity:0}}
+@media(max-width:480px){
+  .app{padding-bottom:60px}
+  .wheel-wrap{width:82vw}
+  .btn-spin{max-width:280px;font-size:14px}
+  .btn-next{max-width:280px}
+  .editor-panel{width:100vw}
+}
 </style>
 </head>
 <body>
-
-<div class="bg-particles" id="bgParticles"></div>
-<div class="corner-seal tl">呪</div>
-<div class="corner-seal tr">術</div>
-<div class="corner-seal bl">封</div>
-<div class="corner-seal br">解</div>
+<div class="dots-bg" id="dotsBg"></div>
+<div class="c-seal a">呪</div><div class="c-seal b">術</div><div class="c-seal c">封</div><div class="c-seal d">解</div>
 
 <div class="app" id="app">
-  <!-- 移动端顶部栏 -->
   <div class="top-bar" id="topBar">
-    <div style="display:flex;align-items:center;gap:8px;overflow:hidden">
-      <span class="phase-icon" id="topPhaseIcon"></span>
-      <div style="overflow:hidden">
-        <div class="phase-label" id="topPhaseLabel"></div>
-        <div class="phase-name" id="topPhaseName"></div>
-      </div>
-    </div>
-    <div class="progress-dots" id="topProgress"></div>
+    <span class="p-name" id="topPhase" onclick="App.togglePhaseMenu()">🧬 身份奠基</span>
+    <div class="p-dots" id="topDots"></div>
   </div>
-
-  <!-- 桌面左侧栏 -->
-  <div class="sidebar" id="sidebar"></div>
-
-  <!-- 中央区域 -->
+  <div class="sidebar" id="sidebar">
+    <div class="sb-header">
+      <div class="sbl">JUJUTSU KAISEN ROULETTE</div>
+      <div class="sbn" id="sbTitle">咒 术 转 盘</div>
+      <div class="sbd"></div>
+    </div>
+    <div class="sb-phases" id="sbPhases"></div>
+    <div class="sb-events" id="sbEvents"></div>
+    <div class="sb-footer"><div class="sb-edit" onclick="App.toggleEditor()">⚙️ 编辑数据</div></div>
+  </div>
   <div class="center-area" id="centerArea">
-    <div class="pc-phase-header" id="pcPhaseHeader"></div>
     <div class="round-title" id="roundTitle"></div>
     <div class="wheel-wrap" id="wheelWrap">
-      <div class="pointer" id="pointer"></div>
+      <div class="ptr"></div>
       <canvas id="wheelCanvas"></canvas>
       <canvas class="p-canvas" id="pCanvas"></canvas>
-      <div class="center-dot" id="centerDot">呪</div>
+      <div class="center-btn" id="centerBtn" onclick="App.centerClick()">呪</div>
     </div>
-    <button class="btn-spin" id="btnSpin">🌀 点击旋转</button>
-    <button class="btn-next" id="btnNext">→ 下一轮</button>
+    <button class="btn-spin" id="btnSpin" onclick="App.spin()">🌀 点击旋转</button>
+    <button class="btn-next" id="btnNext" onclick="App.goNext()">→ 下一轮</button>
     <div class="result-panel" id="resultPanel"></div>
   </div>
-
-  <!-- 桌面右侧面板 -->
   <div class="right-panel" id="rightPanel">
-    <div class="rp-section">
-      <div class="rp-section-header">👤 当前人物</div>
-      <div class="rp-person" id="rpPerson"></div>
-    </div>
-    <div class="rp-section">
-      <div class="rp-section-header">📋 事件历史</div>
-      <div class="rp-history" id="rpHistory"></div>
-    </div>
+    <div class="rp-sec"><h4>👤 角色特质</h4><div class="rp-traits" id="rpTraits"><span class="empty">尚未抽取</span></div></div>
+    <div class="rp-sec"><h4>📋 事件历史</h4><div class="rp-hist" id="rpHist"><span class="empty" style="padding:4px">尚未抽取</span></div></div>
   </div>
-
-  <!-- 移动端 Tab 视图 -->
-  <div class="tab-view active" id="tabWheel"></div>
-  <div class="tab-view" id="tabPerson"></div>
-  <div class="tab-view" id="tabHistory"></div>
 </div>
 
-<!-- 移动端底部 Tab -->
-<div class="bottom-tabs" id="bottomTabs">
-  <div class="bt active" data-tab="wheel"><span class="bt-icon">🎯</span><span>转盘</span><span class="bt-badge" id="btBadgeWheel"></span></div>
-  <div class="bt" data-tab="person"><span class="bt-icon">👤</span><span>人物</span><span class="bt-badge" id="btBadgePerson"></span></div>
-  <div class="bt" data-tab="history"><span class="bt-icon">📋</span><span>历史</span><span class="bt-badge" id="btBadgeHistory"></span></div>
+<div class="btm-tabs" id="btmTabs">
+  <div class="bt active" data-t="wheel"><span class="bti">🎯</span>转盘<span class="btb" id="btbW"></span></div>
+  <div class="bt" data-t="person"><span class="bti">👤</span>人物<span class="btb" id="btbP"></span></div>
+  <div class="bt" data-t="hist"><span class="bti">📋</span>历史<span class="btb" id="btbH"></span></div>
 </div>
+
+<div class="tab-view on" id="tvWheel"></div>
+<div class="tab-view" id="tvPerson"></div>
+<div class="tab-view" id="tvHist"></div>
+
+<div class="editor-overlay" id="edOverlay" onclick="App.toggleEditor()"></div>
+<div class="editor-panel" id="edPanel"><div class="ep-header"><h3>🛠 数据编辑器</h3><span class="ep-close" onclick="App.toggleEditor()">✕</span></div><div class="ep-body" id="edBody"></div><div class="ep-footer"><button class="primary" onclick="App.edSave()">💾 保存到本地</button><button onclick="App.edExport()">📥 导出JSON</button><button onclick="App.edImport()">📤 导入JSON</button><button onclick="App.edReset()">🗑 重置</button></div></div>
+
 <div id="toastContainer"></div>
 
 <script>
-// ============================== EMBEDDED DATA ==============================
-const EMBEDDED_DATA={
-  "title":"咒术转盘 · JJK Roulette","subtitle_jp":"呪 術 廻 戦","subtitle_en":"JUJUTSU KAISEN · ROULETTE",
-  "phases":[
-    {"id":"phase1","name":"身份奠基","icon":"🧬","rounds":[
-      {"id":"identity","title":"穿越后的身份","icon":"🎭","desc":"决定你在咒术世界的出身立场","propertyKey":"身份","items":[
-        {"label":"普通人","weight":4,"desc":"无咒力的凡人，在咒术的世界中挣扎求生，却拥有最不可测的潜力。","color":"#1a1a20"},
-        {"label":"咒术高层","weight":1,"desc":"咒术界权力核心的一员。生于御三家或咒术世家，手握规则与资源。","color":"#201830"},
-        {"label":"咒灵","weight":1,"desc":"人类负面情绪中诞生的诅咒。以恐惧为食，以毁灭为本能。","color":"#301020"},
-        {"label":"式神","weight":1,"desc":"被术师召唤并役使的灵体。你的存在与召唤者共生共存。","color":"#0a2020"},
-        {"label":"咒骸","weight":1,"desc":"以咒力为核心驱动的人造物。非生非死，超越常理的造物。","color":"#1a1a2a"},
-        {"label":"咒术师","weight":1,"desc":"掌握咒力、行使术式的正统术师。高专毕业，以拔除咒灵为业。","color":"#102040"},
-        {"label":"诅咒师","weight":1,"desc":"叛离咒术界的术师。为私欲与力量不择手段，被咒术界追捕。","color":"#300a0a"}]},
-      {"id":"timeline","title":"穿越的时间线","icon":"⏳","desc":"你降临于哪个时代？时代决定世界观基调和可用咒术体系","propertyKey":"时代","items":[
-        {"label":"未知时间","weight":1,"desc":"模糊混沌的时间点。你无法确定自己身在何处——这既是诅咒，也是自由。","color":"#1a1a1a"},
-        {"label":"平安京","weight":1,"desc":"千年前的诅咒全盛期。宿傩横行的时代，咒术还是方术的雏形。","color":"#2a1a10"},
-        {"label":"战国乱世","weight":1,"desc":"群雄割据的黑暗时代。咒术与兵戈交织，生死一线间。","color":"#1a2a10"},
-        {"label":"现代","weight":1,"desc":"咒术高专的黄金时代。五条悟诞生，咒术界的平衡被彻底改写。","color":"#102030"},
-        {"label":"68年后","weight":1,"desc":"时光流转68年。故人已去，新的秩序在废墟中重建。","color":"#0a1a1a"},
-        {"label":"千年前","weight":1,"desc":"比平安京更久远的时代。咒术尚未成型，诅咒以最原始的形式存在。","color":"#1a1018"},
-        {"label":"咒术全盛期","weight":1,"desc":"术式百花齐放的时代。强者辈出，领域与极之番被逐一开发。","color":"#201820"},
-        {"label":"末法时代","weight":1,"desc":"咒力从世界消退。术师凋零，诅咒却愈发猖獗——最后的天选之人。","color":"#181818"}]},
-      {"id":"location","title":"穿越的地点","icon":"📍","desc":"你降落在咒术世界的哪个角落？","propertyKey":"地点","items":[
-        {"label":"咒术高专","weight":1,"desc":"东京都立咒术高专——教育年轻术师的学府，也是最安全的庇护所。","color":"#102040"},
-        {"label":"咒术高专(京都)","weight":1,"desc":"京都咒术高专——传统派的大本营，比东京更为严苛。","color":"#201030"},
-        {"label":"诅咒之地","weight":1,"desc":"被诅咒侵蚀的废土。咒灵横行，但也是磨练实力的最佳战场。","color":"#301010"},
-        {"label":"御三家宅邸","weight":1,"desc":"五条、禅院或加茂家的深处。权力与阴谋交织的核心。","color":"#2a1a2a"},
-        {"label":"诅咒之胎","weight":1,"desc":"咒灵的巢穴深处。你诞生于诅咒的核心，生来就与死亡为伴。","color":"#201010"},
-        {"label":"人间都市","weight":1,"desc":"普通的城市街区。结界保护着凡人，但暗处藏着不为人知的恐怖。","color":"#1a1a2a"},
-        {"label":"封印之地","weight":1,"desc":"古老术式封印的遗迹。被遗忘的力量在此沉睡，等待被唤醒。","color":"#10101a"},
-        {"label":"异界裂缝","weight":1,"desc":"现实与诅咒世界的交界处。法则紊乱，一切皆有可能。","color":"#1a101a"}]},
-      {"id":"stats","title":"穿越的数据值","icon":"📊","desc":"你的初始评价等级。受身份影响——强大的出身带来更高的起点","propertyKey":"评级","items":[
-        {"label":"SSS 传说级","weight":1,"desc":"咒术界的传说。天生拥有超越一切常理的天赋与咒力。","color":"#ffcc00"},
-        {"label":"SS 顶级","weight":2,"desc":"万里挑一的逸才。在咒术史的任何一个时代都能留下名字。","color":"#e8a020"},
-        {"label":"S 超一级","weight":2,"desc":"远超同级的天赋。距离传说的境界只有一步之遥。","color":"#d08030"},
-        {"label":"A 一级","weight":3,"desc":"优秀的咒术师。足以拔除大多数咒灵，在战场上独当一面。","color":"#8840a0"},
-        {"label":"B 准一级","weight":2,"desc":"合格的术师。在正确的训练下可以成长为可靠的战力。","color":"#4060b0"},
-        {"label":"C 见习级","weight":1,"desc":"初出茅庐的新人。潜力未开发，前路漫长但并非毫无希望。","color":"#408060"}]},
-      {"id":"moral","title":"道德水平","icon":"⚖️","desc":"你的善恶立场。道德影响事件走向、同伴关系与最终归属","propertyKey":"道德","items":[
-        {"label":"1·混沌恶","weight":1,"desc":"毫无逻辑的恶意。以毁灭与痛苦为乐，诅咒的化身。","color":"#4a1020"},
-        {"label":"2·中立恶","weight":1,"desc":"为个人利益不择手段。没有善恶，只有得失。","color":"#6a2020"},
-        {"label":"3·秩序恶","weight":1,"desc":"以规则为武器压迫弱者。冷静而残忍的暴君。","color":"#8a2030"},
-        {"label":"4·混沌中立","weight":1,"desc":"随心所欲的浪人。善恶全凭心情，不受任何约束。","color":"#886848"},
-        {"label":"5·绝对中立","weight":1,"desc":"不偏不倚的旁观者。命运如何流转，我只做自己的选择。","color":"#686868"},
-        {"label":"6·秩序中立","weight":1,"desc":"规则即正义。善恶不是标准，秩序才是。","color":"#8090a0"},
-        {"label":"7·混沌善","weight":1,"desc":"我行我素的侠客。不拘泥于规则，但底线从不丢失。","color":"#a08c20"},
-        {"label":"8·中立善","weight":1,"desc":"在力所能及处行善。不是圣人，但心有善念。","color":"#c4a830"},
-        {"label":"9·秩序善","weight":1,"desc":"以拯救苍生为己任。即使牺牲自己也在所不惜。","color":"#e8d44d"}]}
+// ========================================================= DATA =========================================================
+const SEED_DATA={phases:[
+  {id:"p1",name:"身份奠基",icon:"🧬",rounds:[
+    {id:"p1_id",title:"穿越后的身份",icon:"🎭",order:1,cond:null,prop:"身份",items:[
+      {l:"普通人",w:4,c:"#1a1a20",d:"无咒力的凡人。在咒术的世界中挣扎求生，却拥有最不可测的潜力——因为没有术式，所以没有上限。",tags:["凡人"]},
+      {l:"咒术高层",w:1,c:"#201830",d:"咒术界权力核心的一员。生于御三家或咒术世家，手握规则与资源，但也被派系斗争裹挟。",tags:["贵族","权力"]},
+      {l:"咒灵",w:1,c:"#301020",d:"人类负面情绪中诞生的诅咒。以恐惧为食，以毁灭为本能。不属于任何势力，也不被任何势力接纳。",tags:["咒灵","诅咒"]},
+      {l:"式神",w:1,c:"#0a2020",d:"被术师召唤并役使的灵体。你的存在与召唤者共生共存——你没有自由，但有羁绊。",tags:["式神","被役使"]},
+      {l:"咒骸",w:1,c:"#1a1a2a",d:"以咒力为核心驱动的人造物。非生非死，超越常理的造物。你的力量来自创造者，但意志属于自己。",tags:["咒骸","人造"]},
+      {l:"咒术师",w:1,c:"#102040",d:"掌握咒力、行使术式的正统术师。高专毕业，以拔除咒灵为业。你是咒术界的基石。",tags:["咒术师","高专"]},
+      {l:"诅咒师",w:1,c:"#300a0a",d:"叛离咒术界的术师。为私欲与力量不择手段，被咒术界追捕。你走在黑暗的路上——但这也不失为一条路。",tags:["诅咒师","叛离"]}
     ]},
-    {"id":"phase2","name":"能力构筑","icon":"🔮","rounds":[]},
-    {"id":"phase3","name":"成长事件","icon":"⚡","rounds":[]},
-    {"id":"phase4","name":"战斗模拟","icon":"⚔️","rounds":[]},
-    {"id":"phase5","name":"结局判定","icon":"⌛","rounds":[]}
-  ]
-};
-let DATA=EMBEDDED_DATA;
-try{fetch('data.json').then(r=>r.json()).then(d=>{DATA=d;App.refreshAll()}).catch(()=>{})}catch(e){}
+    {id:"p1_fear",title:"由什么恐惧诞生",icon:"😱",order:2,cond:"咒灵",prop:"恐惧之源",items:[
+      {l:"对人类的恐惧",w:1,c:"#2a1a1a",d:"人类对咒灵的憎恨，反过来成了你的力量之源。你比任何同行都更理解人类的弱点。",tags:["人型","智慧"]},
+      {l:"对死亡的恐惧",w:2,c:"#1a1a2a",d:"死亡是所有生命的终点——而你正诞生于这个终点之上。不死不灭是你最接近的形容。",tags:["不死","暗系"]},
+      {l:"对孤独的恐惧",w:1,c:"#1a2a1a",d:"被抛弃、被遗忘的恐惧凝聚成了你。你可以感知一切被遗忘之物的所在。",tags:["感知","孤独"]},
+      {l:"对火焰的恐惧",w:1,c:"#2a1000",d:"篝火、火山、战场——人类对火焰的恐惧跨越千年。你掌控着焚尽一切的炽热。",tags:["火焰","破坏"]},
+      {l:"对大海的恐惧",w:1,c:"#002030",d:"深海之下，无尽的黑暗。你诞生于那些溺亡者的最后呼吸。",tags:["水域","深海"]},
+      {l:"对天空的恐惧",w:1,c:"#102030",d:"雷电、暴风、坠落——天空从来不是人类的盟友。你让仰望者颤抖。",tags:["天象","风暴"]},
+      {l:"对未知的恐惧",w:1,c:"#101018",d:"最古老的恐惧。你无形无体，你的存在本身就是迷惑与疯狂。",tags:["无形","精神"]}
+    ]},
+    {id:"p1_growth",title:"成长上限",icon:"📈",order:3,cond:"咒灵",prop:"潜力",items:[
+      {l:"无限成长",w:1,c:"#ffcc00",d:"限制你的只有时间。每一次吞噬，每一次恐惧的积累，你都在变强——没有天花板。",tags:["无限","SSS潜力"]},
+      {l:"极限突破",w:2,c:"#e8a020",d:"存在一个可见的极限，但你可以突破它——只是需要付出巨大代价。",tags:["突破型","SS潜力"]},
+      {l:"稳步成长",w:3,c:"#8840a0",d:"随着时间稳步变强。不是最快的，但每一步都扎实有力。",tags:["稳步","A级潜力"]},
+      {l:"受限成长",w:1,c:"#4060b0",d:"你的成长有明确的瓶颈。到达某个高度后，每进一步都需要百倍的努力。",tags:["受限","B级潜力"]}
+    ]},
+    {id:"p1_time",title:"穿越后的时间",icon:"⏳",order:4,cond:null,prop:"时代",items:[
+      {l:"平安京",w:1,c:"#2a1a10",d:"千年前的诅咒全盛期。宿傩横行的时代，咒术还是方术的雏形——弱肉强食是唯一的法则。",tags:["古代","强者如云"]},
+      {l:"战国乱世",w:1,c:"#1a2a10",d:"群雄割据的黑暗时代。咒术与兵戈交织，战争是最大的诅咒制造机。",tags:["乱世","战争"]},
+      {l:"现代",w:2,c:"#102030",d:"咒术高专的黄金时代。五条悟诞生，咒术界的平衡被彻底改写——你选择站在哪一边？",tags:["现代","高专"]},
+      {l:"68年后",w:1,c:"#0a1a1a",d:"时光流转68年。故人已去，新的秩序在废墟中重建。你是新时代的拓荒者。",tags:["未来","新时代"]},
+      {l:"千年前",w:1,c:"#1a1018",d:"比平安京更久远的时代。咒术尚未成型，诅咒以最原始的形式存在——你是法则本身的缔造者。",tags:["远古","开荒"]},
+      {l:"咒术全盛期",w:1,c:"#201820",d:"术式百花齐放的时代。强者辈出，领域与极之番被逐一开发——竞争也是最激烈的。",tags:["全盛","竞争"]},
+      {l:"末法时代",w:1,c:"#181818",d:"咒力从世界消退。术师凋零，诅咒却愈发猖獗——你是最后的希望，或者最后的绝望。",tags:["末法","最后"]}
+    ]},
+    {id:"p1_loc",title:"穿越后的地点",icon:"📍",order:5,cond:null,prop:"地点",items:[
+      {l:"咒术高专",w:2,c:"#102040",d:"东京都立咒术高专——教育年轻术师的学府，也是咒术界最安全的庇护所之一。",tags:["安全","教育"]},
+      {l:"京都高专",w:1,c:"#201030",d:"京都咒术高专——传统派的大本营。比东京更为严苛，但与权力核心更近。",tags:["传统","严格"]},
+      {l:"诅咒之地",w:1,c:"#301010",d:"被诅咒侵蚀的废土。咒灵横行——但也是最磨练实力的最佳战场。",tags:["危险","磨练"]},
+      {l:"御三家宅邸",w:1,c:"#2a1a2a",d:"五条、禅院或加茂家的深处。权力与阴谋交织的核心，一步天堂一步地狱。",tags:["政治","阴谋"]},
+      {l:"诅咒之胎",w:1,c:"#201010",d:"咒灵的巢穴深处。你诞生于诅咒的核心，生来就与死亡为伴。",tags:["险境","咒灵巢"]},
+      {l:"人间都市",w:2,c:"#1a1a2a",d:"普通的城市街区。结界保护着凡人——但暗处藏着不为人知的恐怖。",tags:["普通","隐藏"]},
+      {l:"封印之地",w:1,c:"#10101a",d:"古老术式封印的遗迹。被遗忘的力量在此沉睡，等待被唤醒——或被摧毁。",tags:["遗迹","秘密"]}
+    ]},
+    {id:"p1_look",title:"外貌水平",icon:"👤",order:6,cond:null,prop:"外貌",items:[
+      {l:"倾国倾城",w:1,c:"#ffcc00",d:"令人窒息的容貌。无论走到哪里，目光都会聚焦在你身上——这既是武器也是诅咒。",tags:["魅力","瞩目"]},
+      {l:"仪表堂堂",w:2,c:"#e0a040",d:"端正出众的外貌。在咒术界游走时，你的仪表本身就是一张通行证。",tags:["端正","通行证"]},
+      {l:"中等偏上",w:3,c:"#807060",d:"不算惊艳，但干净利落。不引人注目——有时候这是一种优势。",tags:["普通","低调"]},
+      {l:"平平无奇",w:2,c:"#686868",d:"扔进人群里就找不到。但正是这种平凡，让你在暗中行动时无人察觉。",tags:["隐匿","平凡"]},
+      {l:"狰狞可怖",w:1,c:"#402020",d:"扭曲的外貌令人恐惧。在这个以力量为尊的世界里，恐惧本身就是力量。",tags:["恐怖","威慑"]}
+    ]},
+    {id:"p1_moral",title:"道德水平",icon:"⚖️",order:7,cond:null,prop:"道德",items:[
+      {l:"秩序善·圣人",w:1,c:"#e8d44d",d:"以拯救苍生为己任，即使牺牲自己也在所不惜。你的名字将成为传奇。",tags:["善","守序","圣人"]},
+      {l:"混沌善·侠客",w:1,c:"#a08c20",d:"我行我素的善良。不拘泥于规则，但底线从不丢失。",tags:["善","自由","侠客"]},
+      {l:"绝对中立·旁观者",w:1,c:"#686868",d:"不偏不倚。命运如何流转，我只做自己的选择。不介入任何一方的纷争。",tags:["中立","旁观"]},
+      {l:"混沌中立·浪人",w:2,c:"#886848",d:"随心所欲。善恶全凭心情，不受任何约束——你就是规则本身。",tags:["中立","自由","浪人"]},
+      {l:"中立恶·恶党",w:1,c:"#8a2020",d:"为达目的不择手段。没有善恶，只有得失。",tags:["恶","利己"]},
+      {l:"混沌恶·破坏者",w:1,c:"#4a1020",d:"毫无逻辑的恶意。以毁灭与痛苦为乐，诅咒的化身别无二致。",tags:["恶","混乱","破坏"]}
+    ]}
+  ]},
+  {id:"p2",name:"能力构筑",icon:"🔮",rounds:[]},
+  {id:"p3",name:"成长事件",icon:"⚡",rounds:[]},
+  {id:"p4",name:"战斗模拟",icon:"⚔️",rounds:[]},
+  {id:"p5",name:"结局判定",icon:"⌛",rounds:[]}
+]};
 
-let currentPhaseIdx=0,currentRoundIdx=0;
-const App={particles:null,wheel:null,state:{spinning:false,targetAngle:0,spinStartAngle:0,spinStartTime:0,spinDuration:0,lastAngle:0,results:[],currentTab:'wheel'},
+// ========================================================= DATA LOADING =========================================================
+let DATA=JSON.parse(JSON.stringify(SEED_DATA));
+(function loadData(){
+  try{
+    const stored=localStorage.getItem('jjk_data');
+    if(stored){DATA=JSON.parse(stored);console.log('Data loaded from localStorage')}
+    else{console.log('Using SEED_DATA')}
+  }catch(e){console.log('Load failed, using SEED_DATA')}
+})();
 
-init(){const bg=document.getElementById('bgParticles');for(let i=0;i<20;i++){const p=document.createElement('div');p.className='bg-p';p.style.left=Math.random()*100+'%';p.style.width=p.style.height=(1.5+Math.random()*3)+'px';p.style.animationDuration=(10+Math.random()*20)+'s';p.style.animationDelay=Math.random()*20+'s';p.style.background=Math.random()<.5?'var(--red-glow)':'var(--gold)';bg.appendChild(p)}
-this.wheelCanvas=document.getElementById('wheelCanvas');this.pCanvas=document.getElementById('pCanvas');this.btnNext=document.getElementById('btnNext');
-this.particles=new ParticleSystem(this.pCanvas);this.refreshAll();this.bindEvents();this.resized();
-window.addEventListener('resize',()=>this.resized());requestAnimationFrame(t=>this.loop(t));},
+// ========================================================= GAME STATE =========================================================
+let curPhase=0,curRound=0;
+const state={spinning:false,results:[],traits:[],targetAngle:0,startAngle:0,startTime:0,duration:0,lastAngle:0,curTab:'wheel',editorOpen:false};
+let wheel,particles;
 
-get phase(){return DATA.phases[currentPhaseIdx]},
-get round(){return this.phase.rounds[currentRoundIdx]},
-get results(){return this.state.results},
-get isRoundDone(){return this.results.some(r=>r.roundId===this.round.id)},
+const ph=()=>DATA.phases[curPhase];
+const rd=()=>ph().rounds.filter(r=>{
+  if(!r.cond)return true;
+  return state.traits.includes(r.cond);
+}).sort((a,b)=>a.order-b.order)[curRound];
+const activeRounds=()=>ph().rounds.filter(r=>{
+  if(!r.cond)return true;
+  return state.traits.includes(r.cond);
+}).sort((a,b)=>a.order-b.order);
+const isRoundDone=(r)=>{if(!r)return false;return state.results.some(rr=>rr.roundId===r.id)};
+const isPhaseDone=()=>activeRounds().every(r=>isRoundDone(r));
 
-resized(){const s=this.wheelCanvas.parentElement.clientWidth,dpr=Math.min(window.devicePixelRatio||1,2);this.pCanvas.width=s*dpr;this.pCanvas.height=s*dpr;this.pCanvas.style.width=s+'px';this.pCanvas.style.height=s+'px';this.particles.ctx.setTransform(dpr,0,0,dpr,0,0);if(this.wheel)this.wheel.resize()},
+// ========================================================= WHEEL =========================================================
+function _dark(h,amt){const r=parseInt(h.slice(1,3),16),g=parseInt(h.slice(3,5),16),b=parseInt(h.slice(5,7),16);return `rgb(${Math.floor(r*(1-amt))},${Math.floor(g*(1-amt))},${Math.floor(b*(1-amt))})`}
+function buildWheel(items){
+  const canvas=document.getElementById('wheelCanvas');
+  const w=canvas.parentElement.clientWidth,dpr=Math.min(devicePixelRatio||1,2);
+  canvas.width=w*dpr;canvas.height=w*dpr;canvas.style.width=w+'px';canvas.style.height=w+'px';
+  const totalW=items.reduce((s,i)=>s+(i.w||1),0);
+  return{canvas,ctx:canvas.getContext('2d'),size:w,dpr,cx:w/2,cy:w/2,radius:w/2-14,
+    sectors:items.map(i=>({...i,arc:(i.w||1)/totalW*Math.PI*2})),
+    draw(){const ctx=this.ctx,dpr=this.dpr;ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,this.size,this.size);
+      const n=this.sectors.length,arc=Math.PI*2/n;
+      ctx.beginPath();ctx.arc(this.cx,this.cy,this.radius+6,0,Math.PI*2);ctx.strokeStyle='rgba(212,33,61,0.3)';ctx.lineWidth=3;ctx.shadowBlur=15;ctx.shadowColor='rgba(255,51,102,0.3)';ctx.stroke();ctx.shadowBlur=0;
+      ctx.beginPath();ctx.arc(this.cx,this.cy,this.radius+2,0,Math.PI*2);ctx.strokeStyle='rgba(255,255,255,0.15)';ctx.lineWidth=2;ctx.stroke();
+      for(let i=0;i<n;i++){const startAngle=wheel.angle+i*arc-Math.PI/2,endAngle=startAngle+arc;const s=this.sectors[i];
+        ctx.beginPath();ctx.moveTo(this.cx,this.cy);ctx.arc(this.cx,this.cy,this.radius,startAngle,endAngle);ctx.closePath();
+        ctx.fillStyle=s.c||'#333';ctx.fill();
+        ctx.beginPath();ctx.moveTo(this.cx,this.cy);ctx.arc(this.cx,this.cy,this.radius,startAngle,endAngle);ctx.lineTo(this.cx,this.cy);
+        ctx.strokeStyle='rgba(201,168,76,0.5)';ctx.lineWidth=.8;ctx.stroke();
+        ctx.save();ctx.translate(this.cx,this.cy);ctx.rotate(startAngle+arc/2);ctx.textAlign='right';ctx.fillStyle='#fff';
+        const fs=Math.max(9,this.radius*.09);ctx.font=`bold ${fs}px "PingFang SC","Microsoft YaHei",sans-serif`;
+        ctx.shadowColor='rgba(0,0,0,0.7)';ctx.shadowBlur=2;ctx.fillText(s.l,this.radius-8,fs*.35);ctx.shadowBlur=0;ctx.restore();}
+      const grad=ctx.createRadialGradient(this.cx,this.cy,0,this.cx,this.cy,this.radius*.18);
+      grad.addColorStop(0,'#1a1a2e');grad.addColorStop(.7,'#0a0a0c');grad.addColorStop(1,'rgba(0,0,0,0.8)');
+      ctx.beginPath();ctx.arc(this.cx,this.cy,this.radius*.16,0,Math.PI*2);ctx.fillStyle=grad;ctx.fill();
+      ctx.strokeStyle='rgba(201,168,76,0.6)';ctx.lineWidth=1.5;ctx.stroke();
+      ctx.fillStyle='#c9a84c';ctx.textAlign='center';ctx.textBaseline='middle';ctx.font=`bold ${Math.max(11,this.radius*.1)}px serif`;ctx.fillText('呪',this.cx,this.cy);
+    }
+  };
+}
 
-refreshAll(){this.renderPhase();this.renderRound();this.renderSidebar();this.renderRightPanel();this.renderTabs();this.updateBadges();},
-
-renderPhase(){document.getElementById('topPhaseIcon').textContent=this.phase.icon;document.getElementById('topPhaseLabel').textContent='阶段'+(currentPhaseIdx+1);document.getElementById('topPhaseName').textContent=this.phase.name;
-document.getElementById('pcPhaseHeader').innerHTML=`<div class="pph-label">阶段${currentPhaseIdx+1}</div><div class="pph-name">${this.phase.icon} ${this.phase.name}</div>`;
-const dots=document.getElementById('topProgress');dots.innerHTML='';this.phase.rounds.forEach((r,i)=>{const d=document.createElement('span');d.className='pd';if(this.results.some(rr=>rr.roundId===r.id))d.classList.add('done');if(i===currentRoundIdx&&!this.isRoundDone)d.classList.add('current');dots.appendChild(d)});
-// Next button visibility
-const allDone=this.phase.rounds.every(r=>this.results.some(rr=>rr.roundId===r.id));
-if(this.isRoundDone&&!allDone)this.btnNext.classList.add('show');else this.btnNext.classList.remove('show')},
-
-renderRound(){const r=this.round;document.getElementById('roundTitle').innerHTML=`<span class="rt-icon">${r.icon}</span> 第${currentRoundIdx+1}转：${r.title}`;
-this.wheel=new WheelRenderer(this.wheelCanvas,r.items);this.wheel.buildOffscreen();this.wheel.angle=0;this.state.targetAngle=0;this.wheel.draw();this.resized();document.getElementById('resultPanel').style.display='none';document.getElementById('btnSpin').disabled=this.isRoundDone;document.getElementById('btnSpin').textContent=this.isRoundDone?'✅ 已抽取':'🌀 点击旋转';
-this.btnNext.classList.remove('show')},
-
-renderSidebar(){if(window.innerWidth<768)return;const sb=document.getElementById('sidebar');const ph=this.phase;
-let h=`<div class="sb-phase">阶段${currentPhaseIdx+1}</div><div class="sb-title">${ph.icon} ${ph.name}</div><div class="sb-divider"></div><div class="steps">`;
-ph.rounds.forEach((r,i)=>{const done=this.results.some(rr=>rr.roundId===r.id);const cur=i===currentRoundIdx&&!done;
-h+=`<div class="step ${done?'done':''} ${cur?'current':''}" data-round="${i}" onclick="App.goRound(${i})"><span class="step-dot"></span><span class="step-num">${done?'✓':(i+1)}</span><span class="step-label">${r.title}</span></div>`});
-h+='</div><div class="down-phases">';DATA.phases.forEach((p,i)=>{if(i>currentPhaseIdx)h+=`<div class="dp">🔒 阶段${i+1} ${p.name}</div>`});h+='</div>';sb.innerHTML=h},
-
-renderRightPanel(){if(window.innerWidth<768)return;
-const person=document.getElementById('rpPerson');const keys=this.phase.rounds.map(r=>r.propertyKey).filter(Boolean);const vals={};this.results.forEach(r=>{if(r.propertyKey)vals[r.propertyKey]=r.label});
-if(keys.length===0)person.innerHTML='<div style="font-size:11px;color:var(--dim);padding:8px">暂无数据</div>';
-else person.innerHTML=keys.map(k=>`<div class="pp-row"><span class="pp-key">${k}</span><span class="pp-val">${vals[k]||'——'}</span></div>`).join('');
-const hist=document.getElementById('rpHistory');
-if(this.results.length===0)hist.innerHTML='<div style="font-size:11px;color:var(--dim);padding:8px">尚未抽取</div>';
-else hist.innerHTML=this.results.map(r=>`<div class="h-item" style="border-left-color:${r.color||'#333'}"><span class="h-dot" style="background:${r.color||'#333'}"></span><span class="h-label">${r.roundTitle}:</span><span class="h-val">${r.label}</span></div>`).join('')},
-
-renderTabs(){const keys=this.phase.rounds.map(r=>r.propertyKey).filter(Boolean);const vals={};this.results.forEach(r=>{if(r.propertyKey)vals[r.propertyKey]=r.label});
-const tp=document.getElementById('tabPerson');
-if(keys.length===0)tp.innerHTML='<div class="tab-empty">暂无人物数据</div>';
-else{let h=`<div class="tab-person-card"><div class="tpc-title">👤 当前人物状态</div>`;keys.forEach(k=>{h+=`<div class="tpc-row"><span class="tpc-key">${k}</span><span class="tpc-val">${vals[k]||'——'}</span></div>`});h+='</div>';tp.innerHTML=h}
-const th=document.getElementById('tabHistory');
-if(this.results.length===0)th.innerHTML='<div class="tab-empty">暂无事件记录<br>回到转盘开始抽取吧</div>';
-else{let h='<div class="tab-history-list">';this.results.forEach(r=>{h+=`<div class="th-item" style="border-left-color:${r.color||'#333'}"><span class="th-dot" style="background:${r.color||'#333'}"></span><div class="th-body"><span class="th-label">${r.roundTitle}</span><span class="th-val">${r.label}</span><span class="th-desc">${r.desc||''}</span></div></div>`});h+='</div>';th.innerHTML=h}},
-
-bindEvents(){document.getElementById('btnSpin').addEventListener('click',()=>this.spin());
-document.getElementById('centerDot').addEventListener('click',()=>{if(!this.state.spinning&&!this.isRoundDone)this.spin()});
-document.getElementById('wheelCanvas').addEventListener('click',()=>{if(!this.state.spinning&&!this.isRoundDone)this.spin()});
-document.getElementById('btnNext').addEventListener('click',()=>this.goNext());
-document.addEventListener('keydown',e=>{if(e.code==='Space'&&!this.state.spinning&&!this.isRoundDone){e.preventDefault();this.spin()}});
-document.querySelectorAll('.bottom-tabs .bt').forEach(bt=>{bt.addEventListener('click',()=>this.setTab(bt.dataset.tab))})},
-
-setTab(tab){this.state.currentTab=tab;document.querySelectorAll('.bottom-tabs .bt').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));
-document.querySelectorAll('.tab-view').forEach(v=>v.classList.remove('active'));
-const view=document.getElementById(tab==='wheel'?'tabWheel':tab==='person'?'tabPerson':'tabHistory');
-if(view)view.classList.add('active');this.updateBadges()},
-
-updateBadges(){const bh=document.getElementById('btBadgeHistory');bh.style.display=this.results.length>0&&this.state.currentTab!=='history'?'flex':'none';if(bh.style.display!=='none')bh.textContent=this.results.length;
-const bp=document.getElementById('btBadgePerson');const keys=this.phase.rounds.map(r=>r.propertyKey).filter(Boolean);const filled=keys.filter(k=>this.results.some(r=>r.propertyKey===k)).length;bp.style.display=filled>0&&this.state.currentTab!=='person'?'flex':'none';if(bp.style.display!=='none')bp.textContent=filled},
-
-goRound(idx){if(this.state.spinning)return;if(this.results.some(r=>r.roundId===this.phase.rounds[idx].id)){showToast('该轮已抽取，无法重复');return}
-currentRoundIdx=idx;this.refreshAll();this.wheel.angle=0;this.state.targetAngle=0;this.wheel.draw();document.getElementById('resultPanel').style.display='none';this.btnNext.classList.remove('show')},
-
-goNext(){const allDone=this.phase.rounds.every(r=>this.results.some(rr=>rr.roundId===r.id));if(allDone)return;
-for(let i=0;i<this.phase.rounds.length;i++){if(!this.results.some(rr=>rr.roundId===this.phase.rounds[i].id)){currentRoundIdx=i;break}}
-this.refreshAll();this.wheel.angle=0;this.state.targetAngle=0;this.wheel.draw();document.getElementById('resultPanel').style.display='none';this.btnNext.classList.remove('show')},
-
-spin(){if(this.state.spinning||this.isRoundDone)return;this.state.spinning=true;
-document.getElementById('btnSpin').disabled=true;document.getElementById('btnSpin').textContent='⏳ 旋转中…';document.getElementById('resultPanel').style.display='none';this.btnNext.classList.remove('show');this.particles.clear();
-const sectors=this.wheel.sectors,totalW=sectors.reduce((s,se)=>s+(se.weight||1),0);let r=Math.random()*totalW,targetIdx=0;
-for(let i=0;i<sectors.length;i++){r-=sectors[i].weight||1;if(r<=0){targetIdx=i;break}}
-const arc=sectors[targetIdx].arc,jitter=(Math.random()-.5)*arc*.7;let cumArc=0;for(let i=0;i<targetIdx;i++)cumArc+=sectors[i].arc;
-const fullSpins=(6+Math.floor(Math.random()*4))*Math.PI*2;
-this.state.targetAngle=this.wheel.angle+fullSpins-cumArc-arc/2+jitter;this.state.spinStartAngle=this.wheel.angle;this.state.spinStartTime=performance.now();this.state.spinDuration=3000+Math.random()*2000;},
-
-stop(){this.state.spinning=false;document.getElementById('btnSpin').disabled=false;document.getElementById('btnSpin').textContent='✅ 已抽取';
-const sectors=this.wheel.sectors;let norm=(-this.wheel.angle)%(Math.PI*2);if(norm<0)norm+=Math.PI*2;let cum=0,idx=0;
-for(let i=0;i<sectors.length;i++){cum+=sectors[i].arc;if(norm<cum){idx=i;break}}
-const item=sectors[idx];const result={roundId:this.round.id,roundTitle:`${this.round.icon} ${this.round.title}`,propertyKey:this.round.propertyKey,label:item.label,desc:item.desc||'',color:item.color||'#333'};
-this.state.results.push(result);
-const panel=document.getElementById('resultPanel');panel.style.display='block';panel.style.borderLeft=`4px solid ${item.color||'#333'}`;
-panel.innerHTML=`<div class="rp-cat">${this.round.icon} ${this.round.title}</div><div class="rp-value" style="color:${item.color||'#333'};text-shadow:0 0 14px ${item.color||'#333'}88">${item.label}</div><div class="rp-desc">${item.desc||''}</div>`;
-this.particles.emit(this.wheel.cx*this.wheel.dpr,20*this.wheel.dpr,60,item.color||'#ff3050',200*this.wheel.dpr,4*this.wheel.dpr,2);this.particles.emit(this.wheel.cx*this.wheel.dpr,20*this.wheel.dpr,30,'#ffcc00',140*this.wheel.dpr,3*this.wheel.dpr,1.4);this.particles.emit(this.wheel.cx*this.wheel.dpr,20*this.wheel.dpr,20,'#fff',100*this.wheel.dpr,2.5*this.wheel.dpr,1);
-this.refreshAll();},
-
-lastFrameTime:performance.now(),
-loop(timestamp){const dt=Math.min((timestamp-this.lastFrameTime)/1000,.1);this.lastFrameTime=timestamp;
-if(this.state.spinning){const elapsed=timestamp-this.state.spinStartTime,dur=this.state.spinDuration,progress=Math.min(elapsed/dur,1),eased=1-Math.pow(1-progress,3);
-this.wheel.angle=this.state.spinStartAngle+(this.state.targetAngle-this.state.spinStartAngle)*eased;
-if(Math.random()<.05){const r=this.wheel.r*this.wheel.dpr;const ex=this.wheel.cx*this.wheel.dpr+Math.cos(this.wheel.angle)*r;const ey=this.wheel.cy*this.wheel.dpr+Math.sin(this.wheel.angle)*r;this.particles.emit(ex,ey,1,'#ff305060',18*this.wheel.dpr,.8*this.wheel.dpr,.3)}
-if(progress>=1){this.wheel.angle=this.state.targetAngle;this.wheel.draw();this.stop()}}
-this.particles.update(dt);this.wheel.draw();
-if(!this.state.spinning){const ctx=this.wheel.ctx,d=this.wheel.dpr;ctx.setTransform(d,0,0,d,0,0);const sectors=this.wheel.sectors;let norm=(-this.wheel.angle)%(Math.PI*2);if(norm<0)norm+=Math.PI*2;let cum=0,idx=0;for(let i=0;i<sectors.length;i++){cum+=sectors[i].arc;if(norm<cum){idx=i;break}}let sa=this.wheel.angle-Math.PI/2;for(let i=0;i<idx;i++)sa+=sectors[i].arc;const pcx=this.wheel.cx*d,pcy=this.wheel.cy*d,pr=this.wheel.r*d;ctx.beginPath();ctx.moveTo(pcx,pcy);ctx.arc(pcx,pcy,pr+3*d,sa,sa+sectors[idx].arc);ctx.closePath();ctx.strokeStyle='rgba(255,48,80,.45)';ctx.lineWidth=3*d;ctx.stroke()}
-const ps=this.wheel.s;this.particles.ctx.setTransform(this.wheel.dpr,0,0,this.wheel.dpr,0,0);this.particles.ctx.clearRect(0,0,ps,ps);
-for(let p of this.particles.particles){const ctx=this.particles.ctx;ctx.save();ctx.globalAlpha=p.a;ctx.fillStyle=p.c;ctx.shadowBlur=p.s*4;ctx.shadowColor=p.c;ctx.beginPath();ctx.arc(p.x,p.y,p.s,0,Math.PI*2);ctx.fill();ctx.restore()}
-requestAnimationFrame(t=>this.loop(t))}
-};
-
-// ============================== PARTICLES ==============================
+// ========================================================= PARTICLES =========================================================
 class Particle{constructor(x,y,c,s,vx,vy,l){this.x=x;this.y=y;this.c=c;this.s=s;this.vx=vx;this.vy=vy;this.l=l;this.ml=l;this.a=1}update(dt){this.x+=this.vx*dt;this.y+=this.vy*dt;this.vy+=25*dt;this.l-=dt;this.a=Math.max(0,this.l/this.ml);this.s*=.997}get dead(){return this.l<=0}}
-class ParticleSystem{constructor(canvas){this.canvas=canvas;this.ctx=canvas.getContext('2d');this.particles=[]}
-emit(x,y,n,c,sp,sz,l){for(let i=0;i<n;i++){const a=Math.random()*Math.PI*2,s=Math.random()*sp;this.particles.push(new Particle(x,y,c,sz*(.5+Math.random()),Math.cos(a)*s,Math.sin(a)*s-40,l*(.6+Math.random()*.4)))}}
-update(dt){for(let p of this.particles)p.update(dt);this.particles=this.particles.filter(p=>!p.dead)}
-clear(){this.particles=[]}}
+class ParticleSystem{constructor(canvas){this.cv=canvas;this.ctx=canvas.getContext('2d');this.parts=[]}
+  emit(x,y,n,c,sp,sz,l){for(let i=0;i<n;i++){const a=Math.random()*Math.PI*2,s=Math.random()*sp;this.parts.push(new Particle(x,y,c,sz*(.5+Math.random()),Math.cos(a)*s,Math.sin(a)*s-40,l*(.6+Math.random()*.4)))}}
+  update(dt){for(let p of this.parts)p.update(dt);this.parts=this.parts.filter(p=>!p.dead)}
+  clear(){this.parts=[]}}
 
-// ============================== WHEEL RENDERER (offscreen pre-render) ==============================
-class WheelRenderer{constructor(canvas,items){this.canvas=canvas;this.ctx=canvas.getContext('2d');this.items=items;this.angle=0;this.r=0;this.buildSectors();this.resize()}
-buildSectors(){const totalW=this.items.reduce((s,i)=>s+(i.weight||1),0);this.sectors=this.items.map(i=>({...i,arc:(i.weight||1)/totalW*Math.PI*2}))}
-resize(){const w=this.canvas.parentElement.clientWidth,dpr=Math.min(window.devicePixelRatio||1,2);this.canvas.width=w*dpr;this.canvas.height=w*dpr;this.canvas.style.width=w+'px';this.canvas.style.height=w+'px';this.s=w*dpr;this.cx=w/2;this.cy=w/2;this.r=w/2-18;this.dpr=dpr;
-this.offs=document.createElement('canvas');this.offs.width=this.canvas.width;this.offs.height=this.canvas.height;this.offsCtx=this.offs.getContext('2d');this.prerender();this.draw()}
-prerender(){const ctx=this.offsCtx,d=this.dpr,cx=this.cx*d,cy=this.cy*d,r=this.r*d;ctx.clearRect(0,0,this.s,this.s);
-ctx.beginPath();ctx.arc(cx,cy,r+10*d,0,Math.PI*2);ctx.strokeStyle='rgba(196,30,58,.18)';ctx.lineWidth=3*d;ctx.shadowBlur=12*d;ctx.shadowColor='rgba(196,30,58,.3)';ctx.stroke();ctx.shadowBlur=0;
-for(let i=0;i<48;i++){const aa=i/48*Math.PI*2-Math.PI/2;ctx.beginPath();ctx.moveTo(cx+Math.cos(aa)*(r+6*d),cy+Math.sin(aa)*(r+6*d));ctx.lineTo(cx+Math.cos(aa)*(r+11*d),cy+Math.sin(aa)*(r+11*d));ctx.strokeStyle=i%3===0?'rgba(201,168,76,.5)':'rgba(201,168,76,.15)';ctx.lineWidth=i%3===0?1.2*d:.5*d;ctx.stroke()}
-let a=-Math.PI/2;
-for(let s of this.sectors){const sa=a,ea=a+s.arc;const grad=ctx.createRadialGradient(cx,cy,r*.15,cx,cy,r);grad.addColorStop(0,s.color||'#333');grad.addColorStop(.6,s.color||'#333');grad.addColorStop(1,this._dark(s.color,.4));ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,r,sa,ea);ctx.closePath();ctx.fillStyle=grad;ctx.fill();ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,r,sa,ea);ctx.lineTo(cx,cy);ctx.strokeStyle='rgba(201,168,76,.3)';ctx.lineWidth=.6*d;ctx.stroke();
-ctx.save();ctx.translate(cx,cy);ctx.rotate(sa+s.arc/2);const fs=Math.max(9,this.r*.09)*d;ctx.font=`bold ${fs}px "PingFang SC","Microsoft YaHei",sans-serif`;ctx.textAlign='right';ctx.fillStyle='#fff';ctx.shadowColor='rgba(255,255,255,.4)';ctx.shadowBlur=3*d;ctx.fillText(s.label,r-10*d,fs*.35);ctx.shadowBlur=0;ctx.restore();a=ea}
-const bg=ctx.createRadialGradient(cx,cy,0,cx,cy,r*.16);bg.addColorStop(0,'#1a1a2e');bg.addColorStop(.7,'#0a0a0c');bg.addColorStop(1,'rgba(0,0,0,.8)');ctx.beginPath();ctx.arc(cx,cy,r*.14,0,Math.PI*2);ctx.fillStyle=bg;ctx.fill();ctx.strokeStyle='rgba(201,168,76,.5)';ctx.lineWidth=1.2*d;ctx.stroke()}
-buildOffscreen(){this.prerender()}
-draw(){const ctx=this.ctx,d=this.dpr,cx=this.cx*d,cy=this.cy*d;ctx.setTransform(d,0,0,d,0,0);ctx.clearRect(0,0,this.s,this.s);
-ctx.save();ctx.translate(cx,cy);ctx.rotate(this.angle);ctx.drawImage(this.offs,-cx,-cy);ctx.restore()}
-_dark(h,amt){const r=parseInt(h.slice(1,3),16),g=parseInt(h.slice(3,5),16),b=parseInt(h.slice(5,7),16);return `rgb(${Math.floor(r*(1-amt))},${Math.floor(g*(1-amt))},${Math.floor(b*(1-amt))})`}}
+function initParticles(){const pc=document.getElementById('pCanvas');particles=new ParticleSystem(pc);}
 
-// ============================== TOAST ==============================
-function showToast(msg){const c=document.getElementById('toastContainer');const d=document.createElement('div');d.className='toast';d.textContent=msg;c.appendChild(d);setTimeout(()=>d.remove(),2200)}
+// ========================================================= RENDER =========================================================
+function refreshAll(){refreshTopBar();refreshSidebar();refreshRound();refreshRight();refreshTabs();updateBadges();}
+function getCurrentRoundIndex(){const ar=activeRounds();return ar.findIndex(r=>r===rd())}
 
-// ============================== START ==============================
-App.init();
+function refreshTopBar(){
+  document.getElementById('topPhase').textContent=ph().icon+' '+ph().name;
+  const ar=activeRounds();const dots=document.getElementById('topDots');dots.innerHTML='';
+  ar.forEach((r,i)=>{const d=document.createElement('span');
+    if(isRoundDone(r))d.className='done';if(r.id===rd().id)d.className='cur';dots.appendChild(d)});
+}
+function refreshSidebar(){
+  if(window.innerWidth<768)return;
+  const sbPh=document.getElementById('sbPhases');sbPh.innerHTML=DATA.phases.map((p,i)=>{
+    const done=p.rounds.length>0&&p.rounds.every(r=>isRoundDone(r)||(r.cond&&!state.traits.includes(r.cond)));
+    const isCur=i===curPhase;const locked=i>curPhase&&!isPhaseDone()&&i!==curPhase;
+    let cls='sb-phase';if(locked)cls+=' locked';if(isCur)cls+=' active';if(done&&!isCur)cls+=' done';
+    return `<div class="${cls}" onclick="App.switchPhase(${i})"><span class="sp-dot"></span><span class="sp-name">${p.icon} ${p.name}</span></div>`;
+  }).join('');
+  const sbEv=document.getElementById('sbEvents');const ar=activeRounds();
+  sbEv.innerHTML=ar.map((r,i)=>{
+    const done=isRoundDone(r);const cur=r.id===rd().id;
+    let cls='sb-evt';if(cur)cls+=' cur';if(done)cls+=' done';
+    return `<div class="${cls}" onclick="App.goRound(${i})"><span class="se-dot"></span><span class="se-num">${done?'✓':(i+1)}</span><span class="se-title">${r.icon} ${r.title}</span></div>`;
+  }).join('');
+}
+function refreshRound(){
+  const r=rd();if(!r)return;
+  document.getElementById('roundTitle').innerHTML=`<span style="font-size:18px">${r.icon}</span> 第${getCurrentRoundIndex()+1}转：${r.title}`;
+  wheel=buildWheel(r.items);wheel.angle=0;state.targetAngle=0;initParticles();wheel.draw();
+  document.getElementById('resultPanel').style.display='none';
+  const done=isRoundDone(r);
+  document.getElementById('btnSpin').disabled=done;
+  document.getElementById('btnSpin').textContent=done?'✅ 已抽取':'🌀 点击旋转';
+  document.getElementById('btnNext').style.display='none';
+}
+function refreshRight(){
+  if(window.innerWidth<768)return;
+  document.getElementById('rpTraits').innerHTML=state.traits.length?state.traits.map(t=>`<span class="tag">${t}</span>`).join(''):'<span class="empty">尚未抽取</span>';
+  document.getElementById('rpHist').innerHTML=state.results.length?state.results.map(r=>`<div class="rh" style="border-left-color:${r.c||'#333'}"><span class="rhd" style="background:${r.c||'#333'}"></span><span style="color:var(--dim);font-size:9px">${r.rname}:</span><span style="font-weight:600;font-size:10px">${r.label}</span></div>`).join(''):'<span class="empty" style="padding:4px">尚未抽取</span>';
+}
+function refreshTabs(){
+  const tp=document.getElementById('tvPerson'),th=document.getElementById('tvHist');
+  tp.innerHTML=state.traits.length?`<div class="tab-card"><h4>👤 角色特质</h4><div class="tags">${state.traits.map(t=>`<span class="tag">${t}</span>`).join('')}</div></div>`:'<div class="empty">暂无特质</div>';
+  th.innerHTML=state.results.length?`<div class="th-list">${state.results.map(r=>`<div class="th" style="border-left-color:${r.c||'#333'}"><span class="thd" style="background:${r.c||'#333'}"></span><div class="thb"><span class="thl">${r.rname}</span><span class="thv">${r.label}</span><span class="thdesc">${r.desc||''}</span></div></div>`).join('')}</div>`:'<div class="empty">暂无事件记录</div>';
+}
+function updateBadges(){
+  const bh=document.getElementById('btbH'),bp=document.getElementById('btbP');
+  bh.style.display=state.results.length&&state.curTab!=='hist'?'flex':'none';if(bh.style.display!=='none')bh.textContent=state.results.length;
+  bp.style.display=state.traits.length&&state.curTab!=='person'?'flex':'none';if(bp.style.display!=='none')bp.textContent=state.traits.length;
+}
+
+// ========================================================= ACTIONS =========================================================
+function showToast(msg){const c=document.getElementById('toastContainer'),d=document.createElement('div');d.className='toast';d.textContent=msg;c.appendChild(d);setTimeout(()=>d.remove(),2000)}
+function applyEffects(item){
+  if(item.tags){item.tags.forEach(t=>{if(!state.traits.includes(t))state.traits.push(t)})}
+}
+function switchPhase(i){
+  if(state.spinning)return;
+  if(i>curPhase&&!isPhaseDone()){showToast('当前阶段未完成，无法进入下一阶段');return}
+  curPhase=i;curRound=0;refreshAll();wheel.angle=0;state.targetAngle=0;wheel.draw();document.getElementById('resultPanel').style.display='none';
+}
+function goRound(i){
+  if(state.spinning)return;const ar=activeRounds();
+  if(isRoundDone(ar[i])){showToast('该轮已抽取');return}
+  curRound=i;refreshAll();wheel.angle=0;state.targetAngle=0;wheel.draw();document.getElementById('resultPanel').style.display='none';
+}
+function goNext(){
+  const ar=activeRounds();for(let i=0;i<ar.length;i++){if(!isRoundDone(ar[i])&&ar[i].id!==rd().id){curRound=i;break}}
+  refreshAll();wheel.angle=0;state.targetAngle=0;wheel.draw();document.getElementById('resultPanel').style.display='none';
+}
+function spin(){
+  if(state.spinning||isRoundDone(rd()))return;state.spinning=true;
+  document.getElementById('btnSpin').disabled=true;document.getElementById('btnSpin').textContent='⏳ 旋转中…';
+  document.getElementById('resultPanel').style.display='none';document.getElementById('btnNext').style.display='none';
+  particles.clear();
+  const ss=wheel.sectors,tw=ss.reduce((s,se)=>s+(se.w||1),0);let r=Math.random()*tw,ti=0;
+  for(let i=0;i<ss.length;i++){r-=ss[i].w||1;if(r<=0){ti=i;break}}
+  const arc=ss[ti].arc,j=(Math.random()-.5)*arc*.6;let ca=0;for(let i=0;i<ti;i++)ca+=ss[i].arc;
+  state.targetAngle=wheel.angle+(6+Math.floor(Math.random()*4))*Math.PI*2-ca-arc/2+j;
+  state.startAngle=wheel.angle;state.startTime=performance.now();state.duration=3000+Math.random()*2000;
+}
+function stop(){
+  state.spinning=false;document.getElementById('btnSpin').disabled=false;document.getElementById('btnSpin').textContent='✅ 已抽取';
+  let norm=(-wheel.angle)%(Math.PI*2);if(norm<0)norm+=Math.PI*2;let cum=0,idx=0;
+  for(let i=0;i<wheel.sectors.length;i++){cum+=wheel.sectors[i].arc;if(norm<cum){idx=i;break}}
+  const item=wheel.sectors[idx];
+  state.results.push({roundId:rd().id,rname:`${rd().icon} ${rd().title}`,prop:rd().prop,label:item.l,desc:item.d||'',c:item.c||'#333'});
+  applyEffects(item);
+  const panel=document.getElementById('resultPanel');panel.style.display='block';panel.style.borderLeft=`4px solid ${item.c||'#333'}`;
+  panel.innerHTML=`<div class="rp-cat">${rd().icon} ${rd().title}</div><div class="rp-val" style="color:${item.c||'#333'};text-shadow:0 0 12px ${item.c||'#333'}66">${item.l}</div><div class="rp-desc">${item.d||''}</div>`;
+  particles.emit(wheel.cx,20,50,item.c||'#ff3050',160,3.5,2);particles.emit(wheel.cx,20,25,'#ffcc00',110,2.5,1.4);
+  // show next button if more rounds
+  const ar=activeRounds();const undone=ar.filter(r=>!isRoundDone(r));
+  if(undone.length>0){document.getElementById('btnNext').style.display='block'}
+  refreshAll();
+}
+function centerClick(){if(state.spinning)return;if(isRoundDone(rd())){goNext();return}spin()}
+function setTab(tab){
+  state.curTab=tab;document.querySelectorAll('.btm-tabs .bt').forEach(b=>b.classList.toggle('active',b.dataset.t===tab));
+  document.querySelectorAll('.tab-view').forEach(v=>v.classList.remove('on'));
+  const v=document.getElementById(tab==='wheel'?'tvWheel':tab==='person'?'tvPerson':'tvHist');if(v)v.classList.add('on');
+  updateBadges();
+}
+
+// ========================================================= EDITOR =========================================================
+function toggleEditor(){
+  state.editorOpen=!state.editorOpen;
+  document.getElementById('edOverlay').style.display=state.editorOpen?'block':'none';
+  document.getElementById('edPanel').classList.toggle('open',state.editorOpen);
+  if(state.editorOpen)renderEditor();
+}
+function renderEditor(){
+  const body=document.getElementById('edBody');let h='';
+  DATA.phases.forEach((p,pi)=>{
+    h+=`<div class="ep-phase"><div class="ep-phase-header"><span>${p.icon||'◆'}</span><input value="${p.name}" onchange="DATA.phases[${pi}].name=this.value" style="font-weight:700;width:140px" /></div>`;
+    p.rounds.forEach((r,ri)=>{
+      h+=`<div class="ep-round"><div class="ep-round-header">#${r.order||ri+1} ${r.icon||''} <input value="${r.title}" onchange="DATA.phases[${pi}].rounds[${ri}].title=this.value" /> cond:<input value="${r.cond||''}" onchange="DATA.phases[${pi}].rounds[${ri}].cond=this.value||null" style="width:60px" /></div>`;
+      r.items.forEach((it,ii)=>{
+        h+=`<div class="ep-item"><input value="${it.l}" onchange="DATA.phases[${pi}].rounds[${ri}].items[${ii}].l=this.value" /> w:<input class="w" type="number" min="1" max="10" value="${it.w||1}" onchange="DATA.phases[${pi}].rounds[${ri}].items[${ii}].w=parseInt(this.value)||1" /> <input type="color" value="${it.c||'#333'}" onchange="DATA.phases[${pi}].rounds[${ri}].items[${ii}].c=this.value" /><div style="flex-basis:100%"><textarea rows="2" onchange="DATA.phases[${pi}].rounds[${ri}].items[${ii}].d=this.value">${it.d||''}</textarea></div><div class="tag-row">${(it.tags||[]).map((t,ti)=>`<span class="tag-chip">${t}<span class="x" onclick="DATA.phases[${pi}].rounds[${ri}].items[${ii}].tags.splice(${ti},1);renderEditor()">×</span></span>`).join('')}<input value="" placeholder="+标签" style="width:50px" onkeydown="if(event.key==='Enter'){const v=this.value.trim();if(v){if(!DATA.phases[${pi}].rounds[${ri}].items[${ii}].tags)DATA.phases[${pi}].rounds[${ri}].items[${ii}].tags=[];DATA.phases[${pi}].rounds[${ri}].items[${ii}].tags.push(v);renderEditor();}}" /></div><div class="ep-actions"><button class="del" onclick="DATA.phases[${pi}].rounds[${ri}].items.splice(${ii},1);renderEditor()">✕ 删除选项</button></div></div>`;
+      });
+      h+=`<div class="ep-actions" style="margin-top:6px"><button onclick="DATA.phases[${pi}].rounds[${ri}].items.push({l:'新选项',w:1,c:'#333',d:'',tags:[]});renderEditor()">+ 添加选项</button><button class="del" onclick="DATA.phases[${pi}].rounds.splice(${ri},1);renderEditor()">✕ 删除轮次</button></div></div>`;
+    });
+    h+=`<div class="ep-actions"><button onclick="DATA.phases[${pi}].rounds.push({id:'p'+(pi+1)+'_'+Date.now(),title:'新轮次',icon:'◆',order:DATA.phases[${pi}].rounds.length+1,cond:null,prop:'',items:[{l:'选项1',w:1,c:'#333',d:'',tags:[]}]});renderEditor()">+ 添加轮次</button></div></div>`;
+  });
+  h+=`<div class="ep-actions" style="padding:10px 0"><button onclick="DATA.phases.push({id:'p'+(DATA.phases.length+1),name:'新阶段',icon:'◆',rounds:[]});renderEditor()">+ 添加阶段</button></div>`;
+  body.innerHTML=h;
+}
+function edSave(){
+  localStorage.setItem('jjk_data',JSON.stringify(DATA));
+  refreshAll();wheel=buildWheel(rd().items);wheel.angle=0;wheel.draw();showToast('💾 已保存');
+}
+function edExport(){
+  const blob=new Blob([JSON.stringify(DATA,null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='data.json';a.click();
+}
+function edImport(){
+  const inp=document.createElement('input');inp.type='file';inp.accept='.json';
+  inp.onchange=e=>{const f=e.target.files[0];if(f){const fr=new FileReader();fr.onload=ev=>{try{DATA=JSON.parse(ev.target.result);edSave();showToast('📤 已导入')}catch(x){showToast('导入失败：JSON格式错误')}};fr.readAsText(f)}};
+  inp.click();
+}
+function edReset(){if(confirm('重置为默认数据？所有未保存修改将丢失。')){DATA=JSON.parse(JSON.stringify(SEED_DATA));localStorage.removeItem('jjk_data');refreshAll();wheel=buildWheel(rd().items);wheel.angle=0;wheel.draw();toggleEditor();showToast('🗑 已重置')}}
+
+// ========================================================= LOOP =========================================================
+let lft=performance.now();
+function loop(t){
+  const dt=Math.min((t-lft)/1000,.1);lft=t;
+  if(state.spinning){const p=Math.min((t-state.startTime)/state.duration,1),e=1-Math.pow(1-p,3);wheel.angle=state.startAngle+(state.targetAngle-state.startAngle)*e;if(p>=1){wheel.angle=state.targetAngle;wheel.draw();stop()}}
+  if(particles){particles.update(dt);if(wheel){const pc=document.getElementById('pCanvas'),pctx=particles.ctx,sw=wheel.size;pc.width=wheel.canvas.width;pc.height=wheel.canvas.height;pctx.setTransform(wheel.dpr,0,0,wheel.dpr,0,0);pctx.clearRect(0,0,sw,sw);for(let p of particles.parts){pctx.save();pctx.globalAlpha=p.a;pctx.fillStyle=p.c;pctx.shadowBlur=p.s*4;pctx.shadowColor=p.c;pctx.beginPath();pctx.arc(p.x,p.y,p.s,0,Math.PI*2);pctx.fill();pctx.restore()}}}
+  if(wheel)wheel.draw();
+  if(wheel&&!state.spinning){const ctx=wheel.ctx,dpr=wheel.dpr;ctx.setTransform(dpr,0,0,dpr,0,0);const ss=wheel.sectors;let norm=(-wheel.angle)%(Math.PI*2);if(norm<0)norm+=Math.PI*2;let cum=0,idx=0;for(let i=0;i<ss.length;i++){cum+=ss[i].arc;if(norm<cum){idx=i;break}}let sa=wheel.angle-Math.PI/2;for(let i=0;i<idx;i++)sa+=ss[i].arc;ctx.beginPath();ctx.moveTo(wheel.cx,wheel.cy);ctx.arc(wheel.cx,wheel.cy,wheel.radius+3,sa,sa+ss[idx].arc);ctx.closePath();ctx.strokeStyle='rgba(255,48,80,.45)';ctx.lineWidth=3;ctx.stroke()}
+  requestAnimationFrame(loop);
+}
+
+// ========================================================= INIT =========================================================
+(function init(){
+  const db=document.getElementById('dotsBg');for(let i=0;i<20;i++){const d=document.createElement('div');d.className='dot';d.style.left=Math.random()*100+'%';d.style.width=d.style.height=(1.5+Math.random()*3)+'px';d.style.animationDuration=(10+Math.random()*20)+'s';d.style.animationDelay=Math.random()*20+'s';d.style.background=Math.random()<.5?'var(--glow)':'var(--gold)';db.appendChild(d)}
+  document.querySelectorAll('.btm-tabs .bt').forEach(b=>b.addEventListener('click',()=>setTab(b.dataset.t)));
+  refreshAll();
+  window.addEventListener('resize',()=>{if(wheel){wheel=buildWheel(rd().items);initParticles();wheel.draw()}refreshSidebar();refreshRight()});
+  requestAnimationFrame(loop);
+})();
 </script>
 </body>
 </html>
