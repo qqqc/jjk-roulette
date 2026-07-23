@@ -584,7 +584,22 @@ const SEED_DATA={phases:[
       {l:"手无缚鸡之力·E-",w:5,c:"#300",d:"你的体术几乎为零。但你有咒术——也许这就够了。",tags:["极低"],dim:{体术:"E-"}},{l:"闪电五连鞭·E",w:5,c:"#500",d:"马老师看了都摇头。",tags:["低"],dim:{体术:"E"}},{l:"四级·D",w:10,c:"#700",d:"四级术师的体术水平。",tags:["中低"],dim:{体术:"D"}},{l:"三级·C",w:15,c:"#48a",d:"标准的三级术师体术。",tags:["中等"],dim:{体术:"C"}},{l:"二级·B",w:20,c:"#68c",d:"二级术师的体术水平。",tags:["中高"],dim:{体术:"B"}},{l:"一级·A",w:20,c:"#c84",d:"一级术师级别的体术。",tags:["高"],dim:{体术:"A"}},{l:"特级·S",w:15,c:"#f50",d:"特级体术——你的身体本身就是一件武器。",tags:["极高"],dim:{体术:"S"}},{l:"五宿级·SS",w:10,c:"#f20",d:"五条悟和宿儺级别的体术。",tags:["恐怖"],dim:{体术:"SS"}},{l:"四手宿傩·SSS",w:5,c:"#fc0",d:"四只手打你两只手——你觉得谁会赢？",tags:["传说"],dim:{体术:"SSS"}},{l:"两只手吊打四手·EX",w:5,c:"#fff",d:"你的体术已经超越了物理法则本身。",tags:["神级"],dim:{体术:"EX"}}
     ]},
     {id:"p2_body",title:"体质",icon:"🛡️",order:19,cond:null,group:"基础维度",prop:"体质",items:[
-      {l:"霍金再世·E-",w:5,c:"#300",d:"你的体质差到了极点。但霍金的头脑改变了世界——你的咒术也可以。",tags:["极低"],dim:{体质:"E-"}},{l:"严重残疾·E",w:5,c:"#500",d:"你的身体有明显的缺陷。",tags:["低"],dim:{体质:"E"}},{l:"体弱多病·D",w:10,c:"#700",d:"你的身体比大部分人差。",tags:["中低"],dim:{体质:"D"}},{l:"正常人·C",w:15,c:"#48a",d:"标准的体质。",tags:["中等"],dim:{体质:"C"}},{l:"体育生·B",w:20,c:"#68c",d:"良好的体质。",tags:["中高"],dim:{体质:"B"}},{l:"顶尖运动员·A",w:20,c:"#c84",d:"运动员级别的体质。",tags:["高"],dim:{体质:"A"}},{l:"人类极限·S",w:15,c:"#f50",d:"人类体质的天花板。",tags:["极高"],dim:{体质:"S"}},{l:"高专虎·SS",w:10,c:"#f20",d:"虎杖悠仁级别的体质。",tags:["恐怖"],dim:{体质:"SS"}},{l:"天与暴君·SSS",w:5,c:"#fc0",d:"天与咒缚的极致。",tags:["传说"],dim:{体质:"SSS"}},{l:"金刚不坏·EX",w:5,c:"#fff",d:"你的身体已经超越了伤害的概念。",tags:["神级"],dim:{体质:"EX"}}
+      {l:"霍金再世·E-",w:5,c:"#300",d:"你的体质差到了极点。但霍金的头脑改变了世界——你的咒术也可以。",tags:["极低"],dim:{体质:"E-"}},{l:"严重残疾·E",w:5,c:"#500",d:"你的身体有明显的缺陷。",tags:["低"],dim:{体质:"E"}},{l:"体弱多病·D",w:10,c:"#700",d:"你的身体比大部分人差。",tags:["中低"],dim:{体质:"D"}},{l:"正常人·C",w:15,c:"#48a",d:"标准的体质。",tags:["中等"],dim:{体质:"C"}},{l:"体育生·B",w:20,c:"#68c",d:"良好的体质。",tags:["中高"],dim:{体质:"B"}},{l:"顶尖运动员·A",w:20,c:"#c84",d:"运动员级别的体质。",tags:["高"],dim:{体质:"A"}},{l:"人类极限·S",w:15,c:"#f50",d:"人类体质的天花板。",tags:["极高"],dim:{体质:"S"}},{l:"高专虎·SS",w:10,c:"#f20",d:"虎杖悠仁级别的体质。",tags:["恐怖"],dim:{体质:"SS"}},{l:"天与暴君·SSS",w:5,c:"#fc0",d:"天与咒缚的极致。",tags:["传说"],dim:{体质:"SSS"}},      {l:"金刚不坏·EX",w:5,c:"#fff",d:"你的身体已经超越了伤害的概念。",tags:["神级"],dim:{体质:"EX"}}
+    ]},
+    {id:"p2_skn_e",title:"技巧数量",icon:"📚",order:20,cond:"天赋|<=|E",group:"高级技巧",prop:"技巧数",items:[
+      {l:"0",w:12,d:"你的天赋太低了——你甚至无法掌握任何高级技巧。",tags:[""]},{l:"1",w:10,d:"勉强能掌握一个技巧。",tags:["skill_1"]},{l:"2",w:8,tags:["skill_1","skill_2"]},{l:"3",w:6,tags:["skill_1","skill_2","skill_3"]}
+    ]},
+    {id:"p2_skn_d",title:"技巧数量",icon:"📚",order:20,cond:"天赋|>=|D",group:"高级技巧",prop:"技巧数",items:[
+      {l:"1",w:12,tags:["skill_1"]},{l:"2",w:10,tags:["skill_1","skill_2"]},{l:"3",w:8,tags:["skill_1","skill_2","skill_3"]},{l:"4",w:6,tags:["skill_1","skill_2","skill_3","skill_4"]},{l:"5",w:4,tags:["skill_1","skill_2","skill_3","skill_4","skill_5"]},{l:"6",w:2,tags:["skill_1","skill_2","skill_3","skill_4","skill_5","skill_6"]}
+    ]},
+    {id:"p2_skn_a",title:"技巧数量",icon:"📚",order:20,cond:"天赋|>=|B",group:"高级技巧",prop:"技巧数",items:[
+      {l:"2",w:12,tags:["skill_1","skill_2"]},{l:"3",w:10,tags:["skill_1","skill_2","skill_3"]},{l:"4",w:8,tags:["skill_1","skill_2","skill_3","skill_4"]},{l:"5",w:6,tags:["skill_1","skill_2","skill_3","skill_4","skill_5"]},{l:"6",w:4,tags:["skill_1","skill_2","skill_3","skill_4","skill_5","skill_6"]},{l:"7",w:2,tags:["skill_1","skill_2","skill_3","skill_4","skill_5","skill_6","skill_7"]}
+    ]},
+    {id:"p2_skn_s",title:"技巧数量",icon:"📚",order:20,cond:"天赋|>=|S",group:"高级技巧",prop:"技巧数",items:[
+      {l:"3",w:12,tags:["skill_1","skill_2","skill_3"]},{l:"4",w:10,tags:["skill_1","skill_2","skill_3","skill_4"]},{l:"5",w:8,tags:["skill_1","skill_2","skill_3","skill_4","skill_5"]},{l:"6",w:6,tags:["skill_1","skill_2","skill_3","skill_4","skill_5","skill_6"]},{l:"7",w:4,tags:["skill_1","skill_2","skill_3","skill_4","skill_5","skill_6","skill_7"]},{l:"8",w:2,tags:["skill_1","skill_2","skill_3","skill_4","skill_5","skill_6","skill_7","skill_8"]}
+    ]},
+    {id:"p2_skn_x",title:"技巧数量",icon:"📚",order:20,cond:"天赋|>=|SSS",group:"高级技巧",prop:"技巧数",items:[
+      {l:"4",w:12,tags:["skill_1","skill_2","skill_3","skill_4"]},{l:"5",w:10,tags:["skill_1","skill_2","skill_3","skill_4","skill_5"]},{l:"6",w:8,tags:["skill_1","skill_2","skill_3","skill_4","skill_5","skill_6"]},{l:"7",w:6,tags:["skill_1","skill_2","skill_3","skill_4","skill_5","skill_6","skill_7"]},{l:"8",w:4,tags:["skill_1","skill_2","skill_3","skill_4","skill_5","skill_6","skill_7","skill_8"]},{l:"9",w:2,tags:["skill_1","skill_2","skill_3","skill_4","skill_5","skill_6","skill_7","skill_8","skill_9"]}
     ]}
   ]},
   {id:"p3",name:"成长事件",icon:"⚡",rounds:[]},
