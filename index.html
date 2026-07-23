@@ -421,7 +421,7 @@ function getFilteredRoundItems(r){if(!r)return[];return getFilteredItems(r.items
 
 function buildWheel(items){
   const canvas=document.getElementById('wheelCanvas');
-  const w=canvas.parentElement.clientWidth,dpr=Math.min(devicePixelRatio||1,2);
+  let w=canvas.parentElement.clientWidth;if(!w)w=Math.min(window.innerWidth*.8,370);const dpr=Math.min(devicePixelRatio||1,2);
   canvas.width=w*dpr;canvas.height=w*dpr;canvas.style.width=w+'px';canvas.style.height=w+'px';
   const totalW=items.reduce((s,i)=>s+(i.w||1),0);
   return{canvas,ctx:canvas.getContext('2d'),size:w,dpr,cx:w/2,cy:w/2,radius:w/2-14,
@@ -572,7 +572,7 @@ function spin(){
   for(let i=0;i<ss.length;i++){r-=ss[i].w||1;if(r<=0){ti=i;break}}
   const arc=ss[ti].arc,j=(Math.random()-.5)*arc*.6;let ca=0;for(let i=0;i<ti;i++)ca+=ss[i].arc;
   state.targetAngle=wheel.angle+(6+Math.floor(Math.random()*4))*Math.PI*2-ca-arc/2+j;
-  state.startAngle=wheel.angle;state.startTime=performance.now();state.duration=3000+Math.random()*2000;
+  state.startAngle=wheel.angle;state.startTime=performance.now();state.duration=5000+Math.random()*2000;
 }
 function stop(){
   state.spinning=false;document.getElementById('btnSpin').disabled=false;document.getElementById('btnSpin').textContent='✅ 已抽取';
@@ -659,9 +659,8 @@ function loop(t){
 (function init(){
   const db=document.getElementById('dotsBg');for(let i=0;i<20;i++){const d=document.createElement('div');d.className='dot';d.style.left=Math.random()*100+'%';d.style.width=d.style.height=(1.5+Math.random()*3)+'px';d.style.animationDuration=(10+Math.random()*20)+'s';d.style.animationDelay=Math.random()*20+'s';d.style.background=Math.random()<.5?'var(--glow)':'var(--gold)';db.appendChild(d)}
   document.querySelectorAll('.btm-tabs .bt').forEach(b=>b.addEventListener('click',()=>setTab(b.dataset.t)));
-  refreshAll();
+  setTimeout(()=>{refreshAll();requestAnimationFrame(loop)},100);
   window.addEventListener('resize',()=>{if(!rd())return;if(wheel){wheel=buildWheel(getFilteredRoundItems(rd()));initParticles();wheel.draw()}refreshSidebar();refreshRight()});
-  requestAnimationFrame(loop);
 })();
 </script>
 </body>
