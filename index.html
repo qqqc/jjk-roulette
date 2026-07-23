@@ -34,6 +34,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
 .p-dots span{width:9px;height:9px;border-radius:50%;border:1.5px solid rgba(255,255,255,.12);transition:.3s}
 .p-dots span.done{background:var(--gold);border-color:var(--gold)}
 .p-dots span.cur{background:var(--red);border-color:var(--red);box-shadow:0 0 8px var(--glow)}
+@media(min-width:768px){#centerDots{display:flex!important}}
 @media(min-width:768px){.top-bar{display:none}}
 
 /* 左侧栏 */
@@ -87,6 +88,10 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
 @keyframes btnGlow{0%,100%{box-shadow:0 4px 20px rgba(224,48,74,.35)}50%{box-shadow:0 6px 32px rgba(255,48,80,.55)}}
 .btn-next{display:none;width:100%;max-width:320px;padding:10px;border-radius:26px;border:1px solid var(--gold);cursor:pointer;font-size:14px;font-weight:700;letter-spacing:1px;background:transparent;color:var(--gold);transition:.3s}
 .btn-next:hover{border-color:#fff;color:#fff}
+.btn-reset{display:inline-block;padding:8px 18px;border-radius:18px;border:1px solid rgba(255,255,255,.08);cursor:pointer;font-size:12px;background:transparent;color:var(--dim);transition:.2s}
+.btn-reset:hover{color:var(--text);border-color:rgba(255,255,255,.2)}
+.btn-char{width:100%;max-width:320px;margin-top:8px;padding:12px;border-radius:26px;border:none;cursor:pointer;font-size:15px;font-weight:700;letter-spacing:2px;background:linear-gradient(135deg,var(--gold),#8a7030);color:#1a1a1a;box-shadow:0 4px 20px rgba(201,168,76,.3);transition:.3s}
+.btn-char:hover{box-shadow:0 6px 30px rgba(201,168,76,.5);transform:translateY(-1px)}
 /* 结果面板 */
 .result-panel{width:100%;max-width:480px;background:var(--bg2);border-radius:var(--r);padding:14px 18px;text-align:center;animation:fadeIn .35s ease;display:none}
 .result-panel .rp-cat{font-size:10px;color:var(--dim);letter-spacing:2px}
@@ -114,7 +119,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
 .btm-tabs .bt .btb{position:absolute;top:2px;left:calc(50% + 10px);min-width:15px;height:15px;border-radius:8px;background:var(--red);color:#fff;font-size:9px;display:none;align-items:center;justify-content:center;padding:0 3px}
 @media(min-width:768px){.btm-tabs{display:none}}
 /* 移动Tab视图 */
-.tab-view{display:none;padding:12px;overflow-y:auto;background:var(--bg)}
+.tab-view{display:none;position:fixed;top:44px;left:0;right:0;bottom:60px;z-index:40;background:var(--bg);overflow-y:auto;padding:12px}
 .tab-view.on{display:block}
 @media(min-width:768px){.tab-view{display:none!important}}
 .tab-card{background:var(--bg2);border-radius:var(--r);padding:14px}
@@ -200,6 +205,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
   </div>
   <div class="center-area" id="centerArea">
     <div class="round-title" id="roundTitle"></div>
+    <div class="p-dots" id="centerDots" style="display:none"></div>
     <div class="wheel-wrap" id="wheelWrap">
       <div class="ptr"></div>
       <canvas id="wheelCanvas"></canvas>
@@ -208,7 +214,9 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
     </div>
     <button class="btn-spin" id="btnSpin" onclick="spin()">🌀 点击旋转</button>
     <button class="btn-next" id="btnNext" onclick="goNext()">→ 下一轮</button>
+    <div style="margin-top:4px"><button class="btn-reset" id="btnReset" onclick="resetGame()">↺ 重置本轮</button></div>
     <div class="result-panel" id="resultPanel"></div>
+    <button class="btn-char" id="btnChar" style="display:none" onclick="showToast('角色卡功能即将上线')">🎴 生成角色卡</button>
   </div>
   <div class="right-panel" id="rightPanel">
     <div class="rp-sec"><h4>👤 角色特质</h4><div class="rp-traits" id="rpTraits"><span class="empty">尚未抽取</span></div></div>
@@ -371,9 +379,8 @@ function getCurrentRoundIndex(){const ar=activeRounds();return ar.findIndex(r=>r
 
 function refreshTopBar(){
   document.getElementById('topPhase').textContent=ph().icon+' '+ph().name;
-  const ar=activeRounds();const dots=document.getElementById('topDots');dots.innerHTML='';
-  ar.forEach((r,i)=>{const d=document.createElement('span');
-    if(isRoundDone(r))d.className='done';if(r.id===rd().id)d.className='cur';dots.appendChild(d)});
+  const ar=activeRounds();const renderDots=(id)=>{const el=document.getElementById(id);el.innerHTML='';ar.forEach((r,i)=>{const d=document.createElement('span');if(isRoundDone(r))d.className='done';if(r.id===rd().id)d.className='cur';el.appendChild(d)})};
+  renderDots('topDots');renderDots('centerDots');
 }
 function refreshSidebar(){
   if(window.innerWidth<768)return;
@@ -399,6 +406,7 @@ function refreshRound(){
   document.getElementById('btnSpin').disabled=done;
   document.getElementById('btnSpin').textContent=done?'✅ 已抽取':'🌀 点击旋转';
   document.getElementById('btnNext').style.display='none';
+  document.getElementById('btnChar').style.display=isPhaseDone()&&ph().rounds.length>0?'block':'none';
 }
 function refreshRight(){
   if(window.innerWidth<768)return;
@@ -435,6 +443,14 @@ function goNext(){
   const ar=activeRounds();for(let i=0;i<ar.length;i++){if(!isRoundDone(ar[i])&&ar[i].id!==rd().id){curRound=i;break}}
   refreshAll();wheel.angle=0;state.targetAngle=0;wheel.draw();document.getElementById('resultPanel').style.display='none';
 }
+function resetGame(){
+  if(state.spinning)return;
+  if(state.results.length>0&&!confirm('确定重置本轮？所有已抽取结果和角色特质将清除。'))return;
+  state.results=[];state.traits=[];
+  curRound=0;state.targetAngle=0;wheel.angle=0;
+  refreshAll();wheel.draw();document.getElementById('resultPanel').style.display='none';
+  document.getElementById('btnNext').style.display='none';showToast('↺ 已重置');
+}
 function spin(){
   if(state.spinning||isRoundDone(rd()))return;state.spinning=true;
   document.getElementById('btnSpin').disabled=true;document.getElementById('btnSpin').textContent='⏳ 旋转中…';
@@ -461,7 +477,7 @@ function stop(){
   if(undone.length>0){document.getElementById('btnNext').style.display='block'}
   refreshAll();
 }
-function centerClick(){if(state.spinning)return;if(isRoundDone(rd())){goNext();return}spin()}
+function centerClick(){if(state.spinning)return;if(isRoundDone(rd())){showToast('已抽取，请点击「→ 下一轮」或左侧选择下一项');return}spin()}
 function setTab(tab){
   state.curTab=tab;document.querySelectorAll('.btm-tabs .bt').forEach(b=>b.classList.toggle('active',b.dataset.t===tab));
   document.querySelectorAll('.tab-view').forEach(v=>v.classList.remove('on'));
@@ -481,7 +497,12 @@ function renderEditor(){
   DATA.phases.forEach((p,pi)=>{
     h+=`<div class="ep-phase"><div class="ep-phase-header"><span>${p.icon||'◆'}</span><input value="${p.name}" onchange="DATA.phases[${pi}].name=this.value" style="font-weight:700;width:140px" /></div>`;
     p.rounds.forEach((r,ri)=>{
-      h+=`<div class="ep-round"><div class="ep-round-header">#${r.order||ri+1} ${r.icon||''} <input value="${r.title}" onchange="DATA.phases[${pi}].rounds[${ri}].title=this.value" /> cond:<input value="${r.cond||''}" onchange="DATA.phases[${pi}].rounds[${ri}].cond=this.value||null" style="width:60px" /></div>`;
+      h+=`<div class="ep-round"><div class="ep-round-header">
+        #<input type="number" min="1" value="${r.order||ri+1}" style="width:40px" onchange="DATA.phases[${pi}].rounds[${ri}].order=parseInt(this.value)||1" />
+        icon:<input value="${r.icon||''}" style="width:40px" onchange="DATA.phases[${pi}].rounds[${ri}].icon=this.value" />
+        title:<input value="${r.title}" onchange="DATA.phases[${pi}].rounds[${ri}].title=this.value" />
+        cond:<input value="${r.cond||''}" onchange="DATA.phases[${pi}].rounds[${ri}].cond=this.value||null" style="width:60px" />
+      </div>`;
       r.items.forEach((it,ii)=>{
         h+=`<div class="ep-item"><input value="${it.l}" onchange="DATA.phases[${pi}].rounds[${ri}].items[${ii}].l=this.value" /> w:<input class="w" type="number" min="1" max="10" value="${it.w||1}" onchange="DATA.phases[${pi}].rounds[${ri}].items[${ii}].w=parseInt(this.value)||1" /> <input type="color" value="${it.c||'#333'}" onchange="DATA.phases[${pi}].rounds[${ri}].items[${ii}].c=this.value" /><div style="flex-basis:100%"><textarea rows="2" onchange="DATA.phases[${pi}].rounds[${ri}].items[${ii}].d=this.value">${it.d||''}</textarea></div><div class="tag-row">${(it.tags||[]).map((t,ti)=>`<span class="tag-chip">${t}<span class="x" onclick="DATA.phases[${pi}].rounds[${ri}].items[${ii}].tags.splice(${ti},1);renderEditor()">×</span></span>`).join('')}<input value="" placeholder="+标签" style="width:50px" onkeydown="if(event.key==='Enter'){const v=this.value.trim();if(v){if(!DATA.phases[${pi}].rounds[${ri}].items[${ii}].tags)DATA.phases[${pi}].rounds[${ri}].items[${ii}].tags=[];DATA.phases[${pi}].rounds[${ri}].items[${ii}].tags.push(v);renderEditor();}}" /></div><div class="ep-actions"><button class="del" onclick="DATA.phases[${pi}].rounds[${ri}].items.splice(${ii},1);renderEditor()">✕ 删除选项</button></div></div>`;
       });
