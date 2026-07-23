@@ -91,7 +91,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
 .wheel-wrap canvas{width:100%;height:100%}
 .wheel-wrap .ptr{position:absolute;top:-8px;left:50%;transform:translateX(-50%);z-index:10;width:0;height:0;border-left:14px solid transparent;border-right:14px solid transparent;border-top:26px solid var(--glow);filter:drop-shadow(0 0 6px var(--glow))}
 .wheel-wrap .ptr::after{content:'';position:absolute;top:-28px;left:-3px;width:7px;height:12px;background:var(--glow);border-radius:4px;box-shadow:0 0 6px var(--glow)}
-.ptr-label{visibility:hidden;text-align:center;font-size:13px;font-weight:700;color:var(--glow);text-shadow:0 0 6px rgba(255,48,80,.6);white-space:nowrap;padding:4px 14px;border-radius:14px;border:1px solid rgba(255,255,255,.15);background:rgba(10,10,14,.9);margin:-2px 0;position:relative;z-index:1}
+.ptr-label{visibility:hidden;text-align:center;font-size:14px;font-weight:800;color:#fff;text-shadow:0 0 10px rgba(255,255,255,.5);white-space:nowrap;padding:5px 16px;border-radius:6px;border:2px solid rgba(255,255,255,.2);background:rgba(0,0,0,.75);margin:-1px 0 4px;position:relative;z-index:1;letter-spacing:1px}
 .p-canvas{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:8}
 .center-btn{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:5;width:20%;aspect-ratio:1;border-radius:50%;background:radial-gradient(circle,#1e1e2e,#0a0a0c);border:2px solid rgba(201,168,76,.45);cursor:pointer;display:flex;align-items:center;justify-content:center;font-family:serif;font-size:clamp(14px,3.5vw,20px);color:var(--gold);box-shadow:0 0 18px rgba(0,0,0,.5);transition:.2s}
 .center-btn:hover{border-color:var(--gold);box-shadow:0 0 28px rgba(201,168,76,.25)}
@@ -274,19 +274,36 @@ const SEED_DATA={phases:[
       {l:"诅咒师",w:1,c:"#300a0a",d:"叛离咒术界的术师。为私欲与力量不择手段。",tags:["诅咒师","叛离","人"]}
     ]},
     {id:"p1_fear",title:"由什么恐惧诞生",icon:"😱",order:2,cond:"咒灵",prop:"恐惧之源",items:[
-      {l:"人造物·枪支",w:1,c:"#3a2a1a",d:"战争、暴力、杀戮的恐惧凝聚成你。你是现代军火的诅咒化身。",tags:["人造物","武器"]},
-      {l:"人造物·刀剑",w:1,c:"#2a2a30",d:"千年来冷兵器的恐惧。每一把刀剑都曾夺走生命。",tags:["人造物","武器"]},
-      {l:"疾病·黑死病",w:1,c:"#1a3030",d:"黑死病席卷欧洲时的绝望。你代表人类对瘟疫最古老的恐惧。",tags:["疾病","传播"]},
-      {l:"疾病·埃博拉",w:1,c:"#2a1010",d:"现代医学无能为力的出血热。你的存在本身就是不可治愈的创伤。",tags:["疾病","现代"]},
-      {l:"死亡恐惧",w:1,c:"#0a0a10",d:"所有生命共同的终点。你诞生于每一次弥留之际的最后呼吸。",tags:["场域","终极"]},
-      {l:"黑暗恐惧",w:1,c:"#050510",d:"看不见的黑暗中藏着什么？你是所有童年噩梦的集合体。",tags:["场域","未知"]},
-      {l:"未知恐惧",w:1,c:"#101018",d:"最古老的恐惧——对不可名状之物的颤栗。你无形无体。",tags:["场域","精神"]},
-      {l:"傲慢·人性",w:1,c:"#4a3a20",d:"人类最古老的罪。你以为自己凌驾于一切之上。",tags:["人性","情绪"]},
+      {l:"人造物·枪支",w:1,c:"#3a2a1a",d:"战争与杀戮的恐惧凝聚成你。钢筋与火药是你的骨骼与血液。",tags:["人造物","武器"]},
+      {l:"人造物·刀剑",w:1,c:"#2a2a30",d:"千年来冷兵器的恐惧。每一把刀剑都曾夺走生命——你继承了这份重量。",tags:["人造物","武器"]},
+      {l:"疾病·黑死病",w:1,c:"#1a3030",d:"黑死病席卷欧洲时的绝望。你是人类对瘟疫最古老的记忆。",tags:["疾病","历史"]},
+      {l:"疾病·埃博拉",w:1,c:"#2a1010",d:"现代医学的噩梦。你的存在本身就是出血与崩溃。",tags:["疾病","现代"]},
+      {l:"死亡恐惧",w:1,c:"#0a0a10",d:"所有生命共同的终点。每一次弥留之时的最后呼吸都凝聚成了你。",tags:["场域","终极"]},
+      {l:"黑暗恐惧",w:1,c:"#050510",d:"看不见的黑暗中藏着什么？你诞生于每一个熄灯后不敢看床底的孩子。",tags:["场域","原始"]},
+      {l:"未知恐惧",w:1,c:"#101018",d:"最古老的恐惧——对不可名状之物的颤栗。你还未现身就已让对手疯狂。",tags:["场域","精神"]},
+      {l:"征服·社会",w:1,c:"#4a3020",d:"人类征服同类的欲望。帝国、殖民、奴役——你的力量来自强权对弱者的碾压。",tags:["社会","征服"]},
+      {l:"阶级·社会",w:1,c:"#3a3a2a",d:"贫富差距、种姓制度、等级压迫——你是那些被踩在脚下的人的集体怨恨。",tags:["社会","阶级"]},
+      {l:"金钱·社会",w:1,c:"#3a4010",d:"金钱是咒术界之外最强大的诅咒。贪婪、破产、贫瘠——你诞生于每一次为钱而死的绝望。",tags:["社会","金钱"]},
+      {l:"傲慢·人性",w:1,c:"#4a3a20",d:"人类最古老的罪。你以为自己凌驾于一切之上——直到诅咒教你谦卑。",tags:["人性","情绪"]},
+      {l:"嫉妒·人性",w:1,c:"#3a4020",d:"别人有的为什么我没有？这份不甘可以燃烧整个世界——包括你。",tags:["人性","情绪"]},
+      {l:"愤怒·人性",w:1,c:"#4a1010",d:"无处发泄的怒火积压成诅咒。你的力量可以焚尽一切——包括你自己。",tags:["人性","情绪"]},
       {l:"孤独·人性",w:1,c:"#2a2a3a",d:"被抛弃、被遗忘的恐惧。你可以感知一切被遗忘之物的所在。",tags:["人性","情绪"]},
-      {l:"愤怒·人性",w:1,c:"#4a1010",d:"无处发泄的怒火积压成诅咒。你的力量可以焚尽一切。",tags:["人性","情绪"]},
-      {l:"自然灾害·风暴",w:1,c:"#103040",d:"台风、飓风、龙卷风——天空的狂怒凝聚成你的形态。",tags:["自然","元素"]},
-      {l:"自然灾害·海啸",w:1,c:"#004060",d:"万丈巨浪吞噬一切。你是溺亡者的诅咒，不可阻挡。",tags:["自然","元素"]},
-      {l:"人类历史·战争",w:1,c:"#302010",d:"人类最大的诅咒就是人类本身。战争制造的死亡远超一切咒灵。",tags:["历史","战争"]}
+      {l:"基础物体·金属",w:1,c:"#505050",d:"人类对金属的依赖与恐惧。你的躯体就是最坚硬的合金。",tags:["基础物体","金属"]},
+      {l:"基础物体·木材",w:1,c:"#604020",d:"森林的恐惧——被砍伐、被燃烧、被遗忘的树木的怨恨。",tags:["基础物体","木材"]},
+      {l:"基础物体·塑料",w:1,c:"#405060",d:"现代文明的残渣。不可降解的废物堆积成山——你是地球对塑料的复仇。",tags:["基础物体","塑料"]},
+      {l:"动物·生物",w:1,c:"#405020",d:"被人类猎杀、囚禁、灭绝的动物的恐惧。你代表所有非人生命的呐喊。",tags:["生物","动物"]},
+      {l:"植物·生物",w:1,c:"#306030",d:"被砍伐的森林、被污染的土壤——植物的沉默不代表它们没有怨恨。",tags:["生物","植物"]},
+      {l:"自然灾害·风暴",w:1,c:"#103040",d:"台风、飓风、龙卷风——天空的狂怒凝聚成你的形态。",tags:["自然","风暴"]},
+      {l:"自然灾害·雷霆",w:1,c:"#203050",d:"雷电劈开天空的瞬间。你是宙斯之怒在咒术界的化身。",tags:["自然","雷霆"]},
+      {l:"自然灾害·海啸",w:1,c:"#004060",d:"万丈巨浪吞噬一切。你是溺亡者的诅咒——不可阻挡，不可逃避。",tags:["自然","海啸"]},
+      {l:"人类历史·屠杀",w:1,c:"#401010",d:"人类历史上最大的罪恶。从古代屠城到现代种族灭绝——你的力量源于数百万死者的怨念。",tags:["历史","屠杀"]},
+      {l:"人类历史·战争",w:1,c:"#302010",d:"人类最大的诅咒就是人类本身。战争制造的死亡远超一切咒灵。",tags:["历史","战争"]},
+      {l:"意识形态·哲学",w:1,c:"#303040",d:"思想可以杀人。你的存在来自那些因为信仰不同而被烧死的人。",tags:["意识形态","哲学"]},
+      {l:"意识形态·思想",w:1,c:"#304040",d:"自由的代价。暴政下的每一道思想罪都为你注入力量。",tags:["意识形态","思想"]},
+      {l:"意识形态·宗教",w:1,c:"#403040",d:"上帝与恶魔的战争。你的诞生源于人类历史上最长的恐惧——对地狱的恐惧。",tags:["意识形态","宗教"]},
+      {l:"假想·幻想",w:1,c:"#504070",d:"童话里的怪物从床底爬出来了。你是那些父母告诉孩子不存在的存在的恐惧。",tags:["假想","幻想"]},
+      {l:"假想·神话",w:1,c:"#403050",d:"每个文化的神话都有一个恶魔。你同时是所有的恶魔——因为你诞生于人类的集体想象。",tags:["假想","神话"]},
+      {l:"假想·传说",w:1,c:"#305040",d:"都市传说真的只是传说吗？每一个深夜独自回家的人都知道答案——他们只是不敢承认。",tags:["假想","传说"]}
     ]},
     {id:"p1_birth",title:"诞生时的状态",icon:"🥚",order:3,cond:"咒灵",prop:"诞生状态",items:[
       {l:"咒胎",w:1,c:"#1a1018",d:"尚未完全成型的诅咒胚胎。形态还在孕育中，潜力无限。",tags:["咒胎","未成熟"]},
@@ -312,14 +329,14 @@ const SEED_DATA={phases:[
       {l:"全知全能·SSS",w:1,c:"#fc0",d:"你看到了一切。过去、现在、未来——在你眼中都不再有秘密。",tags:["全知","神级"]}
     ]},
     {id:"p1_growth",title:"成长上限",icon:"📈",order:6,cond:"咒灵",prop:"成长上限",items:[
-      {l:"区级上限·D",w:1,c:"#8a8a8a",d:"达到一定层级后就无法继续成长。区级也足以让大部分诅咒师头疼了。",tags:["受限","区级"]},
-      {l:"二级上限·D",w:2,c:"#7a7a7a",d:"力量上限在二级咒术师水准。对于大多数咒灵来说已经不错。",tags:["受限","二级"]},
-      {l:"一级上限·C",w:3,c:"#48a",d:"可以达到一级咒术师水平。足以让大多数术师认真对待。",tags:["一级","中等"]},
-      {l:"普通特级·B",w:4,c:"#c84",d:"达到特级咒灵的门槛。可以展开领域，进入咒术界的天花板层。",tags:["特级","领域"]},
-      {l:"超特级·A",w:3,c:"#e62",d:"超越普通特级的存在。大多数特级术师单独面对你都不敢轻易出手。",tags:["超特","强大"]},
-      {l:"五宿级·S",w:2,c:"#f20",d:"媲美五条悟与宿儺。每百年才出一个的存在。",tags:["传说","五宿"]},
-      {l:"超越五宿·SS",w:1,c:"#fc0",d:"连五条悟和宿儺都要正视的力量。你站在咒术史的巅峰。",tags:["超越","巅峰"]},
-      {l:"无上限·SSS",w:1,c:"#ff0",d:"没有天花板。每一次战斗、每一次吞噬，你都在突破极限。",tags:["无上限","神级"]}
+      {l:"区级上限·D",w:1,c:"#8a8a8a",d:"到达一定层级后就无法继续成长。但区级也足以让大部分诅咒师头疼了——你的力量有限，但你的狡猾没有边界。",tags:["受限","区级"]},
+      {l:"二级上限·D",w:2,c:"#7a7a7a",d:"力量上限在二级咒术师水准。对大多数咒灵来说已经足以生存——但你想要的远不止生存。",tags:["受限","二级"]},
+      {l:"一级上限·C",w:5,c:"#48a",d:"可以达到一级咒术师水平。足以让大多数术师认真对待你的存在。",tags:["一级","中等"]},
+      {l:"普通特级·B",w:9,c:"#c84",d:"达到特级咒灵的门槛。可以展开领域——你已经踏入了咒术界的天花板层。",tags:["特级","领域"]},
+      {l:"超特级·A",w:7,c:"#e62",d:"超越普通特级的存在。大多数特级术师单独面对你都不敢轻易出手——你的名字在咒术界已经有了重量。",tags:["超特","强大"]},
+      {l:"五宿级·S",w:4,c:"#f20",d:"媲美五条悟与宿儺的级别。你是咒术界的传说——每百年才出一个的存在。",tags:["传说","五宿"]},
+      {l:"超越五宿·SS",w:2,c:"#fc0",d:"连五条悟和宿儺都要正视的力量。你站在了咒术史的巅峰——但这不是终点。",tags:["超越","巅峰"]},
+      {l:"无上限·SSS",w:1,c:"#ff0",d:"没有天花板。每一次战斗、每一次吞噬，你都在突破自己的极限——直到成为不可战胜的存在。",tags:["无上限","神级"]}
     ]},
     {id:"p1_time",title:"穿越后的时间",icon:"⏳",order:7,cond:null,prop:"时代",items:[
       {l:"千年前·平安时代",w:1,c:"#2a1a10",d:"平安京的诅咒全盛期。宿傩横行的时代，咒术的原始形态。",tags:["古代","平安"]},
@@ -881,7 +898,7 @@ function loop(t){
   if(particles){particles.update(dt);if(wheel){const pc=document.getElementById('pCanvas'),pctx=particles.ctx,sw=wheel.size;pc.width=wheel.canvas.width;pc.height=wheel.canvas.height;pctx.setTransform(wheel.dpr,0,0,wheel.dpr,0,0);pctx.clearRect(0,0,sw,sw);for(let p of particles.parts){pctx.save();pctx.globalAlpha=p.a;pctx.fillStyle=p.c;pctx.shadowBlur=p.s*4;pctx.shadowColor=p.c;pctx.beginPath();pctx.arc(p.x,p.y,p.s,0,Math.PI*2);pctx.fill();pctx.restore()}}}
   if(wheel)wheel.draw();
   if(wheel){const ctx=wheel.ctx,dpr=wheel.dpr;ctx.setTransform(dpr,0,0,dpr,0,0);const ss=wheel.sectors;let norm=(-wheel.angle)%(Math.PI*2);if(norm<0)norm+=Math.PI*2;let cum=0,idx=0;for(let i=0;i<ss.length;i++){cum+=ss[i].arc;if(norm<cum){idx=i;break}}let sa=wheel.angle-Math.PI/2;for(let i=0;i<idx;i++)sa+=ss[i].arc;ctx.beginPath();ctx.moveTo(wheel.cx,wheel.cy);ctx.arc(wheel.cx,wheel.cy,wheel.radius+3,sa,sa+ss[idx].arc);ctx.closePath();ctx.strokeStyle='rgba(255,48,80,.45)';ctx.lineWidth=3;ctx.stroke();
-const pl=document.getElementById('ptrLabel');if(pl){const s=ss[idx];pl.textContent=s?('🔻 '+s.l):'';const sc=s?.c||'var(--glow)';pl.style.color=sc;pl.style.borderColor=sc;pl.style.visibility=s?'visible':'hidden'}}
+const pl=document.getElementById('ptrLabel');if(pl){const s=ss[idx];pl.textContent=s?('🔻 '+s.l):'';const sc=s?.c||'#fff';pl.style.color=sc;pl.style.borderColor=sc;pl.style.textShadow=`0 0 10px ${sc}`;pl.style.visibility=s?'visible':'hidden'}}
   requestAnimationFrame(loop);
 }
 
