@@ -260,10 +260,10 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
 const SEED_DATA={phases:[
   {id:"p1",name:"身份奠基",icon:"🧬",rounds:[
     {id:"p1_id",title:"穿越后的身份",icon:"🎭",order:1,cond:null,prop:"身份",items:[
-      {l:"普通人",w:4,c:"#1a1a20",d:"无咒力的凡人。在咒术的世界中挣扎求生，却拥有最不可测的潜力。",tags:["凡人"],dimMod:{"咒力总量":-3,"咒力效率":-2,"咒力操纵":-3,"咒力输出":-3,"声望":-2}},
-      {l:"咒灵",w:1,c:"#301020",d:"人类负面情绪中诞生的诅咒。以恐惧为食，以毁灭为本能。",tags:["咒灵","诅咒"],dim:{体质:"S",咒力总量:"SS"},dimMod:{"声望":-4}},
-      {l:"咒术师",w:2,c:"#102040",d:"掌握咒力、行使术式的正统术师。高专毕业，以拔除咒灵为业。",tags:["咒术师","高专"],dim:{咒力操纵:"A",咒力效率:"B",天赋:"B"},dimMod:{"运气":1}},
-      {l:"诅咒师",w:1,c:"#300a0a",d:"叛离咒术界的术师。为私欲与力量不择手段。",tags:["诅咒师","叛离"],dim:{咒力输出:"A",体术:"B"},dimMod:{"声望":-3,"运气":-1}}
+      {l:"普通人",w:4,c:"#1a1a20",d:"无咒力的凡人。在咒术的世界中挣扎求生，却拥有最不可测的潜力。",tags:["凡人"]},
+      {l:"咒灵",w:1,c:"#301020",d:"人类负面情绪中诞生的诅咒。以恐惧为食，以毁灭为本能。",tags:["咒灵","诅咒"]},
+      {l:"咒术师",w:2,c:"#102040",d:"掌握咒力、行使术式的正统术师。高专毕业，以拔除咒灵为业。",tags:["咒术师","高专"]},
+      {l:"诅咒师",w:1,c:"#300a0a",d:"叛离咒术界的术师。为私欲与力量不择手段。",tags:["诅咒师","叛离"]}
     ]},
     {id:"p1_fear",title:"由什么恐惧诞生",icon:"😱",order:2,cond:"咒灵",prop:"恐惧之源",items:[
       {l:"人造物·枪支",w:1,c:"#3a2a1a",d:"战争、暴力、杀戮的恐惧凝聚成你。你是现代军火的诅咒化身。",tags:["人造物","武器"]},
@@ -340,14 +340,14 @@ const SEED_DATA={phases:[
       {l:"女生男相",w:1,c:"#503040",d:"女儿身，男儿貌。刚毅的外表下藏着什么，只有你知道。",tags:["女","男相"]}
     ]},
     {id:"p1_look",title:"穿越后颜值",icon:"💄",order:10,cond:null,prop:"颜值",items:[
-      {l:"狰狞可怖·E",w:1,c:"#402020",d:"扭曲的外貌令人恐惧。在这个以力量为尊的世界里，恐惧就是力量。",tags:["恐怖","威慑"]},
-      {l:"其貌不扬·D",w:2,c:"#686868",d:"扔进人群里就找不到。平凡让你在暗中行动时无人察觉。",tags:["隐匿","平凡"]},
-      {l:"普普通通·C",w:4,c:"#807060",d:"大多数人就长这样。最安全的位置就是不被注意的位置。",tags:["普通","低调"]},
-      {l:"眉清目秀·B",w:3,c:"#a0a080",d:"干净端正的外表。第一印象永远不会差。",tags:["端正","好人缘"]},
-      {l:"仪表堂堂·A",w:2,c:"#e0a040",d:"出众的外貌。你的仪表本身就是一张通行证。",tags:["出众","通行证"]},
-      {l:"花容月貌·S",w:2,c:"#ff8844",d:"罕见的美貌。百里挑一的容颜，见过你的人都会记住你。",tags:["美貌","记忆"]},
-      {l:"国色天香·SS",w:1,c:"#ffcc00",d:"咒术界公认的绝色。这种级别的美貌已经可以影响战局。",tags:["绝色","影响"]},
-      {l:"倾国倾城·SSS",w:1,c:"#ffffff",d:"传说级的容颜。一代人中只会出现一两个。人们为你而争斗杀戮。",tags:["传说","倾国"]}
+      {l:"狰狞可怖·E",w:1,c:"#402020",d:"扭曲的外貌令人恐惧。在这个以力量为尊的世界里，恐惧就是力量。",tags:["恐怖","威慑"],dim:{颜值:"E"}},
+      {l:"其貌不扬·D",w:2,c:"#686868",d:"扔进人群里就找不到。平凡让你在暗中行动时无人察觉。",tags:["隐匿","平凡"],dim:{颜值:"D"}},
+      {l:"普普通通·C",w:4,c:"#807060",d:"大多数人就长这样。最安全的位置就是不被注意的位置。",tags:["普通","低调"],dim:{颜值:"C"}},
+      {l:"眉清目秀·B",w:3,c:"#a0a080",d:"干净端正的外表。第一印象永远不会差。",tags:["端正","好人缘"],dim:{颜值:"B"}},
+      {l:"仪表堂堂·A",w:2,c:"#e0a040",d:"出众的外貌。你的仪表本身就是一张通行证。",tags:["出众","通行证"],dim:{颜值:"A"}},
+      {l:"花容月貌·S",w:2,c:"#ff8844",d:"罕见的美貌。百里挑一的容颜，见过你的人都会记住你。",tags:["美貌","记忆"],dim:{颜值:"S"}},
+      {l:"国色天香·SS",w:1,c:"#ffcc00",d:"咒术界公认的绝色。这种级别的美貌已经可以影响战局。",tags:["绝色","影响"],dim:{颜值:"SS"}},
+      {l:"倾国倾城·SSS",w:1,c:"#ffffff",d:"传说级的容颜。一代人中只会出现一两个。人们为你而争斗杀戮。",tags:["传说","倾国"],dim:{颜值:"SSS"}}
     ]},
     {id:"p1_moral",title:"道德水平",icon:"⚖️",order:11,cond:null,prop:"道德",items:[
       {l:"守序善",w:1,c:"#e8d44d",d:"以拯救苍生为己任。你的规则指向最大的善。",tags:["道德·守序善"]},
@@ -612,13 +612,20 @@ function renderEditor(){
         icon:<input value="${r.icon||''}" style="width:40px" onchange="DATA.phases[${pi}].rounds[${ri}].icon=this.value" />
         title:<input value="${r.title}" onchange="DATA.phases[${pi}].rounds[${ri}].title=this.value" />
         cond:<input value="${r.cond||''}" onchange="DATA.phases[${pi}].rounds[${ri}].cond=this.value||null" style="width:60px" />
+        prop:<input value="${r.prop||''}" onchange="DATA.phases[${pi}].rounds[${ri}].prop=this.value" style="width:50px;font-size:9px" />
       </div>`;
       r.items.forEach((it,ii)=>{
-        h+=`<div class="ep-item"><input value="${it.l}" onchange="DATA.phases[${pi}].rounds[${ri}].items[${ii}].l=this.value" /> w:<input class="w" type="number" min="1" max="10" value="${it.w||1}" onchange="DATA.phases[${pi}].rounds[${ri}].items[${ii}].w=parseInt(this.value)||1" /> <input type="color" value="${it.c||'#333'}" onchange="DATA.phases[${pi}].rounds[${ri}].items[${ii}].c=this.value" /><div style="flex-basis:100%"><textarea rows="2" onchange="DATA.phases[${pi}].rounds[${ri}].items[${ii}].d=this.value">${it.d||''}</textarea></div><div class="tag-row">${(it.tags||[]).map((t,ti)=>`<span class="tag-chip">${t}<span class="x" onclick="DATA.phases[${pi}].rounds[${ri}].items[${ii}].tags.splice(${ti},1);renderEditor()">×</span></span>`).join('')}<input value="" placeholder="+标签" style="width:50px" onkeydown="if(event.key==='Enter'){const v=this.value.trim();if(v){if(!DATA.phases[${pi}].rounds[${ri}].items[${ii}].tags)DATA.phases[${pi}].rounds[${ri}].items[${ii}].tags=[];DATA.phases[${pi}].rounds[${ri}].items[${ii}].tags.push(v);renderEditor();}}" /></div><div class="ep-actions"><button class="del" onclick="DATA.phases[${pi}].rounds[${ri}].items.splice(${ii},1);renderEditor()">✕ 删除选项</button></div></div>`;
+        h+=`<div class="ep-item"><input value="${it.l}" onchange="DATA.phases[${pi}].rounds[${ri}].items[${ii}].l=this.value" /> w:<input class="w" type="number" min="1" max="10" value="${it.w||1}" onchange="DATA.phases[${pi}].rounds[${ri}].items[${ii}].w=parseInt(this.value)||1" /> <input type="color" value="${it.c||'#333'}" onchange="DATA.phases[${pi}].rounds[${ri}].items[${ii}].c=this.value" /><div style="flex-basis:100%"><textarea rows="2" onchange="DATA.phases[${pi}].rounds[${ri}].items[${ii}].d=this.value">${it.d||''}</textarea></div><div class="tag-row">${(it.tags||[]).map((t,ti)=>`<span class="tag-chip">${t}<span class="x" onclick="DATA.phases[${pi}].rounds[${ri}].items[${ii}].tags.splice(${ti},1);renderEditor()">×</span></span>`).join('')}<input value="" placeholder="+标签" style="width:50px" onkeydown="if(event.key==='Enter'){const v=this.value.trim();if(v){if(!DATA.phases[${pi}].rounds[${ri}].items[${ii}].tags)DATA.phases[${pi}].rounds[${ri}].items[${ii}].tags=[];DATA.phases[${pi}].rounds[${ri}].items[${ii}].tags.push(v);renderEditor();}}" /></div><span style="font-size:9px;color:var(--dim);cursor:pointer" onclick="const e=document.getElementById('dt${pi}_${ri}_${ii}');e.style.display=e.style.display==='none'?'block':'none'">[+ 条件/维度/权重]</span><div id="dt${pi}_${ri}_${ii}" style="display:none;margin-top:4px;padding:6px;background:rgba(255,255,255,.02);border-radius:6px;font-size:10px">`;
+        const dim=it.dim||{},dimMod=it.dimMod||{},cond=it.cond||'',wMods=it.wMods||[];
+        h+=`维度设置: ${Object.entries(dim).map(([k,v])=>`<span>${k}:<input value="${v}" style="width:30px" onchange="DATA.phases[${pi}].rounds[${ri}].items[${ii}].dim=DATA.phases[${pi}].rounds[${ri}].items[${ii}].dim||{};DATA.phases[${pi}].rounds[${ri}].items[${ii}].dim['${k}']=this.value"/></span>`).join(' ')} <select onchange="const v=this.value;if(v){const d=DATA.phases[${pi}].rounds[${ri}].items[${ii}].dim||{};d[v]='C';DATA.phases[${pi}].rounds[${ri}].items[${ii}].dim=d;renderEditor()}"><option value="">+维</option>${DIM_NAMES.filter(n=>!dim[n]).map(n=>`<option>${n}</option>`).join('')}</select><br>`;
+        h+=`维度增减: ${Object.entries(dimMod).map(([k,v])=>`<span>${k}:<input type="number" value="${v}" style="width:30px" onchange="DATA.phases[${pi}].rounds[${ri}].items[${ii}].dimMod=DATA.phases[${pi}].rounds[${ri}].items[${ii}].dimMod||{};DATA.phases[${pi}].rounds[${ri}].items[${ii}].dimMod['${k}']=parseInt(this.value)||0"/></span>`).join(' ')} <select onchange="const v=this.value;if(v){const d=DATA.phases[${pi}].rounds[${ri}].items[${ii}].dimMod||{};d[v]=0;DATA.phases[${pi}].rounds[${ri}].items[${ii}].dimMod=d;renderEditor()}"><option value="">+维</option>${DIM_NAMES.filter(n=>!dimMod[n]).map(n=>`<option>${n}</option>`).join('')}</select><br>`;
+        h+=`条件: <input value="${cond}" style="width:200px" onchange="DATA.phases[${pi}].rounds[${ri}].items[${ii}].cond=this.value||null" placeholder="如:天赋|>=|A"/>`;
+        h+=`<br>权重修改: ${wMods.map((m,mi)=>`当<input value="${m.cond||''}" style="width:100px" onchange="DATA.phases[${pi}].rounds[${ri}].items[${ii}].wMods[${mi}].cond=this.value"/>×<input type="number" step="0.5" value="${m.w||1}" style="width:30px" onchange="DATA.phases[${pi}].rounds[${ri}].items[${ii}].wMods[${mi}].w=parseFloat(this.value)||1"/>`).join(' ')} <button style="font-size:9px" onclick="if(!DATA.phases[${pi}].rounds[${ri}].items[${ii}].wMods)DATA.phases[${pi}].rounds[${ri}].items[${ii}].wMods=[];DATA.phases[${pi}].rounds[${ri}].items[${ii}].wMods.push({cond:'',w:1});renderEditor()">+规则</button>`;
+        h+=`</div><div class="ep-actions"><button class="del" onclick="DATA.phases[${pi}].rounds[${ri}].items.splice(${ii},1);renderEditor()">✕ 删除</button></div></div>`;
       });
-      h+=`<div class="ep-actions" style="margin-top:6px"><button onclick="DATA.phases[${pi}].rounds[${ri}].items.push({l:'新选项',w:1,c:'#333',d:'',tags:[]});renderEditor()">+ 添加选项</button><button class="del" onclick="DATA.phases[${pi}].rounds.splice(${ri},1);renderEditor()">✕ 删除轮次</button></div></div>`;
+      h+=`<div class="ep-actions" style="margin-top:6px"><button onclick="DATA.phases[${pi}].rounds[${ri}].items.push({l:'新选项',w:1,c:'#333',d:'',tags:[],dim:{},dimMod:{}});renderEditor()">+ 添加选项</button><button class="del" onclick="DATA.phases[${pi}].rounds.splice(${ri},1);renderEditor()">✕ 删除轮次</button></div></div>`;
     });
-    h+=`<div class="ep-actions"><button onclick="DATA.phases[${pi}].rounds.push({id:'p'+(pi+1)+'_'+Date.now(),title:'新轮次',icon:'◆',order:DATA.phases[${pi}].rounds.length+1,cond:null,prop:'',items:[{l:'选项1',w:1,c:'#333',d:'',tags:[]}]});renderEditor()">+ 添加轮次</button></div></div>`;
+    h+=`<div class="ep-actions"><button onclick="DATA.phases[${pi}].rounds.push({id:'p'+(pi+1)+'_'+Date.now(),title:'新轮次',icon:'◆',order:DATA.phases[${pi}].rounds.length+1,cond:null,prop:'',items:[{l:'选项1',w:1,c:'#333',d:'',tags:[],dim:{},dimMod:{}}]});renderEditor()">+ 添加轮次</button></div></div>`;
   });
   h+=`<div class="ep-actions" style="padding:10px 0"><button onclick="DATA.phases.push({id:'p'+(DATA.phases.length+1),name:'新阶段',icon:'◆',rounds:[]});renderEditor()">+ 添加阶段</button></div>`;
   body.innerHTML=h;
