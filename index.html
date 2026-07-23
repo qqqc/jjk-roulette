@@ -860,7 +860,7 @@ function charCard(){
   }
   // 维度表
   ctx.fillStyle='#9a9490';ctx.font='bold 13px sans-serif';ctx.fillText('📊 维度表',30,y);y+=20;
-  DIM_NAMES.forEach(k=>{const v=state.dimensions[k];const lv=v||'——';const idx=dimVal(v);const pct=idx<0?0:Math.min(100,(idx+1)/DIM_LEVELS.length*100);let clr='#999';if(idx>=9)clr='#fff';else if(idx>=8)clr='#fc0';else if(idx>=6)clr='#f50';else if(idx>=5)clr='#c84';else if(idx>=3)clr='#48a';else if(idx>=2)clr='#888';
+  DIM_NAMES.forEach(k=>{const v=state.dimensions[k];const lv=v||'——';const idx=dimVal(v);const pct=idx<0?0:Math.min(100,(idx+1)/DIM_LEVELS.length*100);let clr='#600';if(idx>=9)clr='#fff';else if(idx>=8)clr='#fc0';else if(idx>=7)clr='#f20';else if(idx>=6)clr='#f50';else if(idx>=5)clr='#c84';else if(idx>=3)clr='#48a';else if(idx>=2)clr='#888';else if(idx>=1)clr='#999';
     ctx.fillStyle='#888';ctx.font='10px sans-serif';ctx.fillText(k,30,y);ctx.fillStyle=clr;ctx.font='bold 10px sans-serif';ctx.fillText(lv,66,y);
     ctx.fillStyle='rgba(255,255,255,.05)';ctx.fillRect(90,y-8,480,8);ctx.fillStyle=clr;ctx.fillRect(90,y-8,480*pct/100,8);y+=16});
   y+=10;ctx.strokeStyle='#333';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(30,y);ctx.lineTo(570,y);ctx.stroke();y+=10;
