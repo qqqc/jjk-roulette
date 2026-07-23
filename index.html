@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
 <title>咒术转盘 · JJK</title>
 <style>
-:root{--bg:#060608;--bg2:#12121a;--bg3:#1a1a24;--red:#c41e3a;--glow:#ff3050;--purple:#6b21a8;--gold:#c9a84c;--text:#e0d8d0;--dim:#6b6560;--r:12px}
+:root{--bg:#060608;--bg2:#12121a;--bg3:#1a1a24;--red:#c41e3a;--glow:#ff3050;--purple:#6b21a8;--gold:#c9a84c;--text:#e0d8d0;--dim:#9a9490;--r:12px}
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:var(--bg);color:var(--text);font-family:"PingFang SC","Microsoft YaHei",sans-serif;min-height:100vh;overflow-x:hidden;-webkit-tap-highlight-color:transparent;user-select:none}
 /* 背景花纹 */
@@ -110,7 +110,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
 .result-panel{width:100%;max-width:480px;background:var(--bg2);border-radius:var(--r);padding:14px 18px;text-align:center;animation:fadeIn .35s ease;display:none}
 .result-panel .rp-cat{font-size:10px;color:var(--dim);letter-spacing:2px}
 .result-panel .rp-val{font-size:clamp(18px,4vw,24px);font-weight:800;margin:4px 0 6px;letter-spacing:1px}
-.result-panel .rp-desc{font-size:13px;color:rgba(224,216,208,.7);line-height:1.6;margin-top:4px}
+.result-panel .rp-desc{font-size:13px;color:rgba(224,216,208,.8);line-height:1.6;margin-top:4px}
 @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 
 /* 右侧面板 */
@@ -149,7 +149,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
 .th-list .th .thb{display:flex;flex-direction:column;gap:2px}
 .th-list .th .thl{color:var(--dim);font-size:9px;letter-spacing:1px}
 .th-list .th .thv{font-weight:600}
-.th-list .th .thdesc{color:rgba(224,216,208,.65);font-size:11px;line-height:1.5;margin-top:2px}
+.th-list .th .thdesc{color:rgba(224,216,208,.8);font-size:11px;line-height:1.5;margin-top:2px}
 .empty{text-align:center;padding:30px;color:var(--dim);font-size:12px}
 /* Toast */
 .toast{position:fixed;top:50px;left:50%;transform:translateX(-50%);z-index:70;background:var(--bg2);border:1px solid rgba(255,255,255,.08);padding:8px 18px;border-radius:18px;font-size:12px;color:var(--text);pointer-events:none;animation:toastIn .3s ease,toastOut .3s ease 1.6s forwards}
@@ -299,17 +299,17 @@ const SEED_DATA={phases:[
       {l:"不可描述",w:1,c:"#101020",d:"克苏鲁式的不可名状之物。看过你真正形态的人会疯掉。",tags:["无形","精神"]}
     ]},
     {id:"p1_intel",title:"智力水平",icon:"🧠",order:5,cond:"咒灵",prop:"智力",items:[
-      {l:"混沌无智力·E",w:1,c:"#333",d:"仅凭本能行事的低等诅咒。没有思考，只有破坏和进食。",tags:["低智","本能"]},
-      {l:"只会一句话·D",w:2,c:"#555",d:"你只会重复同一句话。但这句话可能是最深诅咒的回响。",tags:["低智","重复"]},
-      {l:"言语迟钝·D",w:2,c:"#666",d:"能说话但每个字都很费力。语言对你来说是不自然的负担。",tags:["迟钝","说话"]},
+      {l:"混沌无智力·E",w:1,c:"#5a5a5a",d:"仅凭本能行事的低等诅咒。没有思考，只有破坏和进食。",tags:["低智","本能"]},
+      {l:"只会一句话·D",w:2,c:"#7a7a7a",d:"你只会重复同一句话。但这句话可能是最深诅咒的回响。",tags:["低智","重复"]},
+      {l:"言语迟钝·D",w:2,c:"#8a8a8a",d:"能说话但每个字都很费力。语言对你来说是不自然的负担。",tags:["迟钝","说话"]},
       {l:"常人智力·C",w:4,c:"#48a",d:"和普通人类一样聪明。恐惧让你比他们更敏锐。",tags:["正常","人类"]},
       {l:"顶尖智力·B",w:2,c:"#c84",d:"智力超越大多数人类。每一个计划都在你的计算之中。",tags:["聪明","策略"]},
       {l:"无声智者·A",w:2,c:"#e62",d:"拥有复杂智能但无法通过语言表达。这不妨碍你看得更远。",tags:["无言","深邃"]},
       {l:"全知全能·SSS",w:1,c:"#fc0",d:"你看到了一切。过去、现在、未来——在你眼中都不再有秘密。",tags:["全知","神级"]}
     ]},
     {id:"p1_growth",title:"成长上限",icon:"📈",order:6,cond:"咒灵",prop:"成长上限",items:[
-      {l:"区级上限·D",w:1,c:"#666",d:"达到一定层级后就无法继续成长。区级也足以让大部分诅咒师头疼了。",tags:["受限","区级"]},
-      {l:"二级上限·D",w:2,c:"#555",d:"力量上限在二级咒术师水准。对于大多数咒灵来说已经不错。",tags:["受限","二级"]},
+      {l:"区级上限·D",w:1,c:"#8a8a8a",d:"达到一定层级后就无法继续成长。区级也足以让大部分诅咒师头疼了。",tags:["受限","区级"]},
+      {l:"二级上限·D",w:2,c:"#7a7a7a",d:"力量上限在二级咒术师水准。对于大多数咒灵来说已经不错。",tags:["受限","二级"]},
       {l:"一级上限·C",w:3,c:"#48a",d:"可以达到一级咒术师水平。足以让大多数术师认真对待。",tags:["一级","中等"]},
       {l:"普通特级·B",w:4,c:"#c84",d:"达到特级咒灵的门槛。可以展开领域，进入咒术界的天花板层。",tags:["特级","领域"]},
       {l:"超特级·A",w:3,c:"#e62",d:"超越普通特级的存在。大多数特级术师单独面对你都不敢轻易出手。",tags:["超特","强大"]},
@@ -339,7 +339,7 @@ const SEED_DATA={phases:[
     {id:"p1_gender",title:"穿越后性别",icon:"⚧",order:9,cond:null,prop:"性别",items:[
       {l:"男",w:4,c:"#2a4060",d:"男性。在咒术界，性别从来不是能力的限制。",tags:["男"]},
       {l:"女",w:4,c:"#602040",d:"女性。咒术界最强的几位术师中从不缺女性的身影。",tags:["女"]},
-      {l:"无性",w:1,c:"#444",d:"没有性别——性别对你没有意义。只有咒灵才可能触及这种存在的形态。",tags:["无性","超越"],cond:"咒灵"},
+      {l:"无性",w:1,c:"#6a6a6a",d:"没有性别——性别对你没有意义。只有咒灵才可能触及这种存在的形态。",tags:["无性","超越"],cond:"咒灵"},
       {l:"男生女相",w:1,c:"#3a4050",d:"男儿身，女儿貌。你的外貌模糊了性别的边界。",tags:["男","女相"]},
       {l:"女生男相",w:1,c:"#503040",d:"女儿身，男儿貌。刚毅的外表下藏着什么，只有你知道。",tags:["女","男相"]}
     ]},
@@ -352,8 +352,8 @@ const SEED_DATA={phases:[
       {l:"35岁·成熟",w:3,c:"#48a",d:"经验丰富，技术纯熟。咒术师的巅峰就在这里。",tags:["壮年","巅峰"]},
       {l:"42岁·稳重",w:2,c:"#488",d:"体能开始下滑，但经验无法被替代。你知道什么时候该出手，什么时候该等待。",tags:["中年","经验"]},
       {l:"50岁·知天命",w:2,c:"#466",d:"半百之龄。你看透了许多事情——包括自己的极限。",tags:["中年","通透"]},
-      {l:"60岁·老练",w:1,c:"#444",d:"你已经不太亲自上阵了。但你的一句话就能决定一场战斗的走向。",tags:["老年","权威"]},
-      {l:"75岁·暮年",w:1,c:"#333",d:"岁月不饶人。但咒术界没有人敢小看你——你的名字本身就是威慑力。",tags:["暮年","传奇"]}
+      {l:"60岁·老练",w:1,c:"#6a6a6a",d:"你已经不太亲自上阵了。但你的一句话就能决定一场战斗的走向。",tags:["老年","权威"]},
+      {l:"75岁·暮年",w:1,c:"#5a5a5a",d:"岁月不饶人。但咒术界没有人敢小看你——你的名字本身就是威慑力。",tags:["暮年","传奇"]}
     ]},
     {id:"p1_look",title:"穿越后颜值",icon:"💄",order:11,cond:null,prop:"颜值",items:[
       {l:"狰狞可怖·E",w:1,c:"#402020",d:"扭曲的外貌令人恐惧。在这个以力量为尊的世界里，恐惧就是力量。",tags:["恐怖","威慑"],dim:{颜值:"E"}},
@@ -380,7 +380,7 @@ const SEED_DATA={phases:[
   {id:"p2",name:"能力构筑",icon:"🔮",rounds:[
     {id:"p2_have",title:"是否拥有生得术式",icon:"⁉️",order:1,cond:"人",prop:"术式拥有",items:[
       {l:"是",w:3,c:"#ffcc00",d:"你拥有刻在灵魂中的生得术式——与生俱来的天赋，无法被夺走的本质。",tags:["有术式"],wMods:[{cond:"凡人",w:.33}]},
-      {l:"否",w:1,c:"#555",d:"你没有生得术式。但这不代表你弱小——天与咒缚有时比最强的术式更可怕。",tags:["无术式"],wMods:[{cond:"凡人",w:2}]}
+      {l:"否",w:1,c:"#7a7a7a",d:"你没有生得术式。但这不代表你弱小——天与咒缚有时比最强的术式更可怕。",tags:["无术式"],wMods:[{cond:"凡人",w:2}]}
     ]},
     {id:"p2_tech_h",title:"生得术式·人",icon:"⚡",order:2,cond:"有术式",prop:"术式",items:[
       {l:"无下限术式(五条悟)",w:1,c:"#2a1040",d:"操纵空间本身。阿基里斯与龟的悖论——你让无限成为现实。"},
@@ -568,7 +568,7 @@ function buildWheel(items){
       let a=wheel.angle-Math.PI/2;
       for(let s of this.sectors){const sa=a,ea=a+s.arc;
         ctx.beginPath();ctx.moveTo(this.cx,this.cy);ctx.arc(this.cx,this.cy,this.radius,sa,ea);ctx.closePath();
-        ctx.fillStyle=s.c||'#333';ctx.fill();
+        ctx.fillStyle=s.c||'#5a5a5a';ctx.fill();
         ctx.beginPath();ctx.moveTo(this.cx,this.cy);ctx.arc(this.cx,this.cy,this.radius,sa,ea);ctx.lineTo(this.cx,this.cy);
         ctx.strokeStyle='rgba(201,168,76,0.5)';ctx.lineWidth=.8;ctx.stroke();
         ctx.save();ctx.translate(this.cx,this.cy);ctx.rotate(sa+s.arc/2);ctx.textAlign='right';ctx.fillStyle='#fff';
@@ -633,19 +633,19 @@ function refreshRight(){
   document.getElementById('rpTraits').innerHTML=state.traits.length?state.traits.map(t=>`<span class="tag">${t}</span>`).join(''):'<span class="empty">尚未抽取</span>';
   // dimensions
   let dh='';DIM_NAMES.forEach(k=>{const v=state.dimensions[k];const lv=v||'——';const idx=dimVal(v);const pct=idx<0?0:Math.min(100,Math.max(0,(idx+1)/DIM_LEVELS.length*100));
-    let clr='#555';if(idx>=7)clr='#fc0';else if(idx>=5)clr='#f50';else if(idx>=3)clr='#c84';else if(idx>=1)clr='#48a';else if(idx>=0)clr='#888';
+    let clr='#999';if(idx>=7)clr='#fc0';else if(idx>=5)clr='#f50';else if(idx>=3)clr='#c84';else if(idx>=1)clr='#48a';else if(idx>=0)clr='#aaa';
     dh+=`<div style="display:flex;align-items:center;gap:6px;font-size:10px;padding:2px 8px"><span style="width:34px;color:var(--dim)">${k}</span><span style="width:24px;text-align:right;font-weight:700;color:${clr};font-size:10px">${lv}</span><span style="flex:1;height:4px;border-radius:2px;background:rgba(255,255,255,.06)"><span style="display:block;height:100%;border-radius:2px;background:${clr};width:${pct}%"></span></span></div>`});
   document.getElementById('rpDims').innerHTML=dh||'<span class="empty">尚未抽取</span>';
-  document.getElementById('rpHist').innerHTML=state.results.length?state.results.map(r=>`<div class="rh" style="border-left-color:${r.c||'#333'}"><span class="rhd" style="background:${r.c||'#333'}"></span><span style="color:var(--dim);font-size:9px">${r.rname}:</span><span style="font-weight:600;font-size:10px">${r.label}</span></div>`).join(''):'<span class="empty" style="padding:4px">尚未抽取</span>';
+  document.getElementById('rpHist').innerHTML=state.results.length?state.results.map(r=>`<div class="rh" style="border-left-color:${r.c||'#5a5a5a'}"><span class="rhd" style="background:${r.c||'#5a5a5a'}"></span><span style="color:var(--dim);font-size:9px">${r.rname}:</span><span style="font-weight:600;font-size:10px">${r.label}</span></div>`).join(''):'<span class="empty" style="padding:4px">尚未抽取</span>';
 }
 function refreshTabs(){
   const tp=document.getElementById('tvPerson'),th=document.getElementById('tvHist');
   let ph='<div class="tab-card"><h4>👤 角色特质</h4><div class="tags">'+(state.traits.length?state.traits.map(t=>`<span class="tag">${t}</span>`).join(''):'暂无特质')+'</div>';
   ph+='<h4 style="margin-top:10px">📊 维度表</h4><div class="dim-mob">';
-  DIM_NAMES.forEach(k=>{const v=state.dimensions[k];const lv=v||'——';const idx=dimVal(v);const pct=idx<0?0:Math.min(100,Math.max(0,(idx+1)/DIM_LEVELS.length*100));let clr='#555';if(idx>=7)clr='#fc0';else if(idx>=5)clr='#f50';else if(idx>=3)clr='#c84';else if(idx>=1)clr='#48a';else if(idx>=0)clr='#888';
+  DIM_NAMES.forEach(k=>{const v=state.dimensions[k];const lv=v||'——';const idx=dimVal(v);const pct=idx<0?0:Math.min(100,Math.max(0,(idx+1)/DIM_LEVELS.length*100));let clr='#999';if(idx>=7)clr='#fc0';else if(idx>=5)clr='#f50';else if(idx>=3)clr='#c84';else if(idx>=1)clr='#48a';else if(idx>=0)clr='#aaa';
     ph+=`<div style="display:flex;align-items:center;gap:6px;font-size:11px;padding:2px 0"><span style="width:36px;color:var(--dim)">${k}</span><span style="width:24px;text-align:right;font-weight:700;color:${clr}">${lv}</span><span style="flex:1;height:4px;border-radius:2px;background:rgba(255,255,255,.06)"><span style="display:block;height:100%;border-radius:2px;background:${clr};width:${pct}%"></span></span></div>`});
   ph+='</div></div>';tp.innerHTML=ph;
-  th.innerHTML=state.results.length?`<div class="th-list">${state.results.map(r=>`<div class="th" style="border-left-color:${r.c||'#333'}"><span class="thd" style="background:${r.c||'#333'}"></span><div class="thb"><span class="thl">${r.rname}</span><span class="thv">${r.label}</span><span class="thdesc">${r.desc||''}</span></div></div>`).join('')}</div>`:'<div class="empty">暂无事件记录</div>';
+  th.innerHTML=state.results.length?`<div class="th-list">${state.results.map(r=>`<div class="th" style="border-left-color:${r.c||'#5a5a5a'}"><span class="thd" style="background:${r.c||'#5a5a5a'}"></span><div class="thb"><span class="thl">${r.rname}</span><span class="thv">${r.label}</span><span class="thdesc">${r.desc||''}</span></div></div>`).join('')}</div>`:'<div class="empty">暂无事件记录</div>';
 }
 function updateBadges(){
   const bh=document.getElementById('btbH'),bp=document.getElementById('btbP');
@@ -732,10 +732,10 @@ function stop(){
   let norm=(-wheel.angle)%(Math.PI*2);if(norm<0)norm+=Math.PI*2;let cum=0,idx=0;
   for(let i=0;i<wheel.sectors.length;i++){cum+=wheel.sectors[i].arc;if(norm<cum){idx=i;break}}
   const item=wheel.sectors[idx];
-  state.results.push({roundId:rd().id,rname:`${rd().icon} ${rd().title}`,prop:rd().prop,label:item.l,desc:item.d||'',c:item.c||'#333',_item:{tags:item.tags||[],dim:item.dim||{},dimMod:item.dimMod||{}}});
+  state.results.push({roundId:rd().id,rname:`${rd().icon} ${rd().title}`,prop:rd().prop,label:item.l,desc:item.d||'',c:item.c||'#5a5a5a',_item:{tags:item.tags||[],dim:item.dim||{},dimMod:item.dimMod||{}}});
   applyEffects(item);
-  const panel=document.getElementById('resultPanel');panel.style.display='block';panel.style.borderLeft=`4px solid ${item.c||'#333'}`;
-  panel.innerHTML=`<div class="rp-cat">${rd().icon} ${rd().title}</div><div class="rp-val" style="color:${item.c||'#333'};text-shadow:0 0 12px ${item.c||'#333'}66">${item.l}</div><div class="rp-desc">${item.d||''}</div>`;
+  const panel=document.getElementById('resultPanel');panel.style.display='block';panel.style.borderLeft=`4px solid ${item.c||'#5a5a5a'}`;
+  panel.innerHTML=`<div class="rp-cat">${rd().icon} ${rd().title}</div><div class="rp-val" style="color:${item.c||'#5a5a5a'};text-shadow:0 0 12px ${item.c||'#5a5a5a'}66">${item.l}</div><div class="rp-desc">${item.d||''}</div>`;
   particles.emit(wheel.cx,20,50,item.c||'#ff3050',160,3.5,2);particles.emit(wheel.cx,20,25,'#ffcc00',110,2.5,1.4);
   // show next button if more rounds, phase button if phase done
   const ar=activeRounds();const undone=ar.filter(r=>!isRoundDone(r));
@@ -774,7 +774,7 @@ function renderEditor(){
         prop:<input value="${r.prop||''}" onchange="DATA.phases[${pi}].rounds[${ri}].prop=this.value" style="width:50px;font-size:9px" />
       </div>`;
       r.items.forEach((it,ii)=>{
-        h+=`<div class="ep-item"><input value="${it.l}" onchange="DATA.phases[${pi}].rounds[${ri}].items[${ii}].l=this.value" /> w:<input class="w" type="number" min="1" max="10" value="${it.w||1}" onchange="DATA.phases[${pi}].rounds[${ri}].items[${ii}].w=parseInt(this.value)||1" /> <input type="color" value="${it.c||'#333'}" onchange="DATA.phases[${pi}].rounds[${ri}].items[${ii}].c=this.value" /><div style="flex-basis:100%"><textarea rows="2" onchange="DATA.phases[${pi}].rounds[${ri}].items[${ii}].d=this.value">${it.d||''}</textarea></div><div class="tag-row">${(it.tags||[]).map((t,ti)=>`<span class="tag-chip">${t}<span class="x" onclick="DATA.phases[${pi}].rounds[${ri}].items[${ii}].tags.splice(${ti},1);renderEditor()">×</span></span>`).join('')}<input value="" placeholder="+标签" style="width:50px" onkeydown="if(event.key==='Enter'){const v=this.value.trim();if(v){if(!DATA.phases[${pi}].rounds[${ri}].items[${ii}].tags)DATA.phases[${pi}].rounds[${ri}].items[${ii}].tags=[];DATA.phases[${pi}].rounds[${ri}].items[${ii}].tags.push(v);renderEditor();}}" /></div><span style="font-size:9px;color:var(--dim);cursor:pointer" onclick="const e=document.getElementById('dt${pi}_${ri}_${ii}');e.style.display=e.style.display==='none'?'block':'none'">[+ 条件/维度/权重]</span><div id="dt${pi}_${ri}_${ii}" style="display:none;margin-top:4px;padding:6px;background:rgba(255,255,255,.02);border-radius:6px;font-size:10px">`;
+        h+=`<div class="ep-item"><input value="${it.l}" onchange="DATA.phases[${pi}].rounds[${ri}].items[${ii}].l=this.value" /> w:<input class="w" type="number" min="1" max="10" value="${it.w||1}" onchange="DATA.phases[${pi}].rounds[${ri}].items[${ii}].w=parseInt(this.value)||1" /> <input type="color" value="${it.c||'#5a5a5a'}" onchange="DATA.phases[${pi}].rounds[${ri}].items[${ii}].c=this.value" /><div style="flex-basis:100%"><textarea rows="2" onchange="DATA.phases[${pi}].rounds[${ri}].items[${ii}].d=this.value">${it.d||''}</textarea></div><div class="tag-row">${(it.tags||[]).map((t,ti)=>`<span class="tag-chip">${t}<span class="x" onclick="DATA.phases[${pi}].rounds[${ri}].items[${ii}].tags.splice(${ti},1);renderEditor()">×</span></span>`).join('')}<input value="" placeholder="+标签" style="width:50px" onkeydown="if(event.key==='Enter'){const v=this.value.trim();if(v){if(!DATA.phases[${pi}].rounds[${ri}].items[${ii}].tags)DATA.phases[${pi}].rounds[${ri}].items[${ii}].tags=[];DATA.phases[${pi}].rounds[${ri}].items[${ii}].tags.push(v);renderEditor();}}" /></div><span style="font-size:9px;color:var(--dim);cursor:pointer" onclick="const e=document.getElementById('dt${pi}_${ri}_${ii}');e.style.display=e.style.display==='none'?'block':'none'">[+ 条件/维度/权重]</span><div id="dt${pi}_${ri}_${ii}" style="display:none;margin-top:4px;padding:6px;background:rgba(255,255,255,.02);border-radius:6px;font-size:10px">`;
         const dim=it.dim||{},dimMod=it.dimMod||{},cond=it.cond||'',wMods=it.wMods||[];
         h+=`维度设置: ${Object.entries(dim).map(([k,v])=>`<span>${k}:<input value="${v}" style="width:30px" onchange="DATA.phases[${pi}].rounds[${ri}].items[${ii}].dim=DATA.phases[${pi}].rounds[${ri}].items[${ii}].dim||{};DATA.phases[${pi}].rounds[${ri}].items[${ii}].dim['${k}']=this.value"/></span>`).join(' ')} <select onchange="const v=this.value;if(v){const d=DATA.phases[${pi}].rounds[${ri}].items[${ii}].dim||{};d[v]='C';DATA.phases[${pi}].rounds[${ri}].items[${ii}].dim=d;renderEditor()}"><option value="">+维</option>${DIM_NAMES.filter(n=>!dim[n]).map(n=>`<option>${n}</option>`).join('')}</select><br>`;
         h+=`维度增减: ${Object.entries(dimMod).map(([k,v])=>`<span>${k}:<input type="number" value="${v}" style="width:30px" onchange="DATA.phases[${pi}].rounds[${ri}].items[${ii}].dimMod=DATA.phases[${pi}].rounds[${ri}].items[${ii}].dimMod||{};DATA.phases[${pi}].rounds[${ri}].items[${ii}].dimMod['${k}']=parseInt(this.value)||0"/></span>`).join(' ')} <select onchange="const v=this.value;if(v){const d=DATA.phases[${pi}].rounds[${ri}].items[${ii}].dimMod||{};d[v]=0;DATA.phases[${pi}].rounds[${ri}].items[${ii}].dimMod=d;renderEditor()}"><option value="">+维</option>${DIM_NAMES.filter(n=>!dimMod[n]).map(n=>`<option>${n}</option>`).join('')}</select><br>`;
@@ -782,9 +782,9 @@ function renderEditor(){
         h+=`<br>权重修改: ${wMods.map((m,mi)=>`当<input value="${m.cond||''}" style="width:100px" onchange="DATA.phases[${pi}].rounds[${ri}].items[${ii}].wMods[${mi}].cond=this.value"/>×<input type="number" step="0.5" value="${m.w||1}" style="width:30px" onchange="DATA.phases[${pi}].rounds[${ri}].items[${ii}].wMods[${mi}].w=parseFloat(this.value)||1"/>`).join(' ')} <button style="font-size:9px" onclick="if(!DATA.phases[${pi}].rounds[${ri}].items[${ii}].wMods)DATA.phases[${pi}].rounds[${ri}].items[${ii}].wMods=[];DATA.phases[${pi}].rounds[${ri}].items[${ii}].wMods.push({cond:'',w:1});renderEditor()">+规则</button>`;
         h+=`</div><div class="ep-actions"><button class="del" onclick="DATA.phases[${pi}].rounds[${ri}].items.splice(${ii},1);renderEditor()">✕ 删除</button></div></div>`;
       });
-      h+=`<div class="ep-actions" style="margin-top:6px"><button onclick="DATA.phases[${pi}].rounds[${ri}].items.push({l:'新选项',w:1,c:'#333',d:'',tags:[],dim:{},dimMod:{}});renderEditor()">+ 添加选项</button><button class="del" onclick="DATA.phases[${pi}].rounds.splice(${ri},1);renderEditor()">✕ 删除轮次</button></div></div>`;
+      h+=`<div class="ep-actions" style="margin-top:6px"><button onclick="DATA.phases[${pi}].rounds[${ri}].items.push({l:'新选项',w:1,c:'#5a5a5a',d:'',tags:[],dim:{},dimMod:{}});renderEditor()">+ 添加选项</button><button class="del" onclick="DATA.phases[${pi}].rounds.splice(${ri},1);renderEditor()">✕ 删除轮次</button></div></div>`;
     });
-    h+=`<div class="ep-actions"><button onclick="DATA.phases[${pi}].rounds.push({id:'p'+(pi+1)+'_'+Date.now(),title:'新轮次',icon:'◆',order:DATA.phases[${pi}].rounds.length+1,cond:null,prop:'',items:[{l:'选项1',w:1,c:'#333',d:'',tags:[],dim:{},dimMod:{}}]});renderEditor()">+ 添加轮次</button></div></div>`;
+    h+=`<div class="ep-actions"><button onclick="DATA.phases[${pi}].rounds.push({id:'p'+(pi+1)+'_'+Date.now(),title:'新轮次',icon:'◆',order:DATA.phases[${pi}].rounds.length+1,cond:null,prop:'',items:[{l:'选项1',w:1,c:'#5a5a5a',d:'',tags:[],dim:{},dimMod:{}}]});renderEditor()">+ 添加轮次</button></div></div>`;
   });
   h+=`<div class="ep-actions" style="padding:10px 0"><button onclick="DATA.phases.push({id:'p'+(DATA.phases.length+1),name:'新阶段',icon:'◆',rounds:[]});renderEditor()">+ 添加阶段</button></div>`;
   body.innerHTML=h;
