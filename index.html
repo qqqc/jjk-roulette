@@ -628,6 +628,8 @@ function refreshRound(){
   document.getElementById('btnSpin').disabled=done;
   document.getElementById('btnSpin').textContent=done?'✅ 已抽取':'🌀 点击旋转';
   document.getElementById('btnNext').style.display='none';
+  document.getElementById('btnReroll').style.display='none';
+  document.getElementById('btnPhase').style.display='none';
   document.getElementById('btnChar').style.display=isPhaseDone()&&ph().rounds.length>0?'block':'none';
 }
 function refreshRight(){
