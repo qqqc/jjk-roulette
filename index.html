@@ -358,14 +358,16 @@ const SEED_DATA={phases:[
       {l:"75岁·暮年",w:1,c:"#5a5a5a",d:"岁月不饶人。但咒术界没有人敢小看你——你的名字本身就是威慑力。",tags:["暮年","传奇"]}
     ]},
     {id:"p1_look",title:"穿越后颜值",icon:"💄",order:11,cond:null,prop:"颜值",items:[
-      {l:"狰狞可怖·E",w:1,c:"#402020",d:"扭曲的外貌令人恐惧。在这个以力量为尊的世界里，恐惧就是力量。",tags:["恐怖","威慑"],dim:{颜值:"E"}},
-      {l:"其貌不扬·D",w:2,c:"#686868",d:"扔进人群里就找不到。平凡让你在暗中行动时无人察觉。",tags:["隐匿","平凡"],dim:{颜值:"D"}},
-      {l:"普普通通·C",w:4,c:"#807060",d:"大多数人就长这样。最安全的位置就是不被注意的位置。",tags:["普通","低调"],dim:{颜值:"C"}},
-      {l:"眉清目秀·B",w:3,c:"#a0a080",d:"干净端正的外表。第一印象永远不会差。",tags:["端正","好人缘"],dim:{颜值:"B"}},
-      {l:"仪表堂堂·A",w:2,c:"#e0a040",d:"出众的外貌。你的仪表本身就是一张通行证。",tags:["出众","通行证"],dim:{颜值:"A"}},
-      {l:"花容月貌·S",w:2,c:"#ff8844",d:"罕见的美貌。百里挑一的容颜，见过你的人都会记住你。",tags:["美貌","记忆"],dim:{颜值:"S"}},
-      {l:"国色天香·SS",w:1,c:"#ffcc00",d:"咒术界公认的绝色。这种级别的美貌已经可以影响战局。",tags:["绝色","影响"],dim:{颜值:"SS"}},
-      {l:"倾国倾城·SSS",w:1,c:"#ffffff",d:"传说级的容颜。一代人中只会出现一两个。人们为你而争斗杀戮。",tags:["传说","倾国"],dim:{颜值:"SSS"}}
+      {l:"看见就会产生咒灵·E-",w:1,c:"#300",d:"你的外貌本身就是诅咒的源头。看见你的人会在心中生出恐惧——这就是你的力量。",tags:["恐怖","咒灵感"],dim:{颜值:"E-"}},
+      {l:"狰狞可怖·E",w:5,c:"#402020",d:"扭曲的外貌令人恐惧。在这个以力量为尊的世界里，恐惧就是力量。",tags:["恐怖","威慑"],dim:{颜值:"E"}},
+      {l:"其貌不扬·D",w:10,c:"#686868",d:"扔进人群里就找不到。平凡让你在暗中行动时无人察觉。",tags:["隐匿","平凡"],dim:{颜值:"D"}},
+      {l:"普普通通·C",w:30,c:"#807060",d:"大多数人就长这样。最安全的位置就是不被注意的位置。",tags:["普通","低调"],dim:{颜值:"C"}},
+      {l:"眉清目秀·B",w:30,c:"#a0a080",d:"干净端正的外表。第一印象永远不会差。",tags:["端正","好人缘"],dim:{颜值:"B"}},
+      {l:"仪表堂堂·A",w:20,c:"#e0a040",d:"出众的外貌。你的仪表本身就是一张通行证。",tags:["出众","通行证"],dim:{颜值:"A"}},
+      {l:"花容月貌·S",w:15,c:"#ff8844",d:"罕见的美貌。百里挑一的容颜，见过你的人都会记住你。",tags:["美貌","记忆"],dim:{颜值:"S"}},
+      {l:"国色天香·SS",w:10,c:"#ffcc00",d:"咒术界公认的绝色。这种级别的美貌已经可以影响战局。",tags:["绝色","影响"],dim:{颜值:"SS"}},
+      {l:"倾国倾城·SSS",w:5,c:"#ffffff",d:"传说级的容颜。一代人中只会出现一两个。人们为你而争斗杀戮。",tags:["传说","倾国"],dim:{颜值:"SSS"}},
+      {l:"咒术颜值天花板·EX",w:1,c:"#fff8dc",d:"超越了美貌的概念。你的容颜本身就是术式——看到你的人会心甘情愿为你赴死。",tags:["超越","神级"],dim:{颜值:"EX"}}
     ]},
     {id:"p1_moral",title:"道德水平",icon:"⚖️",order:12,cond:null,prop:"道德",items:[
       {l:"守序善",w:1,c:"#e8d44d",d:"以拯救苍生为己任。你的规则指向最大的善。",tags:["道德·守序善"]},
@@ -377,6 +379,18 @@ const SEED_DATA={phases:[
       {l:"守序恶",w:1,c:"#6a2030",d:"以规则之名行恶。冷静而残忍，暴行包装在法律幌子下。",tags:["道德·守序恶"]},
       {l:"中立恶",w:1,c:"#8a2020",d:"为达目的不择手段。没有善恶，只有得失。",tags:["道德·中立恶"]},
       {l:"混沌恶",w:1,c:"#4a1020",d:"毫无逻辑的恶意。以毁灭与痛苦为乐。",tags:["道德·混沌恶"]}
+    ]},
+    {id:"p1_luck",title:"运气",icon:"🍀",order:13,cond:null,prop:"运气",items:[
+      {l:"世界针对你·E-",w:1,c:"#400",d:"命运正在用最恶毒的方式折磨你。但你活下来了——在最糟糕的运气中存活本身就是一种力量。",tags:["灾厄","逆天"],dim:{运气:"E-"}},
+      {l:"霉运连连·E",w:5,c:"#500",d:"你的运气低于平均线。但你已经习惯了——苦难让你比任何人都坚韧。",tags:["霉运"],dim:{运气:"E"}},
+      {l:"诸事不顺·D",w:10,c:"#700",d:"偶尔的坏运气让你更懂得珍惜偶尔的好运。你知道世界不是围着你转的。",tags:["不顺"],dim:{运气:"D"}},
+      {l:"平凡气运·C",w:30,c:"#48a",d:"大多数人就站在这里。你没有命运的偏爱，也没有它的诅咒——平凡是最真实的祝福。",tags:["平凡"],dim:{运气:"C"}},
+      {l:"运气挺好·B",w:30,c:"#68c",d:"比普通人稍微幸运一点。好事总会偶尔发生在你身上——不是奇迹，只是小小的好运。",tags:["好运"],dim:{运气:"B"}},
+      {l:"好事常伴·A",w:20,c:"#c84",d:"命运对你微笑。在关键时刻你总能抓住机会的尾巴——这比任何术式都更可靠。",tags:["幸运"],dim:{运气:"A"}},
+      {l:"心想事成·S",w:15,c:"#f50",d:"你的意志似乎可以影响概率本身。你想要的——总会在某个转角等你。",tags:["强运"],dim:{运气:"S"}},
+      {l:"幸运眷顾·SS",w:10,c:"#f20",d:"你天生就是命运的宠儿。大多数人梦寐以求的东西，你信手拈来。",tags:["极运"],dim:{运气:"SS"}},
+      {l:"气运之子·SSS",w:5,c:"#fc0",d:"此等气运万中无一。你是新时代的主角——命运为你写好了剧本，你只需要走上去。",tags:["天命"],dim:{运气:"SSS"}},
+      {l:"你即为世界意志·EX",w:1,c:"#fff",d:"运气的概念对你已无意义——你本身就已经是命运的制定者。世界在你面前摊开了所有的可能性。",tags:["世界意志"],dim:{运气:"EX"}}
     ]}
   ]},
   {id:"p2",name:"能力构筑",icon:"🔮",rounds:[
@@ -521,9 +535,9 @@ let DATA=JSON.parse(JSON.stringify(SEED_DATA));
 // ========================================================= GAME STATE =========================================================
 let curPhase=0,curRound=0;
 const DIM_NAMES=['体质','体术','反应','咒力总量','咒力效率','咒力操纵','咒力输出','天赋','意志','运气','颜值','声望'];
-const DIM_LEVELS=['E','D','C','B','A','S','SS','SSS'];
+const DIM_LEVELS=['E-','E','D','C','B','A','S','SS','SSS','EX'];
 function dimVal(lv){return lv?DIM_LEVELS.indexOf(lv):-1}
-function dimLv(n){if(n<0)return'E';if(n>=DIM_LEVELS.length)return'SSS+';return DIM_LEVELS[n]}
+function dimLv(n){if(n<0)return'E-';if(n>=DIM_LEVELS.length-1)return'EX+';return DIM_LEVELS[n]}
 function initDimensions(){const d={};DIM_NAMES.forEach(k=>d[k]=null);return d}
 const state={spinning:false,results:[],traits:[],dimensions:initDimensions(),targetAngle:0,startAngle:0,startTime:0,duration:0,lastAngle:0,curTab:'wheel',editorOpen:false};
 let wheel,particles;
@@ -637,7 +651,7 @@ function refreshRight(){
   document.getElementById('rpTraits').innerHTML=state.traits.length?state.traits.map(t=>`<span class="tag">${t}</span>`).join(''):'<span class="empty">尚未抽取</span>';
   // dimensions
   let dh='';DIM_NAMES.forEach(k=>{const v=state.dimensions[k];const lv=v||'——';const idx=dimVal(v);const pct=idx<0?0:Math.min(100,Math.max(0,(idx+1)/DIM_LEVELS.length*100));
-    let clr='#999';if(idx>=7)clr='#fc0';else if(idx>=5)clr='#f50';else if(idx>=3)clr='#c84';else if(idx>=1)clr='#48a';else if(idx>=0)clr='#aaa';
+    let clr='#600';if(idx>=9)clr='#fff';else if(idx>=8)clr='#fc0';else if(idx>=7)clr='#f20';else if(idx>=6)clr='#f50';else if(idx>=5)clr='#c84';else if(idx>=3)clr='#48a';else if(idx>=2)clr='#888';else if(idx>=1)clr='#999';
     dh+=`<div style="display:flex;align-items:center;gap:6px;font-size:10px;padding:2px 8px"><span style="width:34px;color:var(--dim)">${k}</span><span style="width:24px;text-align:right;font-weight:700;color:${clr};font-size:10px">${lv}</span><span style="flex:1;height:4px;border-radius:2px;background:rgba(255,255,255,.06)"><span style="display:block;height:100%;border-radius:2px;background:${clr};width:${pct}%"></span></span></div>`});
   document.getElementById('rpDims').innerHTML=dh||'<span class="empty">尚未抽取</span>';
   document.getElementById('rpHist').innerHTML=state.results.length?state.results.map(r=>`<div class="rh" style="border-left-color:${r.c||'#5a5a5a'}"><span class="rhd" style="background:${r.c||'#5a5a5a'}"></span><span style="color:var(--dim);font-size:9px">${r.rname}:</span><span style="font-weight:600;font-size:10px">${r.label}</span></div>`).join(''):'<span class="empty" style="padding:4px">尚未抽取</span>';
@@ -646,7 +660,7 @@ function refreshTabs(){
   const tp=document.getElementById('tvPerson'),th=document.getElementById('tvHist');
   let ph='<div class="tab-card"><h4>👤 角色特质</h4><div class="tags">'+(state.traits.length?state.traits.map(t=>`<span class="tag">${t}</span>`).join(''):'暂无特质')+'</div>';
   ph+='<h4 style="margin-top:10px">📊 维度表</h4><div class="dim-mob">';
-  DIM_NAMES.forEach(k=>{const v=state.dimensions[k];const lv=v||'——';const idx=dimVal(v);const pct=idx<0?0:Math.min(100,Math.max(0,(idx+1)/DIM_LEVELS.length*100));let clr='#999';if(idx>=7)clr='#fc0';else if(idx>=5)clr='#f50';else if(idx>=3)clr='#c84';else if(idx>=1)clr='#48a';else if(idx>=0)clr='#aaa';
+  DIM_NAMES.forEach(k=>{const v=state.dimensions[k];const lv=v||'——';const idx=dimVal(v);const pct=idx<0?0:Math.min(100,Math.max(0,(idx+1)/DIM_LEVELS.length*100));let clr='#600';if(idx>=9)clr='#fff';else if(idx>=8)clr='#fc0';else if(idx>=7)clr='#f20';else if(idx>=6)clr='#f50';else if(idx>=5)clr='#c84';else if(idx>=3)clr='#48a';else if(idx>=2)clr='#888';else if(idx>=1)clr='#999';
     ph+=`<div style="display:flex;align-items:center;gap:6px;font-size:11px;padding:2px 0"><span style="width:36px;color:var(--dim)">${k}</span><span style="width:24px;text-align:right;font-weight:700;color:${clr}">${lv}</span><span style="flex:1;height:4px;border-radius:2px;background:rgba(255,255,255,.06)"><span style="display:block;height:100%;border-radius:2px;background:${clr};width:${pct}%"></span></span></div>`});
   ph+='</div></div>';tp.innerHTML=ph;
   th.innerHTML=state.results.length?`<div class="th-list">${state.results.map(r=>`<div class="th" style="border-left-color:${r.c||'#5a5a5a'}"><span class="thd" style="background:${r.c||'#5a5a5a'}"></span><div class="thb"><span class="thl">${r.rname}</span><span class="thv">${r.label}</span><span class="thdesc">${r.desc||''}</span></div></div>`).join('')}</div>`:'<div class="empty">暂无事件记录</div>';
