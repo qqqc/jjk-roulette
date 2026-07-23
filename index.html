@@ -83,15 +83,15 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
 .sb-edit:hover{color:var(--text);border-color:rgba(255,255,255,.2)}
 
 /* 中央 */
-.center-area{flex:1;display:flex;flex-direction:column;align-items:center;padding:10px 12px;gap:8px;overflow-y:auto}
+.center-area{flex:1;display:flex;flex-direction:column;align-items:center;padding:10px 12px;gap:10px;overflow-y:auto}
 @media(min-width:768px){.center-area{padding-top:20px}}
-.round-title{font-size:15px;font-weight:700;text-align:center}
+.round-title{font-size:15px;font-weight:700;text-align:center;padding:4px 0}
 /* 转盘 */
-.wheel-wrap{position:relative;width:min(80vw,380px);aspect-ratio:1;flex-shrink:0}
+.wheel-wrap{position:relative;width:min(80vw,380px);aspect-ratio:1;flex-shrink:0;margin-top:22px}
 .wheel-wrap canvas{width:100%;height:100%}
 .wheel-wrap .ptr{position:absolute;top:-8px;left:50%;transform:translateX(-50%);z-index:10;width:0;height:0;border-left:14px solid transparent;border-right:14px solid transparent;border-top:26px solid var(--glow);filter:drop-shadow(0 0 6px var(--glow))}
 .wheel-wrap .ptr::after{content:'';position:absolute;top:-28px;left:-3px;width:7px;height:12px;background:var(--glow);border-radius:4px;box-shadow:0 0 6px var(--glow)}
-.ptr-label{position:absolute;top:-40px;left:50%;transform:translateX(-50%);z-index:11;font-size:13px;font-weight:700;color:var(--glow);text-shadow:0 0 8px rgba(255,48,80,.6);white-space:nowrap;pointer-events:none;padding:3px 12px;border-radius:12px;border:1px solid rgba(255,255,255,.15);background:rgba(10,10,14,.85);transition:color .1s, border-color .1s}
+.ptr-label{position:absolute;top:-48px;left:50%;transform:translateX(-50%);z-index:11;font-size:13px;font-weight:700;color:var(--glow);text-shadow:0 0 8px rgba(255,48,80,.6);white-space:nowrap;pointer-events:none;padding:4px 14px;border-radius:14px;border:1px solid rgba(255,255,255,.15);background:rgba(10,10,14,.9)}
 .p-canvas{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:8}
 .center-btn{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:5;width:20%;aspect-ratio:1;border-radius:50%;background:radial-gradient(circle,#1e1e2e,#0a0a0c);border:2px solid rgba(201,168,76,.45);cursor:pointer;display:flex;align-items:center;justify-content:center;font-family:serif;font-size:clamp(14px,3.5vw,20px);color:var(--gold);box-shadow:0 0 18px rgba(0,0,0,.5);transition:.2s}
 .center-btn:hover{border-color:var(--gold);box-shadow:0 0 28px rgba(201,168,76,.25)}
