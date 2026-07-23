@@ -85,13 +85,13 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
 /* 中央 */
 .center-area{flex:1;display:flex;flex-direction:column;align-items:center;padding:10px 12px;gap:10px;overflow-y:auto}
 @media(min-width:768px){.center-area{padding-top:20px}}
-.round-title{font-size:15px;font-weight:700;text-align:center;padding:4px 0}
+.round-title{font-size:15px;font-weight:700;text-align:center}
 /* 转盘 */
-.wheel-wrap{position:relative;width:min(80vw,380px);aspect-ratio:1;flex-shrink:0;margin-top:22px}
+.wheel-wrap{position:relative;width:min(80vw,380px);aspect-ratio:1;flex-shrink:0}
 .wheel-wrap canvas{width:100%;height:100%}
 .wheel-wrap .ptr{position:absolute;top:-8px;left:50%;transform:translateX(-50%);z-index:10;width:0;height:0;border-left:14px solid transparent;border-right:14px solid transparent;border-top:26px solid var(--glow);filter:drop-shadow(0 0 6px var(--glow))}
 .wheel-wrap .ptr::after{content:'';position:absolute;top:-28px;left:-3px;width:7px;height:12px;background:var(--glow);border-radius:4px;box-shadow:0 0 6px var(--glow)}
-.ptr-label{position:absolute;top:-48px;left:50%;transform:translateX(-50%);z-index:11;font-size:13px;font-weight:700;color:var(--glow);text-shadow:0 0 8px rgba(255,48,80,.6);white-space:nowrap;pointer-events:none;padding:4px 14px;border-radius:14px;border:1px solid rgba(255,255,255,.15);background:rgba(10,10,14,.9)}
+.ptr-label{visibility:hidden;text-align:center;font-size:13px;font-weight:700;color:var(--glow);text-shadow:0 0 6px rgba(255,48,80,.6);white-space:nowrap;padding:4px 14px;border-radius:14px;border:1px solid rgba(255,255,255,.15);background:rgba(10,10,14,.9);margin:-2px 0;position:relative;z-index:1}
 .p-canvas{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:8}
 .center-btn{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:5;width:20%;aspect-ratio:1;border-radius:50%;background:radial-gradient(circle,#1e1e2e,#0a0a0c);border:2px solid rgba(201,168,76,.45);cursor:pointer;display:flex;align-items:center;justify-content:center;font-family:serif;font-size:clamp(14px,3.5vw,20px);color:var(--gold);box-shadow:0 0 18px rgba(0,0,0,.5);transition:.2s}
 .center-btn:hover{border-color:var(--gold);box-shadow:0 0 28px rgba(201,168,76,.25)}
@@ -226,9 +226,9 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
   <div class="center-area" id="centerArea">
     <div class="round-title" id="roundTitle"></div>
     <div class="p-dots" id="centerDots" style="display:none"></div>
+    <div class="ptr-label" id="ptrLabel" style="visibility:hidden"></div>
     <div class="wheel-wrap" id="wheelWrap">
       <div class="ptr"></div>
-      <div class="ptr-label" id="ptrLabel"></div>
       <canvas id="wheelCanvas"></canvas>
       <canvas class="p-canvas" id="pCanvas"></canvas>
       <div class="center-btn" id="centerBtn" onclick="centerClick()">呪</div>
@@ -881,7 +881,7 @@ function loop(t){
   if(particles){particles.update(dt);if(wheel){const pc=document.getElementById('pCanvas'),pctx=particles.ctx,sw=wheel.size;pc.width=wheel.canvas.width;pc.height=wheel.canvas.height;pctx.setTransform(wheel.dpr,0,0,wheel.dpr,0,0);pctx.clearRect(0,0,sw,sw);for(let p of particles.parts){pctx.save();pctx.globalAlpha=p.a;pctx.fillStyle=p.c;pctx.shadowBlur=p.s*4;pctx.shadowColor=p.c;pctx.beginPath();pctx.arc(p.x,p.y,p.s,0,Math.PI*2);pctx.fill();pctx.restore()}}}
   if(wheel)wheel.draw();
   if(wheel){const ctx=wheel.ctx,dpr=wheel.dpr;ctx.setTransform(dpr,0,0,dpr,0,0);const ss=wheel.sectors;let norm=(-wheel.angle)%(Math.PI*2);if(norm<0)norm+=Math.PI*2;let cum=0,idx=0;for(let i=0;i<ss.length;i++){cum+=ss[i].arc;if(norm<cum){idx=i;break}}let sa=wheel.angle-Math.PI/2;for(let i=0;i<idx;i++)sa+=ss[i].arc;ctx.beginPath();ctx.moveTo(wheel.cx,wheel.cy);ctx.arc(wheel.cx,wheel.cy,wheel.radius+3,sa,sa+ss[idx].arc);ctx.closePath();ctx.strokeStyle='rgba(255,48,80,.45)';ctx.lineWidth=3;ctx.stroke();
-const pl=document.getElementById('ptrLabel');if(pl){const s=ss[idx];pl.textContent=s?('🔻 '+s.l):'';const sc=s?.c||'var(--glow)';pl.style.color=sc;pl.style.borderColor=sc}}
+const pl=document.getElementById('ptrLabel');if(pl){const s=ss[idx];pl.textContent=s?('🔻 '+s.l):'';const sc=s?.c||'var(--glow)';pl.style.color=sc;pl.style.borderColor=sc;pl.style.visibility=s?'visible':'hidden'}}
   requestAnimationFrame(loop);
 }
 
