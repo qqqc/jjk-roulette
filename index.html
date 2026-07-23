@@ -91,7 +91,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
 .wheel-wrap canvas{width:100%;height:100%}
 .wheel-wrap .ptr{position:absolute;top:-8px;left:50%;transform:translateX(-50%);z-index:10;width:0;height:0;border-left:14px solid transparent;border-right:14px solid transparent;border-top:26px solid var(--glow);filter:drop-shadow(0 0 6px var(--glow))}
 .wheel-wrap .ptr::after{content:'';position:absolute;top:-28px;left:-3px;width:7px;height:12px;background:var(--glow);border-radius:4px;box-shadow:0 0 6px var(--glow)}
-.ptr-label{visibility:hidden;text-align:center;font-size:14px;font-weight:800;color:#fff;text-shadow:0 0 10px rgba(255,255,255,.5);white-space:nowrap;padding:5px 16px;border-radius:6px;border:2px solid rgba(255,255,255,.2);background:rgba(0,0,0,.75);margin:-1px 0 4px;position:relative;z-index:1;letter-spacing:1px}
+.ptr-label{visibility:hidden;text-align:center;font-size:14px;font-weight:800;color:#fff;text-shadow:0 0 10px rgba(255,255,255,.5);white-space:nowrap;padding:5px 16px;border-radius:6px;border:2px solid rgba(255,255,255,.3);background:rgba(0,0,0,.75);margin:-1px 0 4px;position:relative;z-index:1;letter-spacing:1px}
 .p-canvas{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:8}
 .center-btn{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:5;width:20%;aspect-ratio:1;border-radius:50%;background:radial-gradient(circle,#1e1e2e,#0a0a0c);border:2px solid rgba(201,168,76,.45);cursor:pointer;display:flex;align-items:center;justify-content:center;font-family:serif;font-size:clamp(14px,3.5vw,20px);color:var(--gold);box-shadow:0 0 18px rgba(0,0,0,.5);transition:.2s}
 .center-btn:hover{border-color:var(--gold);box-shadow:0 0 28px rgba(201,168,76,.25)}
@@ -410,6 +410,18 @@ const SEED_DATA={phases:[
       {l:"幸运眷顾·SS",w:10,c:"#f20",d:"你天生就是命运的宠儿。大多数人梦寐以求的东西，你信手拈来。",tags:["极运"],dim:{运气:"SS"}},
       {l:"气运之子·SSS",w:5,c:"#fc0",d:"此等气运万中无一。你是新时代的主角——命运为你写好了剧本，你只需要走上去。",tags:["天命"],dim:{运气:"SSS"}},
       {l:"你即为世界意志·EX",w:1,c:"#fff",d:"运气的概念对你已无意义——你本身就已经是命运的制定者。世界在你面前摊开了所有的可能性。",tags:["世界意志"],dim:{运气:"EX"}}
+    ]},
+    {id:"p1_will",title:"意志",icon:"💪",order:14,cond:null,prop:"意志",items:[
+      {l:"意志？已经被玩坏了·E-",w:1,c:"#300",d:"你的意志已经被彻底摧毁。但破碎的灵魂有时候比完整的更危险——因为你已经没有任何东西可以失去了。",tags:["破碎"],dim:{意志:"E-"}},
+      {l:"一触即溃·E",w:5,c:"#500",d:"最小的挫折都能让你动摇。你不太适合独自面对危险——但在绝境中，有时候本能会代替意志为你战斗。",tags:["脆弱"],dim:{意志:"E"}},
+      {l:"脆弱无比·D",w:10,c:"#700",d:"你的意志力低于平均线。面对强敌的压迫感会让你犹豫——但犹豫也是一种生存本能。",tags:["弱点"],dim:{意志:"D"}},
+      {l:"稍有软弱·C",w:30,c:"#48a",d:"大多数人就站在这里。你有恐惧也有坚持——关键时候你会动摇，但最终会站起来。",tags:["普通"],dim:{意志:"C"}},
+      {l:"有勇之人·B",w:30,c:"#68c",d:"你敢面对大多数人不敢面对的东西。恐惧不会阻止你——只会让你更谨慎。",tags:["勇敢"],dim:{意志:"B"}},
+      {l:"意志坚定·A",w:20,c:"#c84",d:"你的意志不会被轻易撼动。在危急关头，你是最后一个后退的人——通常是第一个被依赖的人。",tags:["坚定"],dim:{意志:"A"}},
+      {l:"金子般的心·S",w:15,c:"#f50",d:"你的意志闪耀如金。面对绝境时你不仅不会退缩——反而会被磨砺得更加锋利。",tags:["闪耀"],dim:{意志:"S"}},
+      {l:"强韧灵魂·SS",w:10,c:"#f20",d:"你的意志可以抵抗一切形式的压迫。无论是领域展开还是灵魂攻击——你的灵魂是堡垒。",tags:["强韧"],dim:{意志:"SS"}},
+      {l:"钢铁意志·SSS",w:5,c:"#fc0",d:"你的意志如同钢铁——不可弯曲，不可折断。在任何环境下你都能保持自我。",tags:["钢铁"],dim:{意志:"SSS"}},
+      {l:"无畏·EX",w:1,c:"#fff",d:"你已经超越了恐惧本身。你的意志不再需要抵抗任何东西——因为没有任何东西能够威胁到你的内心。",tags:["无畏"],dim:{意志:"EX"}}
     ]}
   ]},
   {id:"p2",name:"能力构筑",icon:"🔮",rounds:[
@@ -898,7 +910,7 @@ function loop(t){
   if(particles){particles.update(dt);if(wheel){const pc=document.getElementById('pCanvas'),pctx=particles.ctx,sw=wheel.size;pc.width=wheel.canvas.width;pc.height=wheel.canvas.height;pctx.setTransform(wheel.dpr,0,0,wheel.dpr,0,0);pctx.clearRect(0,0,sw,sw);for(let p of particles.parts){pctx.save();pctx.globalAlpha=p.a;pctx.fillStyle=p.c;pctx.shadowBlur=p.s*4;pctx.shadowColor=p.c;pctx.beginPath();pctx.arc(p.x,p.y,p.s,0,Math.PI*2);pctx.fill();pctx.restore()}}}
   if(wheel)wheel.draw();
   if(wheel){const ctx=wheel.ctx,dpr=wheel.dpr;ctx.setTransform(dpr,0,0,dpr,0,0);const ss=wheel.sectors;let norm=(-wheel.angle)%(Math.PI*2);if(norm<0)norm+=Math.PI*2;let cum=0,idx=0;for(let i=0;i<ss.length;i++){cum+=ss[i].arc;if(norm<cum){idx=i;break}}let sa=wheel.angle-Math.PI/2;for(let i=0;i<idx;i++)sa+=ss[i].arc;ctx.beginPath();ctx.moveTo(wheel.cx,wheel.cy);ctx.arc(wheel.cx,wheel.cy,wheel.radius+3,sa,sa+ss[idx].arc);ctx.closePath();ctx.strokeStyle='rgba(255,48,80,.45)';ctx.lineWidth=3;ctx.stroke();
-const pl=document.getElementById('ptrLabel');if(pl){const s=ss[idx];pl.textContent=s?('🔻 '+s.l):'';const sc=s?.c||'#fff';pl.style.color=sc;pl.style.borderColor=sc;pl.style.textShadow=`0 0 10px ${sc}`;pl.style.visibility=s?'visible':'hidden'}}
+const pl=document.getElementById('ptrLabel');if(pl){const s=ss[idx];pl.textContent=s?('🔻 '+s.l):'';pl.style.color='#fff';pl.style.borderColor='rgba(255,255,255,.3)';pl.style.textShadow='0 0 10px rgba(255,255,255,.5)';pl.style.visibility=s?'visible':'hidden'}}
   requestAnimationFrame(loop);
 }
 
