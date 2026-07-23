@@ -100,6 +100,8 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
 @keyframes btnGlow{0%,100%{box-shadow:0 4px 20px rgba(224,48,74,.35)}50%{box-shadow:0 6px 32px rgba(255,48,80,.55)}}
 .btn-next{display:none;width:100%;max-width:320px;padding:10px;border-radius:26px;border:1px solid var(--gold);cursor:pointer;font-size:14px;font-weight:700;letter-spacing:1px;background:transparent;color:var(--gold);transition:.3s}
 .btn-next:hover{border-color:#fff;color:#fff}
+.btn-phase{display:none;width:100%;max-width:320px;padding:10px;border-radius:26px;border:1px solid var(--red);cursor:pointer;font-size:14px;font-weight:700;letter-spacing:1px;background:rgba(196,30,58,.1);color:var(--glow);transition:.3s}
+.btn-phase:hover{background:var(--red);color:#fff}
 .btn-reset{display:inline-block;padding:8px 18px;border-radius:18px;border:1px solid rgba(255,255,255,.08);cursor:pointer;font-size:12px;background:transparent;color:var(--dim);transition:.2s}
 .btn-reset:hover{color:var(--text);border-color:rgba(255,255,255,.2)}
 .btn-char{width:100%;max-width:320px;margin-top:8px;padding:12px;border-radius:26px;border:none;cursor:pointer;font-size:15px;font-weight:700;letter-spacing:2px;background:linear-gradient(135deg,var(--gold),#8a7030);color:#1a1a1a;box-shadow:0 4px 20px rgba(201,168,76,.3);transition:.3s}
@@ -229,6 +231,8 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
     </div>
     <button class="btn-spin" id="btnSpin" onclick="spin()">🌀 点击旋转</button>
     <button class="btn-next" id="btnNext" onclick="goNext()">→ 下一轮</button>
+    <button class="btn-reroll" id="btnReroll" style="display:none" onclick="reroll()">🔄 重抽</button>
+    <button class="btn-phase" id="btnPhase" style="display:none" onclick="goNextPhase()">→ 进入下一阶段</button>
     <div style="margin-top:4px"><button class="btn-reset" id="btnReset" onclick="resetGame()">↺ 重置本轮</button></div>
     <div class="result-panel" id="resultPanel"></div>
     <button class="btn-char" id="btnChar" style="display:none" onclick="showToast('角色卡功能即将上线')">🎴 生成角色卡</button>
@@ -687,13 +691,30 @@ function goNext(){
   const ar=activeRounds();for(let i=0;i<ar.length;i++){if(!isRoundDone(ar[i])&&ar[i].id!==rd().id){curRound=i;break}}
   refreshAll();wheel.angle=0;state.targetAngle=0;wheel.draw();document.getElementById('resultPanel').style.display='none';
 }
+function goNextPhase(){if(curPhase<DATA.phases.length-1){switchPhase(curPhase+1)}}
+function reroll(){
+  if(state.spinning)return;const r=rd();if(!r||!isRoundDone(r))return;
+  const idx=state.results.findIndex(rr=>rr.roundId===r.id);if(idx<0)return;
+  state.results.splice(idx);
+  state.traits=[];state.dimensions=initDimensions();
+  state.results.forEach(rr=>{if(rr._item)applyEffects(rr._item)});
+  refreshAll();wheel.angle=0;state.targetAngle=0;wheel.draw();
+  document.getElementById('resultPanel').style.display='none';
+  document.getElementById('btnNext').style.display='none';
+  document.getElementById('btnReroll').style.display='none';
+  showToast('🔄 已重抽，请重新旋转');
+}
+function saveState(){
+  try{localStorage.setItem('jjk_state',JSON.stringify({curPhase,curRound,results:state.results,traits:state.traits,dimensions:state.dimensions}))}catch(e){}
+}
 function resetGame(){
   if(state.spinning)return;
   if(state.results.length>0&&!confirm('确定重置本轮？所有已抽取结果和角色特质将清除。'))return;
   state.results=[];state.traits=[];state.dimensions=initDimensions();
   curRound=0;state.targetAngle=0;wheel.angle=0;
+  localStorage.removeItem('jjk_state');
   refreshAll();wheel.draw();document.getElementById('resultPanel').style.display='none';
-  document.getElementById('btnNext').style.display='none';showToast('↺ 已重置');
+  document.getElementById('btnNext').style.display='none';document.getElementById('btnReroll').style.display='none';showToast('↺ 已重置');
 }
 function spin(){
   if(state.spinning||isRoundDone(rd()))return;state.spinning=true;
@@ -711,16 +732,19 @@ function stop(){
   let norm=(-wheel.angle)%(Math.PI*2);if(norm<0)norm+=Math.PI*2;let cum=0,idx=0;
   for(let i=0;i<wheel.sectors.length;i++){cum+=wheel.sectors[i].arc;if(norm<cum){idx=i;break}}
   const item=wheel.sectors[idx];
-  state.results.push({roundId:rd().id,rname:`${rd().icon} ${rd().title}`,prop:rd().prop,label:item.l,desc:item.d||'',c:item.c||'#333'});
+  state.results.push({roundId:rd().id,rname:`${rd().icon} ${rd().title}`,prop:rd().prop,label:item.l,desc:item.d||'',c:item.c||'#333',_item:{tags:item.tags||[],dim:item.dim||{},dimMod:item.dimMod||{}}});
   applyEffects(item);
   const panel=document.getElementById('resultPanel');panel.style.display='block';panel.style.borderLeft=`4px solid ${item.c||'#333'}`;
   panel.innerHTML=`<div class="rp-cat">${rd().icon} ${rd().title}</div><div class="rp-val" style="color:${item.c||'#333'};text-shadow:0 0 12px ${item.c||'#333'}66">${item.l}</div><div class="rp-desc">${item.d||''}</div>`;
   particles.emit(wheel.cx,20,50,item.c||'#ff3050',160,3.5,2);particles.emit(wheel.cx,20,25,'#ffcc00',110,2.5,1.4);
-  // show next button if more rounds
+  // show next button if more rounds, phase button if phase done
   const ar=activeRounds();const undone=ar.filter(r=>!isRoundDone(r));
   if(undone.length>0){document.getElementById('btnNext').style.display='block'}
+  document.getElementById('btnReroll').style.display='block';
+  if(isPhaseDone()&&curPhase<DATA.phases.length-1){document.getElementById('btnPhase').style.display='block'}
   document.getElementById('btnChar').style.display=isPhaseDone()&&ph().rounds.length>0?'block':'none';
   refreshAfterSpin();
+  saveState();
 }
 function centerClick(){if(state.spinning)return;if(isRoundDone(rd())){showToast('已抽取，请点击「→ 下一轮」或左侧选择下一项');return}spin()}
 function setTab(tab){
@@ -790,7 +814,7 @@ function loop(t){
   if(state.spinning){const p=Math.min((t-state.startTime)/state.duration,1),e=1-Math.pow(1-p,3);wheel.angle=state.startAngle+(state.targetAngle-state.startAngle)*e;if(p>=1){wheel.angle=state.targetAngle;wheel.draw();stop()}}
   if(particles){particles.update(dt);if(wheel){const pc=document.getElementById('pCanvas'),pctx=particles.ctx,sw=wheel.size;pc.width=wheel.canvas.width;pc.height=wheel.canvas.height;pctx.setTransform(wheel.dpr,0,0,wheel.dpr,0,0);pctx.clearRect(0,0,sw,sw);for(let p of particles.parts){pctx.save();pctx.globalAlpha=p.a;pctx.fillStyle=p.c;pctx.shadowBlur=p.s*4;pctx.shadowColor=p.c;pctx.beginPath();pctx.arc(p.x,p.y,p.s,0,Math.PI*2);pctx.fill();pctx.restore()}}}
   if(wheel)wheel.draw();
-  if(wheel&&!state.spinning){const ctx=wheel.ctx,dpr=wheel.dpr;ctx.setTransform(dpr,0,0,dpr,0,0);const ss=wheel.sectors;let norm=(-wheel.angle)%(Math.PI*2);if(norm<0)norm+=Math.PI*2;let cum=0,idx=0;for(let i=0;i<ss.length;i++){cum+=ss[i].arc;if(norm<cum){idx=i;break}}let sa=wheel.angle-Math.PI/2;for(let i=0;i<idx;i++)sa+=ss[i].arc;ctx.beginPath();ctx.moveTo(wheel.cx,wheel.cy);ctx.arc(wheel.cx,wheel.cy,wheel.radius+3,sa,sa+ss[idx].arc);ctx.closePath();ctx.strokeStyle='rgba(255,48,80,.45)';ctx.lineWidth=3;ctx.stroke()}
+  if(wheel){const ctx=wheel.ctx,dpr=wheel.dpr;ctx.setTransform(dpr,0,0,dpr,0,0);const ss=wheel.sectors;let norm=(-wheel.angle)%(Math.PI*2);if(norm<0)norm+=Math.PI*2;let cum=0,idx=0;for(let i=0;i<ss.length;i++){cum+=ss[i].arc;if(norm<cum){idx=i;break}}let sa=wheel.angle-Math.PI/2;for(let i=0;i<idx;i++)sa+=ss[i].arc;ctx.beginPath();ctx.moveTo(wheel.cx,wheel.cy);ctx.arc(wheel.cx,wheel.cy,wheel.radius+3,sa,sa+ss[idx].arc);ctx.closePath();ctx.strokeStyle='rgba(255,48,80,.45)';ctx.lineWidth=3;ctx.stroke()}
   requestAnimationFrame(loop);
 }
 
@@ -798,6 +822,8 @@ function loop(t){
 (function init(){
   const db=document.getElementById('dotsBg');for(let i=0;i<20;i++){const d=document.createElement('div');d.className='dot';d.style.left=Math.random()*100+'%';d.style.width=d.style.height=(1.5+Math.random()*3)+'px';d.style.animationDuration=(10+Math.random()*20)+'s';d.style.animationDelay=Math.random()*20+'s';d.style.background=Math.random()<.5?'var(--glow)':'var(--gold)';db.appendChild(d)}
   document.querySelectorAll('.btm-tabs .bt').forEach(b=>b.addEventListener('click',()=>setTab(b.dataset.t)));
+  // load saved state
+  try{const s=JSON.parse(localStorage.getItem('jjk_state'));if(s){curPhase=s.curPhase||0;curRound=s.curRound||0;state.results=s.results||[];state.traits=s.traits||[];state.dimensions=s.dimensions||initDimensions()}}catch(e){}
   setTimeout(()=>{refreshAll();requestAnimationFrame(loop)},100);
   window.addEventListener('resize',()=>{if(!rd())return;if(wheel){wheel=buildWheel(getFilteredRoundItems(rd()));initParticles();wheel.draw()}refreshSidebar();refreshRight()});
 })();
