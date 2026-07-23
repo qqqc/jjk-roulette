@@ -34,6 +34,18 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
 .p-dots span{width:9px;height:9px;border-radius:50%;border:1.5px solid rgba(255,255,255,.12);transition:.3s}
 .p-dots span.done{background:var(--gold);border-color:var(--gold)}
 .p-dots span.cur{background:var(--red);border-color:var(--red);box-shadow:0 0 8px var(--glow)}
+/* 移动端阶段下拉 */
+.phase-menu{position:fixed;inset:0;z-index:55}
+.phase-menu .pm-backdrop{position:absolute;inset:0;background:rgba(0,0,0,.6)}
+.phase-menu .pm-list{position:absolute;top:44px;left:12px;right:12px;background:var(--bg2);border-radius:12px;border:1px solid rgba(255,255,255,.08);padding:8px 0;box-shadow:0 8px 30px rgba(0,0,0,.5);animation:fadeIn .2s ease}
+.pm-list .pm-item{display:flex;align-items:center;gap:10px;padding:10px 16px;font-size:12px;cursor:pointer;transition:.15s}
+.pm-list .pm-item:hover{background:rgba(255,255,255,.03)}
+.pm-list .pm-item.active{background:rgba(196,30,58,.08)}
+.pm-list .pm-item.locked{opacity:.35;cursor:default}
+.pm-list .pm-item .pm-dot{width:8px;height:8px;border-radius:50%;border:2px solid rgba(255,255,255,.18);flex-shrink:0}
+.pm-list .pm-item.done .pm-dot{background:var(--gold);border-color:var(--gold)}
+.pm-list .pm-item.active .pm-dot{background:var(--red);border-color:var(--red)}
+@media(min-width:768px){.phase-menu{display:none!important}}
 @media(min-width:768px){#centerDots{display:flex!important}}
 @media(min-width:768px){.top-bar{display:none}}
 
@@ -190,9 +202,12 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
 
 <div class="app" id="app">
   <div class="top-bar" id="topBar">
-    <span class="p-name" id="topPhase" onclick="switchPhase(curPhase)">🧬 身份奠基</span>
+    <span class="p-name" id="topPhase" onclick="togglePhaseMenu()">🧬 身份奠基</span>
     <div class="p-dots" id="topDots"></div>
+    <span style="font-size:18px;cursor:pointer;padding:0 6px" onclick="toggleEditor()" title="编辑数据">⚙️</span>
   </div>
+  <!-- 移动端阶段选择下拉 -->
+  <div class="phase-menu" id="phaseMenu" style="display:none"><div class="pm-backdrop" onclick="togglePhaseMenu()"></div><div class="pm-list" id="pmList"></div></div>
   <div class="sidebar" id="sidebar">
     <div class="sb-header">
       <div class="sbl">JUJUTSU KAISEN ROULETTE</div>
@@ -434,9 +449,25 @@ function switchPhase(i){
   if(state.spinning)return;
   if(i>curPhase&&!isPhaseDone()){showToast('当前阶段未完成，无法进入下一阶段');return}
   curPhase=i;curRound=0;refreshAll();wheel.angle=0;state.targetAngle=0;wheel.draw();document.getElementById('resultPanel').style.display='none';
+  document.getElementById('phaseMenu').style.display='none';
+}
+function togglePhaseMenu(){
+  const el=document.getElementById('phaseMenu');
+  if(el.style.display==='none'){
+    el.style.display='block';
+    const list=document.getElementById('pmList');
+    list.innerHTML=DATA.phases.map((p,i)=>{
+      const done=p.rounds.length>0&&p.rounds.every(r=>isRoundDone(r)||(r.cond&&!state.traits.includes(r.cond)));
+      const locked=i>curPhase&&!isPhaseDone()&&i!==curPhase;
+      const isCur=i===curPhase;
+      let cls='pm-item';if(locked)cls+=' locked';if(isCur)cls+=' active';if(done&&!isCur)cls+=' done';
+      return `<div class="${cls}" onclick="${locked?'':'switchPhase('+i+')'}"><span class="pm-dot"></span><span>${p.icon} ${p.name}</span>${locked?' 🔒':done?' ✓':''}</div>`;
+    }).join('');
+  }else{el.style.display='none'}
 }
 function goRound(i){
   if(state.spinning)return;const ar=activeRounds();
+  if(i>=ar.length){showToast('该轮次不存在');return}
   if(isRoundDone(ar[i])){showToast('该轮已抽取');return}
   curRound=i;refreshAll();wheel.angle=0;state.targetAngle=0;wheel.draw();document.getElementById('resultPanel').style.display='none';
 }
@@ -517,7 +548,10 @@ function renderEditor(){
 }
 function edSave(){
   localStorage.setItem('jjk_data',JSON.stringify(DATA));
-  refreshAll();wheel=buildWheel(rd().items);wheel.angle=0;wheel.draw();showToast('💾 已保存');
+  // refresh only if current round still exists
+  const r=rd();if(!r){curRound=0}
+  refreshAll();if(rd()){wheel=buildWheel(rd().items)}
+  wheel.angle=0;wheel.draw();showToast('💾 已保存');
 }
 function edExport(){
   const blob=new Blob([JSON.stringify(DATA,null,2)],{type:'application/json'});
