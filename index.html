@@ -91,6 +91,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
 .wheel-wrap canvas{width:100%;height:100%}
 .wheel-wrap .ptr{position:absolute;top:-8px;left:50%;transform:translateX(-50%);z-index:10;width:0;height:0;border-left:14px solid transparent;border-right:14px solid transparent;border-top:26px solid var(--glow);filter:drop-shadow(0 0 6px var(--glow))}
 .wheel-wrap .ptr::after{content:'';position:absolute;top:-28px;left:-3px;width:7px;height:12px;background:var(--glow);border-radius:4px;box-shadow:0 0 6px var(--glow)}
+.ptr-label{position:absolute;top:28px;left:50%;transform:translateX(-50%);z-index:11;font-size:12px;font-weight:700;color:var(--glow);text-shadow:0 0 6px rgba(255,48,80,.8);white-space:nowrap;pointer-events:none;transition:color .1s}
 .p-canvas{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:8}
 .center-btn{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:5;width:20%;aspect-ratio:1;border-radius:50%;background:radial-gradient(circle,#1e1e2e,#0a0a0c);border:2px solid rgba(201,168,76,.45);cursor:pointer;display:flex;align-items:center;justify-content:center;font-family:serif;font-size:clamp(14px,3.5vw,20px);color:var(--gold);box-shadow:0 0 18px rgba(0,0,0,.5);transition:.2s}
 .center-btn:hover{border-color:var(--gold);box-shadow:0 0 28px rgba(201,168,76,.25)}
@@ -227,6 +228,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
     <div class="p-dots" id="centerDots" style="display:none"></div>
     <div class="wheel-wrap" id="wheelWrap">
       <div class="ptr"></div>
+      <div class="ptr-label" id="ptrLabel"></div>
       <canvas id="wheelCanvas"></canvas>
       <canvas class="p-canvas" id="pCanvas"></canvas>
       <div class="center-btn" id="centerBtn" onclick="centerClick()">呪</div>
@@ -237,7 +239,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
     <button class="btn-phase" id="btnPhase" style="display:none" onclick="goNextPhase()">→ 进入下一阶段</button>
     <div style="margin-top:4px"><button class="btn-reset" id="btnReset" onclick="resetGame()">↺ 重置本轮</button></div>
     <div class="result-panel" id="resultPanel"></div>
-    <button class="btn-char" id="btnChar" style="display:none" onclick="showToast('角色卡功能即将上线')">🎴 生成角色卡</button>
+    <button class="btn-char" id="btnChar" style="display:none" onclick="charCard()">🎴 生成角色卡</button>
   </div>
   <div class="right-panel" id="rightPanel">
     <div class="rp-sec"><h4>👤 角色特质</h4><div class="rp-traits" id="rpTraits"><span class="empty">尚未抽取</span></div></div>
@@ -702,7 +704,16 @@ function togglePhaseMenu(){
 function goRound(i){
   if(state.spinning)return;const ar=activeRounds();
   if(i>=ar.length){showToast('该轮次不存在');return}
-  if(isRoundDone(ar[i])){showToast('该轮已抽取');return}
+  // 已完成的轮次：跳转并显示历史结果+重抽按钮
+  if(isRoundDone(ar[i])){
+    curRound=i;refreshAll();wheel.angle=0;state.targetAngle=0;wheel.draw();
+    const rr=state.results.find(r=>r.roundId===ar[i].id);
+    if(rr){const panel=document.getElementById('resultPanel');panel.style.display='block';panel.style.borderLeft=`4px solid ${rr.c||'#333'}`;panel.innerHTML=`<div class="rp-cat">${rr.rname}</div><div class="rp-val" style="color:${rr.c||'#333'}">${rr.label}</div><div class="rp-desc">${rr.desc||''}</div>`;document.getElementById('btnReroll').style.display='block'}
+    return;
+  }
+  // 禁止跳过：只能抽第一个未完成的轮次
+  const firstUndone=ar.findIndex(r=>!isRoundDone(r));
+  if(i>firstUndone){showToast('请按顺序抽取');return}
   curRound=i;refreshAll();wheel.angle=0;state.targetAngle=0;wheel.draw();document.getElementById('resultPanel').style.display='none';
 }
 function goNext(){
@@ -824,6 +835,43 @@ function edImport(){
   inp.click();
 }
 function edReset(){if(confirm('重置为默认数据？所有未保存修改将丢失。')){DATA=JSON.parse(JSON.stringify(SEED_DATA));localStorage.removeItem('jjk_data');refreshAll();wheel=buildWheel(rd().items);wheel.angle=0;wheel.draw();toggleEditor();showToast('🗑 已重置')}}
+function charCard(){
+  const cv=document.createElement('canvas');cv.width=600;cv.height=Math.min(900,500+state.results.length*22+DIM_NAMES.length*20);
+  const ctx=cv.getContext('2d');ctx.fillStyle='#0a0a0c';ctx.fillRect(0,0,cv.width,cv.height);
+  ctx.fillStyle='#c9a84c';ctx.font='bold 22px serif';ctx.textAlign='center';ctx.fillText('🎴 咒术转盘 · 角色卡',300,36);
+  ctx.strokeStyle='#c9a84c';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(60,48);ctx.lineTo(540,48);ctx.stroke();
+  let y=70;
+  // 基本信息
+  ctx.fillStyle='#9a9490';ctx.font='bold 13px sans-serif';ctx.textAlign='left';ctx.fillText('📋 基本信息',30,y);y+=20;
+  const props=ph().rounds.map(r=>r.prop).filter(Boolean);const vals={};state.results.forEach(r=>{if(r.prop)vals[r.prop]=r.label});
+  ctx.font='12px sans-serif';
+  props.forEach((k,i)=>{
+    ctx.fillStyle='#888';ctx.fillText(k+':',30+(i%2)*280,y);ctx.fillStyle='#e0d8d0';ctx.fillText(vals[k]||'——',30+(i%2)*280+50,y);
+    if(i%2===1)y+=18;
+  });
+  if(props.length%2===1)y+=18;
+  y+=10;
+  // 特质
+  if(state.traits.length){
+    ctx.fillStyle='#9a9490';ctx.font='bold 13px sans-serif';ctx.fillText('🏷️ 特质',30,y);y+=20;
+    ctx.font='11px sans-serif';let tx=30;
+    state.traits.forEach(t=>{const w=ctx.measureText(t).width+16;if(tx+w>570){tx=30;y+=20}ctx.fillStyle='rgba(255,255,255,.08)';ctx.fillRect(tx,y-14,w,20);ctx.fillStyle='#ccc';ctx.fillText(t,tx+8,y);tx+=w+4});
+    y+=28;
+  }
+  // 维度表
+  ctx.fillStyle='#9a9490';ctx.font='bold 13px sans-serif';ctx.fillText('📊 维度表',30,y);y+=20;
+  DIM_NAMES.forEach(k=>{const v=state.dimensions[k];const lv=v||'——';const idx=dimVal(v);const pct=idx<0?0:Math.min(100,(idx+1)/DIM_LEVELS.length*100);let clr='#999';if(idx>=9)clr='#fff';else if(idx>=8)clr='#fc0';else if(idx>=6)clr='#f50';else if(idx>=5)clr='#c84';else if(idx>=3)clr='#48a';else if(idx>=2)clr='#888';
+    ctx.fillStyle='#888';ctx.font='10px sans-serif';ctx.fillText(k,30,y);ctx.fillStyle=clr;ctx.font='bold 10px sans-serif';ctx.fillText(lv,66,y);
+    ctx.fillStyle='rgba(255,255,255,.05)';ctx.fillRect(90,y-8,480,8);ctx.fillStyle=clr;ctx.fillRect(90,y-8,480*pct/100,8);y+=16});
+  y+=10;ctx.strokeStyle='#333';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(30,y);ctx.lineTo(570,y);ctx.stroke();y+=10;
+  // 事件历史
+  ctx.fillStyle='#9a9490';ctx.font='bold 13px sans-serif';ctx.fillText('📋 事件历史',30,y);y+=18;
+  state.results.forEach(r=>{ctx.fillStyle='#888';ctx.font='10px sans-serif';ctx.fillText(r.rname,30,y);ctx.fillStyle='#e0d8d0';ctx.font='bold 10px sans-serif';ctx.fillText(r.label,30+ctx.measureText(r.rname).width+8,y);y+=16});
+  // Footer
+  ctx.fillStyle='#555';ctx.font='10px sans-serif';ctx.textAlign='center';ctx.fillText('咒术转盘 · JJK Roulette | '+new Date().toLocaleDateString(),300,cv.height-14);
+  // Download
+  cv.toBlob(b=>{const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='角色卡.png';a.click();showToast('📸 角色卡已保存')});
+}
 
 // ========================================================= LOOP =========================================================
 let lft=performance.now();
@@ -832,7 +880,8 @@ function loop(t){
   if(state.spinning){const p=Math.min((t-state.startTime)/state.duration,1),e=1-Math.pow(1-p,3);wheel.angle=state.startAngle+(state.targetAngle-state.startAngle)*e;if(p>=1){wheel.angle=state.targetAngle;wheel.draw();stop()}}
   if(particles){particles.update(dt);if(wheel){const pc=document.getElementById('pCanvas'),pctx=particles.ctx,sw=wheel.size;pc.width=wheel.canvas.width;pc.height=wheel.canvas.height;pctx.setTransform(wheel.dpr,0,0,wheel.dpr,0,0);pctx.clearRect(0,0,sw,sw);for(let p of particles.parts){pctx.save();pctx.globalAlpha=p.a;pctx.fillStyle=p.c;pctx.shadowBlur=p.s*4;pctx.shadowColor=p.c;pctx.beginPath();pctx.arc(p.x,p.y,p.s,0,Math.PI*2);pctx.fill();pctx.restore()}}}
   if(wheel)wheel.draw();
-  if(wheel){const ctx=wheel.ctx,dpr=wheel.dpr;ctx.setTransform(dpr,0,0,dpr,0,0);const ss=wheel.sectors;let norm=(-wheel.angle)%(Math.PI*2);if(norm<0)norm+=Math.PI*2;let cum=0,idx=0;for(let i=0;i<ss.length;i++){cum+=ss[i].arc;if(norm<cum){idx=i;break}}let sa=wheel.angle-Math.PI/2;for(let i=0;i<idx;i++)sa+=ss[i].arc;ctx.beginPath();ctx.moveTo(wheel.cx,wheel.cy);ctx.arc(wheel.cx,wheel.cy,wheel.radius+3,sa,sa+ss[idx].arc);ctx.closePath();ctx.strokeStyle='rgba(255,48,80,.45)';ctx.lineWidth=3;ctx.stroke()}
+  if(wheel){const ctx=wheel.ctx,dpr=wheel.dpr;ctx.setTransform(dpr,0,0,dpr,0,0);const ss=wheel.sectors;let norm=(-wheel.angle)%(Math.PI*2);if(norm<0)norm+=Math.PI*2;let cum=0,idx=0;for(let i=0;i<ss.length;i++){cum+=ss[i].arc;if(norm<cum){idx=i;break}}let sa=wheel.angle-Math.PI/2;for(let i=0;i<idx;i++)sa+=ss[i].arc;ctx.beginPath();ctx.moveTo(wheel.cx,wheel.cy);ctx.arc(wheel.cx,wheel.cy,wheel.radius+3,sa,sa+ss[idx].arc);ctx.closePath();ctx.strokeStyle='rgba(255,48,80,.45)';ctx.lineWidth=3;ctx.stroke();
+const pl=document.getElementById('ptrLabel');if(pl){const s=ss[idx];pl.textContent=s?('🔻 '+s.l):'';pl.style.color=s?.c||'var(--glow)'}}
   requestAnimationFrame(loop);
 }
 
