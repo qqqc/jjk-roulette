@@ -483,7 +483,7 @@ function centerClick(){if(state.spinning)return;if(isRoundDone(rd())){showToast(
 function setTab(tab){
   state.curTab=tab;document.querySelectorAll('.btm-tabs .bt').forEach(b=>b.classList.toggle('active',b.dataset.t===tab));
   document.querySelectorAll('.tab-view').forEach(v=>v.classList.remove('on'));
-  const v=document.getElementById(tab==='wheel'?'tvWheel':tab==='person'?'tvPerson':'tvHist');if(v)v.classList.add('on');
+  if(tab!=='wheel'){const v=document.getElementById(tab==='person'?'tvPerson':'tvHist');if(v)v.classList.add('on')}
   updateBadges();
 }
 
