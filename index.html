@@ -115,9 +115,13 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
 .result-panel .rp-val{font-size:clamp(18px,4vw,24px);font-weight:800;margin:4px 0 6px;letter-spacing:1px}
 .result-panel .rp-desc{font-size:13px;color:rgba(224,216,208,.8);line-height:1.6;margin-top:4px}
 /* 价值观自选面板 */
-.moral-pick{width:100%;max-width:480px;margin-top:8px;text-align:center}
-.mp-hint{font-size:12px;color:var(--dim);margin-bottom:8px;letter-spacing:1px}
-.mp-grid{display:flex;flex-direction:column;gap:6px}
+.moral-pick{width:100%;max-width:480px;margin-top:4px;text-align:center}
+.mp-toggle{display:block;width:100%;padding:12px 16px;border-radius:12px;border:none;cursor:pointer;font-size:14px;font-weight:700;letter-spacing:1px;background:linear-gradient(135deg,#e8d44d,#c08030);color:#1a1a1a;box-shadow:0 4px 16px rgba(201,168,76,.35);animation:mpPulse 2.5s ease infinite}
+@keyframes mpPulse{0%,100%{box-shadow:0 4px 16px rgba(201,168,76,.35)}50%{box-shadow:0 6px 28px rgba(201,168,76,.6),0 0 40px rgba(232,212,77,.25)}}
+.mp-toggle.sel{animation:none;box-shadow:none;background:rgba(255,255,255,.04);color:var(--text);font-weight:400;font-size:13px;cursor:default}
+.mp-body{overflow:hidden;max-height:0;transition:max-height .4s ease}
+.mp-body.open{max-height:1200px}
+.mp-grid{display:flex;flex-direction:column;gap:6px;padding-top:8px}
 .mp-btn{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:10px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.02);cursor:pointer;transition:.2s;text-align:left;font-size:12px;color:var(--text)}
 .mp-btn:hover{border-color:rgba(255,255,255,.2);background:rgba(255,255,255,.04)}
 .mp-btn.sel{border-color:var(--gold);background:rgba(201,168,76,.1);cursor:default}
@@ -237,8 +241,10 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
     <div class="p-dots" id="centerDots" style="display:none"></div>
     <div class="ptr-label" id="ptrLabel" style="visibility:hidden"></div>
     <div class="moral-pick" id="moralPick" style="display:none">
-      <div class="mp-hint">🔄 点击下方任意按钮自选阵营，或旋转转盘随机抽取</div>
-      <div class="mp-grid" id="mpGrid"></div>
+      <button class="mp-toggle" id="mpToggle" onclick="toggleMoral()">📋 点击展开，自选价值观阵营（或直接转转盘）</button>
+      <div class="mp-body" id="mpBody">
+        <div class="mp-grid" id="mpGrid"></div>
+      </div>
     </div>
     <div class="input-round" id="inputRound" style="display:none">
       <input type="text" id="inputName" placeholder="输入领域名称（2-8字）" maxlength="8" onkeydown="if(event.key==='Enter')submitInput()" style="width:100%;max-width:300px;padding:12px 16px;border-radius:26px;border:2px solid var(--gold);background:var(--bg2);color:var(--text);font-size:16px;text-align:center;outline:none;letter-spacing:2px" />
@@ -576,7 +582,9 @@ const SEED_DATA={phases:[
       {l:"话痨成精",w:1,c:"#d08040",d:"嘴是租来的急着还。任何话题都能接——并且至少延展到五个新话题。",filterDrawn:true},
       {l:"腹黑本黑",w:1,c:"#402060",d:"切开全是黑的。微笑的背后藏着一万种算计——但从不害朋友。只害敌人。",filterDrawn:true},
       {l:"傲娇教科书",w:1,c:"#e06060",d:"'哼！才不是帮你呢！只是刚好路过……顺便……你别想太多！'",filterDrawn:true},
-      {l:"专业吐槽",w:1,c:"#6090c0",filterDrawn:true,d:"你是吐槽界的专业人士。任何离谱的场景你都能找到最精准的角度进行锐评——'所以你们四个人打一个咒灵还差点团灭？'"},
+      {l:"专业吐槽",w:1,c:"#6090c0",filterDrawn:true,d:"你是吐槽界的专业人士。任何离谱的场景你都能找到最精准的角度进行锐评——'所以你们四个人打一个咒灵还差点团灭？'"}
+    ]},
+    {id:"p1_luck",title:"运气",icon:"🍀",order:18,cond:null,prop:"运气",items:[
       {l:"世界针对你·E-",w:3,c:"#440000",d:"命运正在用最恶毒的方式折磨你。但你活下来了——在最糟糕的运气中存活本身就是一种力量。",tags:["灾厄","逆天"],dim:{运气:"E-"}},
       {l:"霉运连连·E",w:5,c:"#550000",d:"你的运气低于平均线。但你已经习惯了——苦难让你比任何人都坚韧。",tags:["霉运"],dim:{运气:"E"}},
       {l:"诸事不顺·D",w:7,c:"#770000",d:"偶尔的坏运气让你更懂得珍惜偶尔的好运。你知道世界不是围着你转的。",tags:["不顺"],dim:{运气:"D"}},
@@ -626,23 +634,39 @@ const SEED_DATA={phases:[
       {l:"傀儡操术(与幸吉)",w:1,c:"#0a2a2a",d:"以机械之躯行咒术之道。超越肉体天与咒缚的限制。"},
       {l:"咒灵操术(夏油杰)",w:1,c:"#0a1030",d:"吞噬咒灵，化为己用。掌握得越多，就越接近诅咒本身。"},
       {l:"无为转变(真人)",w:1,c:"#202020",d:"触摸灵魂、改造灵魂。在灵魂面前肉体的防御毫无意义。"},
-      {l:"冰凝术式(祈本里香)",w:1,c:"#0a2a30",d:"令万物冻结的绝对零度。你的寒冰可以冷却一切——包括时间。"},
-      {l:"投影术式(乙骨忧太)",w:1,c:"#2a0a2a",d:"模仿所见的一切术式。只要你见过，就能重现。"},
-      {l:"反重力机构(秤金次)",w:1,c:"#1a1a1a",d:"否定一切外力。连重力本身都对你妥协。"},
+      {l:"复制术式(乙骨忧太)",w:1,c:"#2a0a2a",d:"模仿所见的一切术式。只要你见过，就能重现——无条件复制。"},
+      {l:"坐殺博徒(秤金次)",w:1,c:"#1a1a1a",d:"柏青哥式赌博领域。中奖的瞬间——你就是无敌的存在。"},
       {l:"构造术式(日下部)",w:1,c:"#2a2a0a",d:"凭空造物。想象力即是上限——只要有咒力，就能创造一切。"},
       {l:"星间方术(天元)",w:1,c:"#1a1a2a",d:"与星辰共鸣的古老术式。跨越千年的不死之力。"},
       {l:"斩击术式(宿儺)",w:1,c:"#201010",d:"无视一切防御的斩击。你的刀刃没有实体——因此没有任何东西能够阻挡。"},
       {l:"火焰术式(漏瑚)",w:1,c:"#301010",d:"操控熔岩与火焰。你是地球愤怒的代言人。"},
       {l:"水之涡动(陀艮)",w:1,c:"#102030",d:"掌控水流与海洋。深海的诅咒——波涛之下藏着无尽的恐惧。"},
       {l:"森林咒术(花御)",w:1,c:"#102010",d:"以自然之力侵蚀一切。大自然本身就是最可怕的武器。"},
-      {l:"未那(冥冥)",w:1,c:"#1a1a1a",d:"操纵概率与金钱。有钱能使鬼推磨，也能让诅咒低头。"},
-      {l:"重力术式(九十九由基)",w:1,c:"#2a2a0a",d:"令万钧加身。你无视一切防御——重力是物理法则。"},
-      {l:"空间转移(五条悟)",w:1,c:"#2a0a10",d:"撕裂虚空，瞬身而至。距离在你面前毫无意义。"},
-      {l:"物质分解(猎犬)",w:1,c:"#202020",d:"分解一切物质结构。原子层面的瓦解。"},
-      {l:"复制术式(乙骨忧太)",w:1,c:"#301a30",d:"无条件复制任何术式。只要存在，就能复制。"},
+      {l:"黑鸟操术(冥冥)",w:1,c:"#1a1a1a",d:"操纵乌鸦与概率。乌鸦是她的眼——金钱与情报是她的武器。"},
+      {l:"星の怒り(九十九由基)",w:1,c:"#2a2a0a",d:"赋予式神质量的概念。当式神获得星级的重量——所有防御都成了笑话。"},
       {l:"千里眼(美国术师)",w:1,c:"#103040",d:"看到千里之外的景象。情报就是力量。"},
       {l:"缚锁术式(诅咒师)",w:1,c:"#2a1a10",d:"以锁链束缚一切。你的咒力化为无形的枷锁。"},
-      {l:"自定义术式",w:6,c:"#ffcc00",d:"你的术式不属于已知的任何一种。你是全新的存在——定义它，然后让它成为传奇。",tags:["自定义术式"]}
+      {l:"芻霊呪法(钉崎野蔷薇)",w:1,c:"#3a2020",d:"打入钉子共振灵魂。只要有一个碎片在手——千里之外，命中必杀。"},
+      {l:"不义游戏(东堂葵)",w:1,c:"#2a3020",d:"拍手瞬间交换自己和任意目标的位置。最强的搭档，就是自己与对手。"},
+      {l:"构筑术式(禅院真依)",w:1,c:"#303020",d:"凭空构筑子弹与武器。一切物质的起点——都是你的意志。"},
+      {l:"十劃呪法(七海建人)",w:1,c:"#2a2a20",d:"7:3比例分割目标，在弱点上施加暴击。加班时间的你才是最恐怖的。"},
+      {l:"審判(日车宽见)",w:1,c:"#c08020",d:"以法庭规则设下罪与罚。在证据面前——没有人能说谎。"},
+      {l:"投射咒法(禅院直毘人)",w:1,c:"#203050",d:"将自身如弹丸般投射出去。一秒内分割二十四个动作——时间在你手中。"},
+      {l:"奇迹(重面春太)",w:1,c:"#c0a020",d:"储存日常的微小奇迹，在关键时刻释放。运气——也可以是一种武器。"},
+      {l:"付丧操术(西宫桃)",w:1,c:"#604080",d:"以扫帚为媒介操控式神。天空——是你的第二战场。"},
+      {l:"来访瑞兽(猪野琢真)",w:1,c:"#306040",d:"召唤四只灵兽辅助战斗。每一只瑞兽都是一个独立的小队成员。"},
+      {l:"幻兽琥珀(鹿紫云一)",w:1,c:"#d06020",d:"将咒力化为兽形释放。从琥珀中苏醒的——是三百年不灭的战斗本能。"},
+      {l:"淀月(吉野顺平)",w:1,c:"#204060",d:"以水母形态之式神注入毒素。温柔的毒——比任何暴力都致命。"},
+      {l:"蚀烂腐术(咒胎九相图)",w:1,c:"#204020",d:"操控腐烂与分解。连灵魂都可以腐蚀——何况血肉之躯。"},
+      {l:"反重力术式(虎杖香织)",w:1,c:"#402040",d:"否定重力法则。她身边的物体可以漂浮——包括她自己。"},
+      {l:"要害拘束(美美子)",w:1,c:"#502020",d:"以绳状咒力束缚目标的弱点。被绑住的人——只能祈祷。"},
+      {l:"术式消灭(天使来栖华)",w:1,c:"#ffffff",d:"消去一切术式效果。雅各布天梯——对羂索与宿儺的终极特攻。"},
+      {l:"天空(乌鹭亨子)",w:1,c:"#4080c0",d:"操控天空本身。将空间如薄冰般震碎——挥动手臂即是天灾。"},
+      {l:"咒力放出(石流龙)",w:1,c:"#c04020",d:"400年前最强咒力输出。连发超高密度咒力炮——每一发都是全功率。"},
+      {l:"式神领域术(杜鲁夫)",w:1,c:"#305030",d:"在领域内无限制操控式神。他的领域不是战斗场——是式神的兵工厂。"},
+      {l:"契约再现(雷吉·史达)",w:1,c:"#806030",d:"将收据上记载的物品凭空再生。任何消费记录——都是他的武器库。"},
+      {l:"超人术式(高羽)",w:1,c:"#c04040",d:"满足演出条件即可爆发超人般的身体能力。舞台之上——他是最强。"},
+      {l:"自定义术式",w:8,c:"#ffcc00",d:"你的术式不属于已知的任何一种。你是全新的存在——定义它，然后让它成为传奇。",tags:["自定义术式"]}
     ]},
     {id:"p2_tech_c",title:"生得术式·咒灵",icon:"⚡",order:3,cond:"咒灵",group:"术式构筑",prop:"术式",items:[
       {l:"自定义术式",w:1,c:"#ffcc00",d:"咒灵的术式来源于诞生的恐惧本身。定义你的诅咒——它比任何人类的术式都更原始、更狂暴。",tags:["自定义术式"]}
@@ -952,10 +976,15 @@ function refreshRound(){
     document.getElementById('inputRound').style.display='none';
     document.getElementById('btnSpin').style.display='block';
     const mp=document.getElementById('moralPick');mp.style.display='block';
+    const toggle=document.getElementById('mpToggle');
+    const body=document.getElementById('mpBody');
     const grid=document.getElementById('mpGrid');
     const items=getFilteredRoundItems(r);
     grid.innerHTML=items.map(it=>{const t=JSON.stringify(it.tags||[]);return`<div class="mp-btn${done?' sel':''}" onclick="selectMoral(this)" data-label="${it.l}" data-color="${it.c}" data-tags='${t}' style="border-left:3px solid ${it.c||'#555'}"><span class="mp-l" style="color:${it.c||'#555'}">${it.l}</span><span class="mp-d">${it.d||''}</span></div>`}).join('');
-    if(done){const rr=state.results.find(rr=>rr.roundId===r.id);if(rr){document.getElementById('btnReroll').style.display='block'}}
+    if(done){
+      const rr=state.results.find(rr=>rr.roundId===r.id);
+      if(rr){toggle.textContent='✅ 已选择：'+rr.label;toggle.className='mp-toggle sel';body.className='mp-body';document.getElementById('btnReroll').style.display='block'}
+    }else{toggle.textContent='📋 点击展开，自选价值观阵营（或直接转转盘）';toggle.className='mp-toggle';body.className='mp-body'}
     wheel=buildWheel(items);wheel.angle=0;state.targetAngle=0;initParticles();wheel.draw();
     document.getElementById('resultPanel').style.display='none';
     document.getElementById('btnSpin').disabled=done;
@@ -1065,12 +1094,20 @@ function submitInput(){
   document.getElementById('btnChar').style.display=isPhaseDone()&&ph().rounds.length>0?'block':'none';
   refreshAfterSpin();saveState();
 }
+function toggleMoral(){
+  const body=document.getElementById('mpBody');
+  body.classList.toggle('open');
+}
 function selectMoral(el){
   const r=rd();if(!r||r.id!=='p1_moral'||isRoundDone(r))return;
   const label=el.dataset.label,color=el.dataset.color,tags=JSON.parse(el.dataset.tags||'[]');
   state.results.push({roundId:r.id,rname:`${r.icon} ${r.title}`,prop:r.prop,label,desc:'',c:color,_item:{tags,dim:{},dimMod:{}}});
   if(tags.length)tags.forEach(t=>{if(!state.traits.includes(t))state.traits.push(t)});
   document.querySelectorAll('.mp-btn').forEach(b=>{b.classList.add('sel');b.onclick=null});
+  document.getElementById('mpBody').classList.remove('open');
+  const toggle=document.getElementById('mpToggle');
+  toggle.textContent='✅ 已选择：'+label;
+  toggle.className='mp-toggle sel';
   document.getElementById('btnSpin').style.display='none';
   const panel=document.getElementById('resultPanel');panel.style.display='block';panel.style.borderLeft=`4px solid ${color}`;
   panel.innerHTML=`<div class="rp-cat">${r.icon} ${r.title}</div><div class="rp-val" style="color:${color}">${label}</div>`;
