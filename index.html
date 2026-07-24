@@ -236,6 +236,10 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
     <div class="round-title" id="roundTitle"></div>
     <div class="p-dots" id="centerDots" style="display:none"></div>
     <div class="ptr-label" id="ptrLabel" style="visibility:hidden"></div>
+    <div class="moral-pick" id="moralPick" style="display:none">
+      <div class="mp-hint">🔄 点击下方任意按钮自选阵营，或旋转转盘随机抽取</div>
+      <div class="mp-grid" id="mpGrid"></div>
+    </div>
     <div class="input-round" id="inputRound" style="display:none">
       <input type="text" id="inputName" placeholder="输入领域名称（2-8字）" maxlength="8" onkeydown="if(event.key==='Enter')submitInput()" style="width:100%;max-width:300px;padding:12px 16px;border-radius:26px;border:2px solid var(--gold);background:var(--bg2);color:var(--text);font-size:16px;text-align:center;outline:none;letter-spacing:2px" />
       <button class="btn-spin" id="btnInputSubmit" onclick="submitInput()" style="margin-top:12px">✨ 确认命名</button>
@@ -252,10 +256,6 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
     <button class="btn-phase" id="btnPhase" style="display:none" onclick="goNextPhase()">→ 进入下一阶段</button>
     <div style="margin-top:4px"><button class="btn-reset" id="btnReset" onclick="resetGame()">↺ 重置本轮</button></div>
     <div class="result-panel" id="resultPanel"></div>
-    <div class="moral-pick" id="moralPick" style="display:none">
-      <div class="mp-hint">🔄 点击下方任意按钮自选阵营，或旋转转盘随机抽取</div>
-      <div class="mp-grid" id="mpGrid"></div>
-    </div>
     <button class="btn-char" id="btnChar" style="display:none" onclick="charCard()">🎴 生成角色卡</button>
   </div>
   <div class="right-panel" id="rightPanel">
@@ -954,7 +954,7 @@ function refreshRound(){
     const mp=document.getElementById('moralPick');mp.style.display='block';
     const grid=document.getElementById('mpGrid');
     const items=getFilteredRoundItems(r);
-    grid.innerHTML=items.map(it=>`<div class="mp-btn${done?' sel':''}" onclick="${done?'':'selectMoral(\`${it.l}\`,\`${it.c}\`,${JSON.stringify(it.tags||[])})'}" style="border-left:3px solid ${it.c||'#555'}"><span class="mp-l" style="color:${it.c||'#555'}">${it.l}</span><span class="mp-d">${it.d||''}</span></div>`).join('');
+    grid.innerHTML=items.map(it=>{const t=JSON.stringify(it.tags||[]);return`<div class="mp-btn${done?' sel':''}" onclick="selectMoral(this)" data-label="${it.l}" data-color="${it.c}" data-tags='${t}' style="border-left:3px solid ${it.c||'#555'}"><span class="mp-l" style="color:${it.c||'#555'}">${it.l}</span><span class="mp-d">${it.d||''}</span></div>`}).join('');
     if(done){const rr=state.results.find(rr=>rr.roundId===r.id);if(rr){document.getElementById('btnReroll').style.display='block'}}
     wheel=buildWheel(items);wheel.angle=0;state.targetAngle=0;initParticles();wheel.draw();
     document.getElementById('resultPanel').style.display='none';
@@ -1065,10 +1065,11 @@ function submitInput(){
   document.getElementById('btnChar').style.display=isPhaseDone()&&ph().rounds.length>0?'block':'none';
   refreshAfterSpin();saveState();
 }
-function selectMoral(label,color,tags){
+function selectMoral(el){
   const r=rd();if(!r||r.id!=='p1_moral'||isRoundDone(r))return;
+  const label=el.dataset.label,color=el.dataset.color,tags=JSON.parse(el.dataset.tags||'[]');
   state.results.push({roundId:r.id,rname:`${r.icon} ${r.title}`,prop:r.prop,label,desc:'',c:color,_item:{tags,dim:{},dimMod:{}}});
-  if(tags)tags.forEach(t=>{if(!state.traits.includes(t))state.traits.push(t)});
+  if(tags.length)tags.forEach(t=>{if(!state.traits.includes(t))state.traits.push(t)});
   document.querySelectorAll('.mp-btn').forEach(b=>{b.classList.add('sel');b.onclick=null});
   document.getElementById('btnSpin').style.display='none';
   const panel=document.getElementById('resultPanel');panel.style.display='block';panel.style.borderLeft=`4px solid ${color}`;
