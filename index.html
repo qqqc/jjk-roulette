@@ -852,6 +852,9 @@ let DATA=JSON.parse(JSON.stringify(SEED_DATA));
 let curPhase=0,curRound=0;
 const DIM_NAMES=['体质','体术','咒力总量','咒力效率','咒力操纵','术式性能','天赋','意志','运气','颜值','声望'];
 const DIM_LEVELS=['E-','E','D','C','B','A','S','SS','SSS','EX'];
+function dimVal(lv){return lv?DIM_LEVELS.indexOf(lv):-1}
+function dimLv(n){if(n<0)return'E-';if(n>=DIM_LEVELS.length-1)return'EX+';return DIM_LEVELS[n]}
+function dimColor(idx){if(idx>=9)return'#ffffff';if(idx>=8)return'#ffcc00';if(idx>=7)return'#ff2200';if(idx>=6)return'#ff5500';if(idx>=5)return'#cc8844';if(idx>=3)return'#4488aa';if(idx>=2)return'#888888';return'#884444'}
 function visibleTraits(){const hidden=['moral_LG','moral_LN','moral_LE','人','咒灵','pers_1','pers_2','pers_3','skill_1','skill_2','skill_3','skill_4','skill_5','skill_6','skill_7','skill_8','skill_9','dom_eff_1','dom_eff_2','dom_eff_3','dom_eff_4','dom_eff_5','dom_eff_6','领域展开','自定义术式','有术式','单类型','双类型','三类型','无术式'];return state.traits.filter(t=>!hidden.includes(t)&&!t.startsWith('era_')&&!t.startsWith('pers_')&&!t.startsWith('skill_')&&!t.startsWith('dom_eff_'))}
 function initDimensions(){const d={};DIM_NAMES.forEach(k=>d[k]=null);return d}
 const state={spinning:false,results:[],traits:[],dimensions:initDimensions(),skills:[],drawnSkills:[],targetAngle:0,startAngle:0,startTime:0,duration:0,lastAngle:0,curTab:'wheel',editorOpen:false};
