@@ -1228,7 +1228,7 @@ function buildCombatItems(forEnemy){
 function resolveTechSpin(item,forEnemy){
   const t=item._tech;if(!t)return;
   if(forEnemy){state.combat.enemyWin+=t.win;state.combat.enemyStamina-=t.st}else{state.combat.win+=t.win;state.combat.stamina-=t.st;if(t.ce>0)state.combat.ce-=t.ce}
-  if(t.id==='rct_self'&&!forEnemy){state.traits=state.traits.filter(x=>!x.startsWith('bt_wnd_'));updateBattleUI()}
+  if(t.id==='rct_self'&&!forEnemy){state.traits=state.traits.filter(x=>!x.startsWith('bt_wnd_'));updateCombatUI()}
   if(t.id==='bv_loan'&&!forEnemy){state.combat.stamina=Math.max(0,state.combat.stamina-5)}
   if(t.id==='bv_stack'&&!forEnemy){state.combat.stamina=Math.max(0,state.combat.stamina-9);state.combat.dangerZone+=10}
   state.combat.bfCombo=0;
@@ -1480,11 +1480,33 @@ function refreshRound(){
     }
     wheel=buildWheel(items);wheel.angle=0;state.targetAngle=0;wheel.draw();document.getElementById('btnSpin').style.display='block';document.getElementById('btnSpin').textContent='🎯 终结';document.getElementById('btnNext').style.display='none';return;
   }
+  const done=isRoundDone(r);
+  if(r.type==='input'){
+    document.getElementById('wheelWrap').style.display='none';
+    document.getElementById('btnSpin').style.display='none';document.getElementById('btnNext').style.display='none';document.getElementById('btnReroll').style.display='none';document.getElementById('btnPhase').style.display='none';
+    document.getElementById('moralPick').style.display='none';document.querySelector('.ptr-label').style.visibility='hidden';
+    const ir=document.getElementById('inputRound');ir.style.display='block';
+    const inp=document.getElementById('inputName');inp.value='';inp.className='name-input';
+    document.getElementById('nameHint').textContent=r.id==='p2_mname'?'记下极之番的真名':'赋予领域真名';
+    if(done){const itm=state.results.find(rr=>rr.roundId===r.id);if(itm){inp.value=itm.label||'';inp.disabled=true}document.getElementById('btnInputSubmit').textContent='✅ 已刻印';document.getElementById('btnInputSubmit').disabled=true;document.getElementById('btnInputSkip').style.display='none'}
+    else{document.getElementById('btnInputSubmit').textContent='刻 印';document.getElementById('btnInputSubmit').disabled=false;document.getElementById('btnInputSkip').style.display='block'}
+    document.getElementById('resultPanel').style.display='none';document.getElementById('btnChar').style.display='none';return;
+  }
+  if(r.id==='p1_moral'){
+    document.getElementById('wheelWrap').style.display='block';document.getElementById('inputRound').style.display='none';document.getElementById('btnSpin').style.display='block';
+    const mp=document.getElementById('moralPick');mp.style.display='block';const toggle=document.getElementById('mpToggle');const body=document.getElementById('mpBody');const grid=document.getElementById('mpGrid');
+    const items=getFilteredRoundItems(r);
+    grid.innerHTML=items.map(it=>{const t=JSON.stringify(it.tags||[]);return`<div class="mp-btn${done?' sel':''}" onclick="selectMoral(this)" data-label="${it.l}" data-color="${it.c}" data-tags='${t}' style="border-left:3px solid ${it.c||'#555'}"><span class="mp-l" style="color:${it.c||'#555'}">${it.l}</span><span class="mp-d">${it.d||''}</span></div>`}).join('');
+    if(done){const itm=state.results.find(rr=>rr.roundId===r.id);if(itm){toggle.textContent='✅ 已选择：'+itm.label;toggle.className='mp-toggle sel';body.className='mp-body';document.getElementById('btnReroll').style.display='block'}}
+    else{toggle.textContent='📋 点击展开，自选价值观阵营（或直接转转盘）';toggle.className='mp-toggle';body.className='mp-body'}
+    wheel=buildWheel(items);wheel.angle=0;state.targetAngle=0;initParticles();wheel.draw();
+    document.getElementById('resultPanel').style.display='none';document.getElementById('btnSpin').disabled=done;document.getElementById('btnSpin').textContent=done?'✅ 已抽取':'🌀 点击旋转';
+    document.getElementById('btnNext').style.display='none';document.getElementById('btnPhase').style.display='none';document.getElementById('btnChar').style.display=isPhaseDone()&&ph().rounds.length>0?'block':'none';return;
+  }
   document.getElementById('wheelWrap').style.display='block';document.getElementById('inputRound').style.display='none';document.getElementById('moralPick').style.display='none';
   document.getElementById('btnSpin').style.display='block';
   wheel=buildWheel(getFilteredRoundItems(r));wheel.angle=0;state.targetAngle=0;initParticles();wheel.draw();
   document.getElementById('resultPanel').style.display='none';
-  const done=isRoundDone(r);
   document.getElementById('btnSpin').disabled=done;
   document.getElementById('btnSpin').textContent=done?'✅ 已抽取':'🌀 点击旋转';
   document.getElementById('btnNext').style.display='none';
@@ -1496,61 +1518,8 @@ function selectStance(s){
   state.combat.stance=s;document.querySelectorAll('.sp-card').forEach(c=>c.classList.toggle('sel',c.dataset.stance===s));
   state.results.push({roundId:'p4_stance',rname:'⚖ 战术姿态',prop:'',label:s,desc:'',c:'#c9a84c',_item:{tags:[],dim:{},dimMod:{}}});
   goNext();
-  }
-  const done=isRoundDone(r);
-  if(r.type==='input'){
-    document.getElementById('wheelWrap').style.display='none';
-    document.getElementById('btnSpin').style.display='none';
-    document.getElementById('btnNext').style.display='none';
-    document.getElementById('btnReroll').style.display='none';
-    document.getElementById('btnPhase').style.display='none';
-    document.getElementById('moralPick').style.display='none';
-    document.querySelector('.ptr-label').style.visibility='hidden';
-    const ir=document.getElementById('inputRound');ir.style.display='block';
-    const inp=document.getElementById('inputName');inp.value='';inp.className='name-input';
-    document.getElementById('nameHint').textContent=r.id==='p2_mname'?'记下极之番的真名':'赋予领域真名';
-    if(done){const rr=state.results.find(rr=>rr.roundId===r.id);if(rr){inp.value=rr.label||'';inp.disabled=true};document.getElementById('btnInputSubmit').textContent='✅ 已刻印';document.getElementById('btnInputSubmit').disabled=true;document.getElementById('btnInputSkip').style.display='none'}
-    else{document.getElementById('btnInputSubmit').textContent='刻 印';document.getElementById('btnInputSubmit').disabled=false;document.getElementById('btnInputSkip').style.display='block'}
-    document.getElementById('resultPanel').style.display='none';
-    document.getElementById('btnChar').style.display='none';
-    return;
-  }
-  if(r.id==='p1_moral'){
-    document.getElementById('wheelWrap').style.display='block';
-    document.getElementById('inputRound').style.display='none';
-    document.getElementById('btnSpin').style.display='block';
-    const mp=document.getElementById('moralPick');mp.style.display='block';
-    const toggle=document.getElementById('mpToggle');
-    const body=document.getElementById('mpBody');
-    const grid=document.getElementById('mpGrid');
-    const items=getFilteredRoundItems(r);
-    grid.innerHTML=items.map(it=>{const t=JSON.stringify(it.tags||[]);return`<div class="mp-btn${done?' sel':''}" onclick="selectMoral(this)" data-label="${it.l}" data-color="${it.c}" data-tags='${t}' style="border-left:3px solid ${it.c||'#555'}"><span class="mp-l" style="color:${it.c||'#555'}">${it.l}</span><span class="mp-d">${it.d||''}</span></div>`}).join('');
-    if(done){
-      const rr=state.results.find(rr=>rr.roundId===r.id);
-      if(rr){toggle.textContent='✅ 已选择：'+rr.label;toggle.className='mp-toggle sel';body.className='mp-body';document.getElementById('btnReroll').style.display='block'}
-    }else{toggle.textContent='📋 点击展开，自选价值观阵营（或直接转转盘）';toggle.className='mp-toggle';body.className='mp-body'}
-    wheel=buildWheel(items);wheel.angle=0;state.targetAngle=0;initParticles();wheel.draw();
-    document.getElementById('resultPanel').style.display='none';
-    document.getElementById('btnSpin').disabled=done;
-    document.getElementById('btnSpin').textContent=done?'✅ 已抽取':'🌀 点击旋转';
-    document.getElementById('btnNext').style.display='none';
-    document.getElementById('btnPhase').style.display='none';
-    document.getElementById('btnChar').style.display=isPhaseDone()&&ph().rounds.length>0?'block':'none';
-    return;
-  }
-  document.getElementById('wheelWrap').style.display='block';
-  document.getElementById('inputRound').style.display='none';
-  document.getElementById('moralPick').style.display='none';
-  document.getElementById('btnSpin').style.display='block';
-  wheel=buildWheel(getFilteredRoundItems(r));wheel.angle=0;state.targetAngle=0;initParticles();wheel.draw();
-  document.getElementById('resultPanel').style.display='none';
-  document.getElementById('btnSpin').disabled=done;
-  document.getElementById('btnSpin').textContent=done?'✅ 已抽取':'🌀 点击旋转';
-  document.getElementById('btnNext').style.display='none';
-  document.getElementById('btnReroll').style.display='none';
-  document.getElementById('btnPhase').style.display='none';
-  document.getElementById('btnChar').style.display=isPhaseDone()&&ph().rounds.length>0?'block':'none';
 }
+
 function refreshRight(){
   if(window.innerWidth<768)return;
   const vt=visibleTraits();
@@ -1763,7 +1732,7 @@ function stop(){
   }else if(rid==='p4_action'){
     const tech=item._tech;if(tech){const bf=tryBlackFlash();resolveTechSpin(item,false);
     if(bf){state.combat.win=Math.floor(state.combat.win*2.5)}const eTechs=buildCombatItems(true);if(eTechs.length>0){const eItem=eTechs[Math.floor(Math.random()*eTechs.length)];if(eItem._tech){resolveTechSpin(eItem,true)}}
-    const dmg=resolveDamage();combatShieldUpdate();const ended=checkCombatEnd();
+    const dmg=resolveDamage();combatShieldUpdate();const ended=checkCombatEnd();}
     if(!ended&&state.combat.stamina>0){state.combat.bfCombo=0;updateCombatUI();refreshAll();document.getElementById('btnSpin').style.display='block';document.getElementById('btnSpin').textContent='⚔ 再出一招';document.getElementById('btnSpin').disabled=false;document.getElementById('resultPanel').style.display='block';document.getElementById('resultPanel').innerHTML='<div class="rp-cat">'+rd().icon+' '+rd().title+'</div><div class="rp-val" style="color:'+(item.c||'#888')+'">'+item.l+(bf?' ⚡黑闪!':'')+'</div><div class="rp-desc">体力-'+(tech?tech.st:'?')+' 咒力-'+(tech&&tech.ce?tech.ce:'0')+' 胜率+'+(tech?tech.win:'?')+(bf?' ×2.5':'')+' | 造成'+dmg.pDmg+'伤害 受击'+dmg.eDmg+'</div>';document.getElementById('btnNext').style.display='block';document.getElementById('btnNext').textContent='→ 收手';document.getElementById('btnReroll').style.display='none';saveState();return}
     if(ended){goRound(activeRounds().findIndex(r=>r.id==='p4_result'));refreshAll();return}updateCombatUI();roundStamina();refreshAll();return;
   }else if(rid==='p4_result'){endCombat()}
