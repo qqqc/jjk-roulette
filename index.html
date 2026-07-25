@@ -811,13 +811,13 @@ const SEED_DATA={phases:[
       {l:"术式极限",w:1,c:"#202020",filterDrawn:true,d:"将术式推至物理法则的临界点。星之怒·黑洞(九十九由基)——赋予自身无穷质量，与世界同归于尽的终极术式。"}
     ]},
     {id:"p2_spec_have",title:"是否拥有特殊天赋",icon:"🧬",order:29.2,cond:"人",group:"特殊天赋",prop:"特殊天赋_是否",items:[
-      {l:"是",w:5,c:"#c9a84c",d:"你的体内流淌着非同寻常的血——某种与生俱来的特质让你区别于普通术师。",tags:["special_yes"],wMods:[{cond:"运气|>=|A",w:1.5},{cond:"运气|>=|S",w:2},{cond:"运气|>=|SS",w:2.5},{cond:"运气|>=|SSS",w:3},{cond:"运气|<=|D",w:.3},{cond:"运气|<=|E",w:.1}]},
-      {l:"否",w:5,c:"#7a7a7a",d:"你生来普通——普通的人类血脉、普通的咒力构成。这本身也是一种幸运。",wMods:[{cond:"运气|>=|A",w:.5},{cond:"运气|>=|S",w:.3},{cond:"运气|>=|SS",w:.2},{cond:"运气|>=|SSS",w:.1},{cond:"运气|<=|D",w:2},{cond:"运气|<=|E",w:3}]}
+      {l:"是",w:5,c:"#c9a84c",d:"你的体内流淌着非同寻常的血——某种与生俱来的特质让你区别于普通术师。",tags:["special_yes"],wMods:[{cond:"运气|>=|D",w:2},{cond:"运气|>=|B",w:2},{cond:"运气|>=|S",w:1.75},{cond:"运气|>=|SSS",w:1.57}]},
+      {l:"否",w:95,c:"#7a7a7a",d:"你生来普通——普通的人类血脉、普通的咒力构成。这本身也是一种幸运。",wMods:[{cond:"运气|>=|D",w:.947},{cond:"运气|>=|B",w:.889},{cond:"运气|>=|S",w:.813},{cond:"运气|>=|SSS",w:.692}]}
     ]},
     {id:"p2_spec",title:"特殊天赋",icon:"✨",order:29.3,cond:"special_yes",group:"特殊天赋",prop:"特殊天赋",items:[
       {l:"半人半咒(胀相)",w:1,c:"#402030",d:"人与咒灵的混血——九相图的宿命。你的血液中流淌着无法被任何一边接纳的存在形式。既是诅咒也是羁绊。"},
       {l:"特殊受肉体(虎杖悠仁)",w:1,c:"#e04030",d:"可以吞下特级咒物而不被夺舍。容纳诅咒之王的容器——千年仅此一具。你的灵魂是一堵墙。"},
-      {l:"德斯昆特部落",w:1,c:"#604020",d:"蛮荒古部落的唯一幸存者。体内流淌着原始杀意——不是咒力，不是术式，是最纯粹的猎杀本能。"},
+      {l:"希姆利亚星人(达布拉)",w:1,c:"#604020",d:"蛮荒古部落的唯一幸存者。体内流淌着原始杀意——不是咒力，不是术式，是最纯粹的猎杀本能。"},
       {l:"星浆体(天内理子)",w:1,c:"#c0a040",d:"被天元选中的特殊人类。每五百年一次——你的存在本身，就是咒术界的稳定装置。"},
       {l:"双生子(禅院真希)",w:1,c:"#8060a0",d:"双胞胎在咒术法则中被视为一体。一方的成长压制另一方——直到死亡解开这道枷锁。"},
       {l:"六眼(五条悟)",w:1,c:"#2060c0",d:"五条家数百年一现的蓝色双眸。看透咒力流动，读取术式本质——无下限术式的钥匙。"},
@@ -861,7 +861,14 @@ const SEED_DATA={phases:[
       {l:"1",w:60,c:"#4488aa",tags:["dom_eff_1"]},{l:"2",w:40,c:"#6688cc",tags:["dom_eff_1","dom_eff_2"]},{l:"3",w:20,c:"#cc8844",tags:["dom_eff_1","dom_eff_2","dom_eff_3"]},{l:"4",w:10,c:"#ee6622",tags:["dom_eff_1","dom_eff_2","dom_eff_3","dom_eff_4"]},{l:"5",w:5,c:"#ff5500",tags:["dom_eff_1","dom_eff_2","dom_eff_3","dom_eff_4","dom_eff_5"]},{l:"6",w:1,c:"#ffcc00",tags:["dom_eff_1","dom_eff_2","dom_eff_3","dom_eff_4","dom_eff_5","dom_eff_6"]}
     ]}
   ]},
-  {id:"p3",name:"成长事件",icon:"⚡",rounds:[]},
+  {id:"p3_heian",name:"平安时代·事件",icon:"🏯",cond:"era_平安时代",rounds:[]},
+  {id:"p3_edo",name:"江户初期·事件",icon:"🌊",cond:"era_江户初期",rounds:[]},
+  {id:"p3_kai",name:"怀玉时期·事件",icon:"🔮",cond:"era_怀玉时期",rounds:[]},
+  {id:"p3_0maki",name:"0卷时期·事件",icon:"💍",cond:"era_0卷",rounds:[]},
+  {id:"p3_kos",name:"高专时期·事件",icon:"🏫",cond:"era_高专时期",rounds:[]},
+  {id:"p3_shibu",name:"涩谷事变·事件",icon:"🎃",cond:"era_涩谷事变",rounds:[]},
+  {id:"p3_shime",name:"死灭回游·事件",icon:"⚰️",cond:"era_死灭回游",rounds:[]},
+  {id:"p3_shin",name:"新宿决战·事件",icon:"💥",cond:"era_新宿决战",rounds:[]},
   {id:"p4",name:"战斗模拟",icon:"⚔️",rounds:[]},
   {id:"p5",name:"结局判定",icon:"⌛",rounds:[]}
 ]};
@@ -973,9 +980,9 @@ function refreshSidebar(){
   if(window.innerWidth<768)return;
   const sbPh=document.getElementById('sbPhases');sbPh.innerHTML=DATA.phases.map((p,i)=>{
     const done=p.rounds.length>0&&p.rounds.every(r=>isRoundDone(r)||(r.cond&&!state.traits.includes(r.cond)));
-    const isCur=i===curPhase;const locked=i>curPhase&&!isPhaseDone()&&i!==curPhase;
-    let cls='sb-phase';if(locked)cls+=' locked';if(isCur)cls+=' active';if(done&&!isCur)cls+=' done';
-    return `<div class="${cls}" onclick="switchPhase(${i})"><span class="sp-dot"></span><span class="sp-name">${p.icon} ${p.name}</span></div>`;
+    const isCur=i===curPhase;const skipped=!phaseAvailable(i);let locked=i>skipToNextAvailablePhase(curPhase);
+    let cls='sb-phase';if(skipped)cls+=' locked';else if(locked)cls+=' locked';if(isCur)cls+=' active';if(done&&!isCur)cls+=' done';
+    return `<div class="${cls}" onclick="${skipped||locked?'':'switchPhase('+i+')'}"><span class="sp-dot"></span><span class="sp-name">${p.icon} ${p.name}${skipped?' ←跳过':''}</span></div>`;
   }).join('');
   const sbEv=document.getElementById('sbEvents');const ar=activeRounds();
   sbEv.innerHTML=ar.map((r,i)=>{
@@ -1075,9 +1082,12 @@ function applyEffects(item){
   if(item.dimMod){for(const[k,v]of Object.entries(item.dimMod)){const cur=dimVal(state.dimensions[k]);const nv=cur+v;state.dimensions[k]=dimLv(nv)}}
   if(item.addDims){item.addDims.forEach(k=>{if(!DIM_NAMES.includes(k)){DIM_NAMES.push(k);state.dimensions[k]=null}})}
 }
+function phaseAvailable(i){const p=DATA.phases[i];if(!p||!p.cond)return true;return checkCond(p.cond)}
+function skipToNextAvailablePhase(from){for(let i=from;i<DATA.phases.length;i++){if(phaseAvailable(i))return i}return from}
 function switchPhase(i){
   if(state.spinning)return;
   if(i>curPhase&&!isPhaseDone()){showToast('当前阶段未完成，无法进入下一阶段');return}
+  i=skipToNextAvailablePhase(i);
   curPhase=i;curRound=0;refreshAll();wheel.angle=0;state.targetAngle=0;wheel.draw();document.getElementById('resultPanel').style.display='none';
   document.getElementById('phaseMenu').style.display='none';
 }
@@ -1088,10 +1098,10 @@ function togglePhaseMenu(){
     const list=document.getElementById('pmList');
     list.innerHTML=DATA.phases.map((p,i)=>{
       const done=p.rounds.length>0&&p.rounds.every(r=>isRoundDone(r)||(r.cond&&!state.traits.includes(r.cond)));
-      const locked=i>curPhase&&!isPhaseDone()&&i!==curPhase;
+      const skipped=!phaseAvailable(i);const locked=i>skipToNextAvailablePhase(curPhase);
       const isCur=i===curPhase;
-      let cls='pm-item';if(locked)cls+=' locked';if(isCur)cls+=' active';if(done&&!isCur)cls+=' done';
-      return `<div class="${cls}" onclick="${locked?'':'switchPhase('+i+')'}"><span class="pm-dot"></span><span>${p.icon} ${p.name}</span>${locked?' 🔒':done?' ✓':''}</div>`;
+      let cls='pm-item';if(skipped||locked)cls+=' locked';if(isCur)cls+=' active';if(done&&!isCur)cls+=' done';
+      return `<div class="${cls}" onclick="${skipped||locked?'':'switchPhase('+i+')'}"><span class="pm-dot"></span><span>${p.icon} ${p.name}</span>${skipped?' ←跳过':locked?' 🔒':done?' ✓':''}</div>`;
     }).join('');
   }else{el.style.display='none'}
 }
@@ -1162,7 +1172,7 @@ function goNext(){
   const ar=activeRounds();for(let i=0;i<ar.length;i++){if(!isRoundDone(ar[i])&&ar[i].id!==rd().id){curRound=i;break}}
   refreshAll();wheel.angle=0;state.targetAngle=0;wheel.draw();document.getElementById('resultPanel').style.display='none';
 }
-function goNextPhase(){if(curPhase<DATA.phases.length-1){switchPhase(curPhase+1)}}
+function goNextPhase(){const next=skipToNextAvailablePhase(curPhase+1);if(next>curPhase&&next<DATA.phases.length)switchPhase(next)}
 function reroll(){
   if(state.spinning)return;const r=rd();if(!r||!isRoundDone(r))return;
   const idx=state.results.findIndex(rr=>rr.roundId===r.id);if(idx<0)return;
