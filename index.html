@@ -978,11 +978,16 @@ function refreshTopBar(){
 }
 function refreshSidebar(){
   if(window.innerWidth<768)return;
+  const eraIdx=drawnEraIndex();
   const sbPh=document.getElementById('sbPhases');sbPh.innerHTML=DATA.phases.map((p,i)=>{
     const done=p.rounds.length>0&&p.rounds.every(r=>isRoundDone(r)||(r.cond&&!state.traits.includes(r.cond)));
-    const isCur=i===curPhase;const skipped=!phaseAvailable(i);let locked=i>skipToNextAvailablePhase(curPhase);
-    let cls='sb-phase';if(skipped)cls+=' locked';else if(locked)cls+=' locked';if(isCur)cls+=' active';if(done&&!isCur)cls+=' done';
-    return `<div class="${cls}" onclick="${skipped||locked?'':'switchPhase('+i+')'}"><span class="sp-dot"></span><span class="sp-name">${p.icon} ${p.name}${skipped?' ←跳过':''}</span></div>`;
+    const isCur=i===curPhase;const isEra=p.cond&&p.cond.startsWith('era_');
+    let label='',locked=false;
+    if(isEra&&eraIdx>=0){if(i<eraIdx){locked=true;label=' ←跳过'}else if(i>eraIdx&&i>curPhase){locked=true;label=' 🔒'}}
+    else if(!isEra&&!phaseAvailable(i)){locked=true;label=' ←跳过'}
+    if(i>skipToNextAvailablePhase(curPhase)&&i!==curPhase)locked=true;
+    let cls='sb-phase';if(locked&&!isCur)cls+=' locked';if(isCur)cls+=' active';if(done&&!isCur)cls+=' done';
+    return `<div class="${cls}" onclick="${locked?'':'switchPhase('+i+')'}"><span class="sp-dot"></span><span class="sp-name">${p.icon} ${p.name}${label}</span></div>`;
   }).join('');
   const sbEv=document.getElementById('sbEvents');const ar=activeRounds();
   sbEv.innerHTML=ar.map((r,i)=>{
@@ -1049,7 +1054,11 @@ function refreshRound(){
 function refreshRight(){
   if(window.innerWidth<768)return;
   const vt=visibleTraits();
-  document.getElementById('rpTraits').innerHTML=vt.length?vt.map(t=>`<span class="tag">${t}</span>`).join(''):'<span class="empty">✨ 旋转转盘以生成角色特质</span>';
+  const tg={基本:[],价值观:[],性格:[],体质:[]};
+  vt.forEach(t=>{if(t.startsWith('价值观·'))tg.价值观.push(t);else if(t.startsWith('等级·'))tg.基本.push(t);else if(/^(半人|特殊|希姆利亚|星浆体|双生子|六眼|双面|天与)/.test(t))tg.体质.push(t);else if(/^(正义|温柔|守护|苦行|导师|殉道|邻家|医者|理想|摆渡|捐助|侠客|叛逆|独行|揭发|民间|戒律|官僚|执行|保守|契约|旁观|实用|游荡|交易|均衡|享乐|捣蛋|浪人|即兴|破坏|独裁|幕后|审判|征税|血统|佣兵|投毒|敲诈|叛徒|操纵|疯子|破坏狂|猎杀|纵火|施虐)/.test(t))tg.性格.push(t);else tg.基本.push(t)});
+  let th='';
+  Object.entries(tg).forEach(([gn,gts])=>{if(gts.length){th+=`<div style="font-size:9px;color:var(--dim);padding:4px 12px 0;letter-spacing:1px">${gn==='基本'?'📋 基本':gn==='价值观'?'⚖️ 价值观':gn==='性格'?'🎭 性格':'🧬 体质'}</div><div class="rp-traits" style="padding:2px 12px 4px">${gts.map(t=>`<span class="tag">${t}</span>`).join('')}</div>`}});
+  document.getElementById('rpTraits').innerHTML=th||'<span class="empty">✨ 旋转转盘以生成角色特质</span>';
   let dh='';const groups={体能:['体质','体术'],咒力:['咒力总量','咒力效率','咒力操纵'],战斗:['术式性能','天赋'],属性:['意志','运气','颜值','声望']};
   Object.entries(groups).forEach(([gn,gks])=>{dh+=`<div style="font-size:9px;color:var(--dim);padding:6px 8px 0;letter-spacing:1px">${gn}</div>`;gks.forEach(k=>{const v=state.dimensions[k];const lv=v||'——';const idx=dimVal(v);const pct=idx<0?0:Math.min(100,(idx+1)/DIM_LEVELS.length*100);const clr=dimColor(idx);dh+=`<div style="display:flex;align-items:center;gap:6px;font-size:10px;padding:2px 8px"><span style="width:34px;color:var(--dim)">${k}</span><span style="width:24px;text-align:right;font-weight:700;color:${clr};font-size:10px">${lv}</span><span style="flex:1;height:4px;border-radius:2px;background:rgba(255,255,255,.06)"><span style="display:block;height:100%;border-radius:2px;background:${clr};width:${pct}%"></span></span></div>`})});
   document.getElementById('rpDims').innerHTML=dh||'<span class="empty">📊 抽取维度轮次以解锁评级</span>';
@@ -1059,7 +1068,12 @@ function refreshRight(){
 function refreshTabs(){
   const tp=document.getElementById('tvPerson'),th=document.getElementById('tvHist');
   const vt=visibleTraits();
-  let ph='<div class="tab-card"><h4>👤 角色特质</h4><div class="tags">'+(vt.length?vt.map(t=>`<span class="tag">${t}</span>`).join(''):'暂无特质')+'</div>';
+  let ph='<div class="tab-card"><h4>👤 角色特质</h4>';
+  const tg={基本:[],价值观:[],性格:[],体质:[]};
+  vt.forEach(t=>{if(t.startsWith('价值观·'))tg.价值观.push(t);else if(t.startsWith('等级·'))tg.基本.push(t);else if(/^(半人|特殊|希姆利亚|星浆体|双生子|六眼|双面|天与)/.test(t))tg.体质.push(t);else if(/^(正义|温柔|守护|苦行|导师|殉道|邻家|医者|理想|摆渡|捐助|侠客|叛逆|独行|揭发|民间|戒律|官僚|执行|保守|契约|旁观|实用|游荡|交易|均衡|享乐|捣蛋|浪人|即兴|破坏|独裁|幕后|审判|征税|血统|佣兵|投毒|敲诈|叛徒|操纵|疯子|破坏狂|猎杀|纵火|施虐)/.test(t))tg.性格.push(t);else tg.基本.push(t)});
+  let hasAny=false;
+  Object.entries(tg).forEach(([gn,gts])=>{if(gts.length){hasAny=true;ph+=`<div style="font-size:9px;color:var(--dim);padding:4px 0 0;letter-spacing:1px">${gn==='基本'?'📋 基本':gn==='价值观'?'⚖️ 价值观':gn==='性格'?'🎭 性格':'🧬 体质'}</div><div class="tags">${gts.map(t=>`<span class="tag">${t}</span>`).join('')}</div>`}});
+  if(!hasAny)ph+='暂无特质';
   ph+='<h4 style="margin-top:10px">📊 维度表</h4><div class="dim-mob">';
   const groups={体能:['体质','体术'],咒力:['咒力总量','咒力效率','咒力操纵'],战斗:['术式性能','天赋'],属性:['意志','运气','颜值','声望']};
   Object.entries(groups).forEach(([gn,gks])=>{ph+=`<div style="font-size:9px;color:var(--dim);padding:4px 0;letter-spacing:1px">${gn}</div>`;gks.forEach(k=>{const v=state.dimensions[k];const lv=v||'——';const idx=dimVal(v);const pct=idx<0?0:Math.min(100,(idx+1)/DIM_LEVELS.length*100);const clr=dimColor(idx);ph+=`<div style="display:flex;align-items:center;gap:6px;font-size:11px;padding:2px 0"><span style="width:36px;color:var(--dim)">${k}</span><span style="width:24px;text-align:right;font-weight:700;color:${clr}">${lv}</span><span style="flex:1;height:4px;border-radius:2px;background:rgba(255,255,255,.06)"><span style="display:block;height:100%;border-radius:2px;background:${clr};width:${pct}%"></span></span></div>`})});
@@ -1083,6 +1097,7 @@ function applyEffects(item){
   if(item.addDims){item.addDims.forEach(k=>{if(!DIM_NAMES.includes(k)){DIM_NAMES.push(k);state.dimensions[k]=null}})}
 }
 function phaseAvailable(i){const p=DATA.phases[i];if(!p||!p.cond)return true;return checkCond(p.cond)}
+function drawnEraIndex(){for(let i=0;i<DATA.phases.length;i++){if(DATA.phases[i].cond&&DATA.phases[i].cond.startsWith('era_')&&checkCond(DATA.phases[i].cond))return i}return -1}
 function skipToNextAvailablePhase(from){for(let i=from;i<DATA.phases.length;i++){if(phaseAvailable(i))return i}return from}
 function switchPhase(i){
   if(state.spinning)return;
@@ -1098,10 +1113,13 @@ function togglePhaseMenu(){
     const list=document.getElementById('pmList');
     list.innerHTML=DATA.phases.map((p,i)=>{
       const done=p.rounds.length>0&&p.rounds.every(r=>isRoundDone(r)||(r.cond&&!state.traits.includes(r.cond)));
-      const skipped=!phaseAvailable(i);const locked=i>skipToNextAvailablePhase(curPhase);
-      const isCur=i===curPhase;
-      let cls='pm-item';if(skipped||locked)cls+=' locked';if(isCur)cls+=' active';if(done&&!isCur)cls+=' done';
-      return `<div class="${cls}" onclick="${skipped||locked?'':'switchPhase('+i+')'}"><span class="pm-dot"></span><span>${p.icon} ${p.name}</span>${skipped?' ←跳过':locked?' 🔒':done?' ✓':''}</div>`;
+      const isCur=i===curPhase;const isEra=p.cond&&p.cond.startsWith('era_');
+      let label='',locked=false;
+      if(isEra&&eraIdx>=0){if(i<eraIdx){locked=true;label=' ←跳过'}else if(i>eraIdx&&i>curPhase){locked=true;label=' 🔒'}}
+      else if(!isEra&&!phaseAvailable(i)){locked=true;label=' ←跳过'}
+      if(i>skipToNextAvailablePhase(curPhase)&&i!==curPhase)locked=true;
+      let cls='pm-item';if(locked&&!isCur)cls+=' locked';if(isCur)cls+=' active';if(done&&!isCur)cls+=' done';
+      return `<div class="${cls}" onclick="${locked?'':'switchPhase('+i+')'}"><span class="pm-dot"></span><span>${p.icon} ${p.name}</span>${label}</div>`;
     }).join('');
   }else{el.style.display='none'}
 }
@@ -1120,7 +1138,7 @@ function goRound(i){
   if(i>firstUndone){showToast('请按顺序抽取');return}
   curRound=i;refreshAll();wheel.angle=0;state.targetAngle=0;wheel.draw();document.getElementById('resultPanel').style.display='none';
 }
-function rebuildSkills(){state.skills=[];state.results.forEach(rr=>{if(rr.roundId&&/(_skill|_eff|_de|_pers)\d+$/.test(rr.roundId)&&rr.label)state.skills.push(rr.label)})}
+function rebuildSkills(){state.skills=[];state.results.forEach(rr=>{if(rr.roundId&&(/(_skill|_eff|_de)\d+$/.test(rr.roundId)||rr.roundId.endsWith('_tech_h')||rr.roundId.endsWith('_tech_c'))&&rr.label)state.skills.push(rr.label)})}
 function submitInput(){
   const r=rd();if(!r||r.type!=='input')return;
   const inp=document.getElementById('inputName');const v=inp.value.trim();
@@ -1218,7 +1236,7 @@ function stop(){
   applyEffects(item);
   // track skills & drawn skills
   if(rd().id&&rd().id.startsWith('p2_skill')&&!/_\d/.test(rd().id)&&item.l!=='0'){/*技巧数量轮，记录N*/}
-  if(rd().id&&(/_skill\d+$/.test(rd().id)||/_eff\d+$/.test(rd().id)||/_de\d+$/.test(rd().id)||/_pers\d+$/.test(rd().id))&&item.l){state.skills.push(item.l)}
+  if(rd().id&&(/_skill\d+$/.test(rd().id)||/_eff\d+$/.test(rd().id)||/_de\d+$/.test(rd().id)||/_tech_h$/.test(rd().id)||/_tech_c$/.test(rd().id))&&item.l){state.skills.push(item.l)}
   if(item.l==='极之番'&&!state.traits.includes('极之番'))state.traits.push('极之番');
   if(item.l==='极之番'){const rr=state.results[state.results.length-1];if(rr&&rr._item&&!rr._item.tags.includes('极之番'))rr._item.tags.push('极之番')}
   const panel=document.getElementById('resultPanel');panel.style.display='block';panel.style.borderLeft=`4px solid ${item.c||'#5a5a5a'}`;
