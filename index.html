@@ -751,16 +751,16 @@ const SEED_DATA={phases:[
     ]},
 
     {id:"p2_perf",title:"术式性能",icon:"📈",order:14,cond:"有术式",group:"术式构筑",prop:"术式性能",items:[
-      {l:"蚊子叮咬(约等于没有)",w:3,c:"#330000",d:"你的术式性能弱得令人发指。但正因如此——没有人会防备你。",tags:["弱"],dim:{术式性能:"E-"},wMods:[{cond:"天赋|>=|C",w:.4},{cond:"天赋|>=|B",w:.15},{cond:"天赋|>=|A",w:.05},{cond:"天赋|>=|S",w:.02},{cond:"天赋|>=|SS",w:.008},{cond:"天赋|>=|SSS",w:.003}]},
-      {l:"聊胜于无 (魔术师)",w:5,c:"#550000",d:"你的术式打在敌人身上，他们甚至不会注意到。",tags:["弱"],dim:{术式性能:"E"},wMods:[{cond:"天赋|>=|C",w:.5},{cond:"天赋|>=|B",w:.2},{cond:"天赋|>=|A",w:.08},{cond:"天赋|>=|S",w:.03},{cond:"天赋|>=|SS",w:.015},{cond:"天赋|>=|SSS",w:.005}]},
-      {l:"勉强能用 (四级)",w:7,c:"#770000",d:"标准的术式输出——不多不少，及格线上。",tags:["中等"],dim:{术式性能:"D"},wMods:[{cond:"天赋|>=|C",w:.6},{cond:"天赋|>=|B",w:.35},{cond:"天赋|>=|A",w:.15},{cond:"天赋|>=|S",w:.06},{cond:"天赋|>=|SS",w:.03},{cond:"天赋|>=|SSS",w:.01}]},
-      {l:"有模有样 (三级)",w:9,c:"#4488aa",d:"你的术式开始有点分量了。敌人需要开始认真对待你的攻击。",tags:["中等"],dim:{术式性能:"C"},wMods:[{cond:"天赋|<=|E",w:.5},{cond:"天赋|>=|B",w:1.3},{cond:"天赋|>=|A",w:1.6},{cond:"天赋|>=|S",w:2.0},{cond:"天赋|>=|SS",w:2.5},{cond:"天赋|>=|SSS",w:2.0},{cond:"天赋|>=|EX",w:.5}]},
-      {l:"锐不可当 (二级)",w:11,c:"#6688cc",d:"你的术式开始有了自己的脾气。不是最强——但每一个敢轻视它的对手都会付出代价。",tags:["不错"],dim:{术式性能:"B"},wMods:[{cond:"天赋|<=|E",w:.3},{cond:"天赋|<=|D",w:.6},{cond:"天赋|>=|A",w:1.8},{cond:"天赋|>=|S",w:2.5},{cond:"天赋|>=|SS",w:3.5},{cond:"天赋|>=|SSS",w:3.0},{cond:"天赋|>=|EX",w:.6}]},
-      {l:"摧枯拉朽 (一级)",w:11,c:"#cc8844",d:"你的术式性能已经相当可观。大多数敌人吃了一发之后都需要重新评估战术。",tags:["强劲"],dim:{术式性能:"A"},wMods:[{cond:"天赋|<=|D",w:.1},{cond:"天赋|>=|B",w:1.5},{cond:"天赋|>=|A",w:2.0},{cond:"天赋|>=|S",w:3.0},{cond:"天赋|>=|SS",w:4.0},{cond:"天赋|>=|SSS",w:3.5},{cond:"天赋|>=|EX",w:.6}]},
-      {l:"火力全开 (特级)",w:11,c:"#ff5500",d:"特级级别的术式输出。你的每一击都带着毁灭性的力量。",tags:["恐怖"],dim:{术式性能:"S"},wMods:[{cond:"天赋|>=|B",w:1.2},{cond:"天赋|>=|A",w:1.8},{cond:"天赋|>=|S",w:4.0},{cond:"天赋|>=|SS",w:5.0},{cond:"天赋|>=|SSS",w:4.0},{cond:"天赋|>=|EX",w:.6}]},
-      {l:"天地变色 (六眼级)",w:9,c:"#ff2200",d:"超特级的术式性能。你的攻击已经不是人可以承受的。",tags:["毁灭"],dim:{术式性能:"SS"},wMods:[{cond:"天赋|>=|A",w:1.5},{cond:"天赋|>=|S",w:3.0},{cond:"天赋|>=|SS",w:5.0},{cond:"天赋|>=|SSS",w:4.0},{cond:"天赋|>=|EX",w:.6}]},
-      {l:"万象崩毁 (宿傩级)",w:7,c:"#ffcc00",d:"五宿级别的术式性能——每一次攻击都是一次天地异变。",tags:["神话"],dim:{术式性能:"SSS"},wMods:[{cond:"天赋|>=|S",w:2.0},{cond:"天赋|>=|SS",w:4.0},{cond:"天赋|>=|SSS",w:5.0},{cond:"天赋|>=|EX",w:3.0}]},
-      {l:"强强强？ (超越五宿)",w:5,c:"#ffffff",d:"你的术式性能已经超越了所有已知的标准。一起上吧——你不在乎。",tags:["超越"],dim:{术式性能:"EX"},wMods:[{cond:"天赋|>=|SSS",w:6.0},{cond:"天赋|>=|EX",w:8.0}]}
+      {l:"E- 蚊子叮咬(约等于没有)",w:3,c:"#330000",d:"你的术式性能弱得令人发指。但正因如此——没有人会防备你。",tags:["弱"],dim:{术式性能:"E-"},wMods:[{cond:"天赋|>=|C",w:.4},{cond:"天赋|>=|B",w:.15},{cond:"天赋|>=|A",w:.05},{cond:"天赋|>=|S",w:.02},{cond:"天赋|>=|SS",w:.008},{cond:"天赋|>=|SSS",w:.003}]},
+      {l:"E 聊胜于无(魔术师)",w:5,c:"#550000",d:"你的术式打在敌人身上，他们甚至不会注意到。",tags:["弱"],dim:{术式性能:"E"},wMods:[{cond:"天赋|>=|C",w:.5},{cond:"天赋|>=|B",w:.2},{cond:"天赋|>=|A",w:.08},{cond:"天赋|>=|S",w:.03},{cond:"天赋|>=|SS",w:.015},{cond:"天赋|>=|SSS",w:.005}]},
+      {l:"D 勉强能用(四级)",w:7,c:"#770000",d:"标准的术式输出——不多不少，及格线上。",tags:["中等"],dim:{术式性能:"D"},wMods:[{cond:"天赋|>=|C",w:.6},{cond:"天赋|>=|B",w:.35},{cond:"天赋|>=|A",w:.15},{cond:"天赋|>=|S",w:.06},{cond:"天赋|>=|SS",w:.03},{cond:"天赋|>=|SSS",w:.01}]},
+      {l:"C 有模有样(三级)",w:9,c:"#4488aa",d:"你的术式开始有点分量了。敌人需要开始认真对待你的攻击。",tags:["中等"],dim:{术式性能:"C"},wMods:[{cond:"天赋|<=|E",w:.5},{cond:"天赋|>=|B",w:1.3},{cond:"天赋|>=|A",w:1.6},{cond:"天赋|>=|S",w:2.0},{cond:"天赋|>=|SS",w:2.5},{cond:"天赋|>=|SSS",w:2.0},{cond:"天赋|>=|EX",w:.5}]},
+      {l:"B 锐不可当(二级)",w:11,c:"#6688cc",d:"你的术式开始有了自己的脾气。不是最强——但每一个敢轻视它的对手都会付出代价。",tags:["不错"],dim:{术式性能:"B"},wMods:[{cond:"天赋|<=|E",w:.3},{cond:"天赋|<=|D",w:.6},{cond:"天赋|>=|A",w:1.8},{cond:"天赋|>=|S",w:2.5},{cond:"天赋|>=|SS",w:3.5},{cond:"天赋|>=|SSS",w:3.0},{cond:"天赋|>=|EX",w:.6}]},
+      {l:"A 摧枯拉朽(一级)",w:11,c:"#cc8844",d:"你的术式性能已经相当可观。大多数敌人吃了一发之后都需要重新评估战术。",tags:["强劲"],dim:{术式性能:"A"},wMods:[{cond:"天赋|<=|D",w:.1},{cond:"天赋|>=|B",w:1.5},{cond:"天赋|>=|A",w:2.0},{cond:"天赋|>=|S",w:3.0},{cond:"天赋|>=|SS",w:4.0},{cond:"天赋|>=|SSS",w:3.5},{cond:"天赋|>=|EX",w:.6}]},
+      {l:"S 火力全开(特级)",w:11,c:"#ff5500",d:"特级级别的术式输出。你的每一击都带着毁灭性的力量。",tags:["恐怖"],dim:{术式性能:"S"},wMods:[{cond:"天赋|>=|B",w:1.2},{cond:"天赋|>=|A",w:1.8},{cond:"天赋|>=|S",w:4.0},{cond:"天赋|>=|SS",w:5.0},{cond:"天赋|>=|SSS",w:4.0},{cond:"天赋|>=|EX",w:.6}]},
+      {l:"SS 天地变色(六眼级)",w:9,c:"#ff2200",d:"超特级的术式性能。你的攻击已经不是人可以承受的。",tags:["毁灭"],dim:{术式性能:"SS"},wMods:[{cond:"天赋|>=|A",w:1.5},{cond:"天赋|>=|S",w:3.0},{cond:"天赋|>=|SS",w:5.0},{cond:"天赋|>=|SSS",w:4.0},{cond:"天赋|>=|EX",w:.6}]},
+      {l:"SSS 万象崩毁(宿傩级)",w:7,c:"#ffcc00",d:"五宿级别的术式性能——每一次攻击都是一次天地异变。",tags:["神话"],dim:{术式性能:"SSS"},wMods:[{cond:"天赋|>=|S",w:2.0},{cond:"天赋|>=|SS",w:4.0},{cond:"天赋|>=|SSS",w:5.0},{cond:"天赋|>=|EX",w:3.0}]},
+      {l:"EX 强强强？(超越五宿)",w:5,c:"#ffffff",d:"你的术式性能已经超越了所有已知的标准。一起上吧——你不在乎。",tags:["超越"],dim:{术式性能:"EX"},wMods:[{cond:"天赋|>=|SSS",w:6.0},{cond:"天赋|>=|EX",w:8.0}]}
     ]},
     {id:"p2_ce",title:"咒力总量",icon:"🔥",order:15,cond:null,group:"基础维度",prop:"咒力总量",items:[
       {l:"如有·E-",w:3,c:"#330000",d:"你的咒力总量几乎为零。但天与咒缚会让你在其他方面得到补偿。",tags:["极低"],dim:{咒力总量:"E-"}},{l:"四级·E",w:5,c:"#550000",d:"刚触及咒力边缘。放出一个小型术式就要喘气——但至少说明你有咒力。",tags:["低"],dim:{咒力总量:"E"}},{l:"三级·D",w:7,c:"#770000",d:"能撑住三到五个术式连发。对付低级咒灵够了——撞见特级请直接跑。",tags:["中低"],dim:{咒力总量:"D"}},{l:"二级·C",w:9,c:"#4488aa",d:"大多数术师的终身天花板。可以在战场上待一整天——前提是不开领域。",tags:["中等"],dim:{咒力总量:"C"}},{l:"一级·B",w:11,c:"#6688cc",d:"像一口打不完的井。用掉一半又涌一半——敌人等你耗空，等得自己先被拔除。",tags:["中高"],dim:{咒力总量:"B"}},{l:"特级·A",w:11,c:"#cc8844",d:"咒力量让常规测试仪器过载爆表。展开领域再维持十分钟——对面的诅咒师已经在考虑改行。",tags:["高"],dim:{咒力总量:"A"}},{l:"乙骨级·S",w:11,c:"#ff5500",d:"乙骨忧太级别的咒力——咒术界最高咒力总量之一。连宿儺都不敢说能在消耗战里拖垮你。",tags:["极高"],dim:{咒力总量:"S"}},{l:"宿傩级·SS",w:9,c:"#ff2200",d:"咒力深不见底。宿儺本人路过时多看了你一眼——不是忌惮，是似曾相识。",tags:["恐怖"],dim:{咒力总量:"SS"}},{l:"伪无限·SSS",w:7,c:"#ffcc00",d:"回收速度快到几乎零损耗。外表看咒力从不枯竭——实则是完美的闭环系统。打破一次就足够。",tags:["传说"],dim:{咒力总量:"SSS"}},{l:"真无限·EX",w:5,c:"#ffffff",d:"你的咒力没有上限。五条悟看完你的测试报告沉默了三秒——然后笑了。不是不信，是觉得有意思。",dim:{咒力总量:"EX"}}
@@ -1013,7 +1013,7 @@ function refreshSidebar(){
     let label='',locked=false;
     if(isEra&&eraIdx>=0){if(i<eraIdx){locked=true;label=' ←跳过'}else if(i>eraIdx&&i>curPhase){locked=true;label=' 🔒'}}
     else if(!isEra&&!phaseAvailable(i)){locked=true;label=' ←跳过'}
-    if(i>curPhase&&i>skipToNextAvailablePhase(curPhase))locked=true;
+    if(i>curPhase&&i>skipToNextAvailablePhase(curPhase+1))locked=true;
     let cls='sb-phase';if(locked&&!isCur)cls+=' locked';if(isCur)cls+=' active';if(done&&!isCur)cls+=' done';
     return `<div class="${cls}" onclick="${locked?'':'switchPhase('+i+')'}"><span class="sp-dot"></span><span class="sp-name">${p.icon} ${p.name}${label}</span></div>`;
   }).join('');
@@ -1078,7 +1078,7 @@ function refreshRound(){
   document.getElementById('btnSpin').textContent=done?'✅ 已抽取':'🌀 点击旋转';
   document.getElementById('btnNext').style.display='none';
   document.getElementById('btnReroll').style.display='none';
-  document.getElementById('btnPhase').style.display=isPhaseDone()&&skipToNextAvailablePhase(curPhase+1)<DATA.phases.length?'block':'none';
+  document.getElementById('btnPhase').style.display='none';
   document.getElementById('btnChar').style.display=isPhaseDone()&&ph().rounds.length>0?'block':'none';
 }
 function refreshRight(){
@@ -1151,7 +1151,7 @@ function togglePhaseMenu(){
       let label='',locked=false;
       if(isEra&&eraIdx>=0){if(i<eraIdx){locked=true;label=' ←跳过'}else if(i>eraIdx&&i>curPhase){locked=true;label=' 🔒'}}
       else if(!isEra&&!phaseAvailable(i)){locked=true;label=' ←跳过'}
-      if(i>curPhase&&i>skipToNextAvailablePhase(curPhase))locked=true;
+      if(i>curPhase&&i>skipToNextAvailablePhase(curPhase+1))locked=true;
       let cls='pm-item';if(locked&&!isCur)cls+=' locked';if(isCur)cls+=' active';if(done&&!isCur)cls+=' done';
       return `<div class="${cls}" onclick="${locked?'':'switchPhase('+i+')'}"><span class="pm-dot"></span><span>${p.icon} ${p.name}</span>${label}</div>`;
     }).join('');
@@ -1274,7 +1274,7 @@ function stop(){
   const rid=rd().id||'';
   if(rid.startsWith('p1_ps_')||rid.startsWith('p1_pers')){if(!autoTags.includes(item.l))autoTags=[...autoTags,item.l]}
   state.results.push({roundId:rid,rname:`${rd().icon} ${rd().title}`,prop:rd().prop,label:item.l,desc:item.d||'',c:item.c||'#5a5a5a',_item:{tags:autoTags,dim:item.dim||{},dimMod:item.dimMod||{}}});
-  applyEffects(item);
+  applyEffects({...item, tags: autoTags});
   if(/_pers\d+$/.test(rid)&&item.l&&!state.persDrawn.includes(item.l))state.persDrawn.push(item.l);
   // track skills & drawn skills
   if(rd().id&&rd().id.startsWith('p2_skill')&&!/_\d/.test(rd().id)&&item.l!=='0'){/*技巧数量轮，记录N*/}
