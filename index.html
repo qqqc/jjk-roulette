@@ -1124,6 +1124,7 @@ function togglePhaseMenu(){
   if(el.style.display==='none'){
     el.style.display='block';
     const list=document.getElementById('pmList');
+    const eraIdx=drawnEraIndex();
     list.innerHTML=DATA.phases.map((p,i)=>{
       const done=p.rounds.length>0&&p.rounds.every(r=>isRoundDone(r)||(r.cond&&!state.traits.includes(r.cond)));
       const isCur=i===curPhase;const isEra=p.cond&&p.cond.startsWith('era_');
