@@ -1247,11 +1247,12 @@ function stop(){
   let norm=(-wheel.angle)%(Math.PI*2);if(norm<0)norm+=Math.PI*2;let cum=0,idx=0;
   for(let i=0;i<wheel.sectors.length;i++){cum+=wheel.sectors[i].arc;if(norm<cum){idx=i;break}}
   const item=wheel.sectors[idx];
+  let autoTags=item.tags||[];
+  const rid=rd().id||'';
   if(rid.startsWith('p1_ps_')||rid.startsWith('p1_pers')){if(!autoTags.includes(item.l))autoTags=[...autoTags,item.l]}
   state.results.push({roundId:rid,rname:`${rd().icon} ${rd().title}`,prop:rd().prop,label:item.l,desc:item.d||'',c:item.c||'#5a5a5a',_item:{tags:autoTags,dim:item.dim||{},dimMod:item.dimMod||{}}});
   applyEffects(item);
   if(/_pers\d+$/.test(rid)&&item.l&&!state.persDrawn.includes(item.l))state.persDrawn.push(item.l);
-  applyEffects(item);
   // track skills & drawn skills
   if(rd().id&&rd().id.startsWith('p2_skill')&&!/_\d/.test(rd().id)&&item.l!=='0'){/*技巧数量轮，记录N*/}
   if(rd().id&&(/_skill\d+$/.test(rd().id)||/_eff\d+$/.test(rd().id)||/_de\d+$/.test(rd().id)||/_tech_h$/.test(rd().id)||/_tech_c$/.test(rd().id))&&item.l){state.skills.push(item.l)}
