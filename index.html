@@ -1496,7 +1496,8 @@ function selectStance(s){
   state.combat.stance=s;document.querySelectorAll('.sp-card').forEach(c=>c.classList.toggle('sel',c.dataset.stance===s));
   state.results.push({roundId:'p4_stance',rname:'⚖ 战术姿态',prop:'',label:s,desc:'',c:'#c9a84c',_item:{tags:[],dim:{},dimMod:{}}});
   goNext();
-}
+  }
+  const done=isRoundDone(r);
   if(r.type==='input'){
     document.getElementById('wheelWrap').style.display='none';
     document.getElementById('btnSpin').style.display='none';
