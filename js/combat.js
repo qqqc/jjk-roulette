@@ -50,6 +50,8 @@ function v3BuildCombatItems(forEnemy){
     var smul=v3StamCostMul(),cemul=v3CeCostMul(),wbonus=v3WinBonus()+v3TechWinBonus();
     techs=techs.filter(function(t){if(isHeavenlyRestricted()&&t.ce>0)return false;if(c.burnout&&t.tier&&t.tier.indexOf('atk_ce')>=0&&t.id!=='tech_basic')return false;if(c.burnout&&(t.tier==='ult_ce'||t.tier==='ult'))return false;var st=Math.max(1,Math.floor(t.st*smul)),ce=Math.floor(t.ce*cemul);if(st>c.stamina)return false;if(ce>0&&ce>c.ce)return false;return true});
     var stance=c.stance||'猛攻';techs=techs.map(function(t){var st=Math.max(1,Math.floor(t.st*smul)),ce=Math.floor(t.ce*cemul),win=t.win+wbonus;if(t.tier&&t.tier.indexOf('atk_ce')>=0)win+=v3TechWinBonus();if(c.yourDomainActive&&c.domainEffect==='增幅术式')win=Math.floor(win*2);var w=8;if(stance==='猛攻'){if(t.id==='murasaki'||t.id==='fuga')w=24;else if(t.id==='aka'||t.id==='heavy'||t.id==='tech_full')w=16}else if(stance==='流转'){if(t.tier==='heal'||t.id==='tech_basic')w=16;else if(t.id==='kai')w=20}else if(stance==='坚牢'){if(t.id==='simple_domain'||t.id==='barrier')w=24;else if(t.id==='rct_self')w=16}return{l:t.name,w:w,c:t.c||'#888',d:t.eff||'',_tech:{st:st,ce:ce,win:win,id:t.id,tier:t.tier}}})
+    // 黑闪扇区(独立转盘选项, 权重=触发率)
+    var bfR=v3BfRate();if(bfR>0)techs.push({l:'⚡黑闪',w:Math.ceil(bfR/3),c:'#ff0',d:'胜率×2.5 体力+5 咒力+12',_tech:{st:0,ce:0,win:0,id:'__bf__',tier:'bf'}})
     return techs
   }else{
     techs=techs.concat(TECHNIQUE_LIBRARY.universal);if(isHeavenlyRestricted())TECHNIQUE_LIBRARY.hrOnly.forEach(function(t){techs.push(t)});
@@ -112,7 +114,11 @@ stop=function(){
   if(ph==='enemy_stamina'&&!isNaN(val)){c.enemyStamina=val;c.phase='enemy_tech';showToast('敌体力:'+val);_v3AutoBuildEnemyTech();return}
    if(ph==='player_tech'){
     var tech=item._tech;if(!tech){showToast('无效技法');return}
-    c.stamina-=tech.st;if(tech.ce>0)c.ce-=tech.ce;var tw=tech.win;if(tech.tier==='atk_ce'&&Math.random()*100<v3BfRate()+c.bfCombo*v3BfRate()*0.5){c.bfCombo=Math.min(3,c.bfCombo+1);c.stamina+=5;c.ce+=12;c.bfZone=true;tw=Math.floor(tw*2.5)}c.win+=tw;if(c.bfZone){c.win+=10}
+    // 黑闪扇区
+    if(tech.id==='__bf__'){var bfWin=Math.floor(v3BfRate()*2.5);c.stamina+=5;c.ce+=12;c.win+=Math.max(1,bfWin);c.bfZone=true;c.bfCombo=Math.min(3,c.bfCombo+1);
+      var rp=document.getElementById('resultPanel');rp.style.display='block';rp.innerHTML='<div class="rp-cat">⚔ 交锋</div><div class="rp-val" style="color:#ff0">⚡黑闪!</div><div class="rp-desc">胜率×2.5 体力+5 咒力+12 | 剩体力:'+c.stamina+'</div>';
+      c.log.push('[T'+c.round+'] ⚡黑闪: BFZone');refreshAll();saveState();return}
+    c.stamina-=tech.st;if(tech.ce>0)c.ce-=tech.ce;c.win+=tech.win;if(c.bfZone){c.win+=10}
     if(tech.id==='ao')c.comboFlags.ao=true;if(tech.id==='aka')c.comboFlags.aka=true;
     if(tech.id==='rct_self')state.traits=state.traits.filter(function(t){return t.indexOf('bt_wnd_')!==0});if(tech.id==='domain_amp'){c.selfBlocked=true;c.enemyBlocked=true}if(tech.id==='barrier')c.barrierActive=true;
     var rp=document.getElementById('resultPanel');rp.style.display='block';rp.innerHTML='<div class="rp-cat">⚔ 交锋</div><div class="rp-val" style="color:'+(item.c||'#888')+'">'+item.l+'</div><div class="rp-desc">-'+tech.st+'体 -'+tech.ce+'咒 +'+tech.win+'胜'+(' | 剩体力:'+c.stamina)+'</div>';
