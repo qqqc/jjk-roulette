@@ -16,16 +16,18 @@
 - [ ] 重写 `staminaMax()`: `STAM_ARR[idxOrC(dimVal(state.dimensions['体质']))]` + 天赋/受伤修正
   - **验证**: 体质B(5)→160, 体质SSS(8)+天与咒缚→520×1.6=832
 - [ ] 重写 `ceMax()`: `CE_ARR[idxOrC(dimVal(state.dimensions['咒力总量']))]` + 意志% + 天赋% + 咒具 + 受伤修正
-  - **验证**: 咒力SS(7)+意志C(3)→400, 咒力EX(9)→∞
+  - **验证**: 咒力SS(7)+意志C(3)→400, 咒力EX(9)→∞, 天与咒缚→0
 - [ ] 重写 `stamCostMul()`: 用 `idxOrC(dimVal(state.dimensions['体术']))` 索引 `[1.6,1.4,1.2,1.0,0.9,0.8,0.7,0.6,0.5,0.4]`
 - [ ] 重写 `ceCostMul()`: 用 `idxOrC(dimVal(state.dimensions['咒力效率']))` 索引, 六眼→0.3
 - [ ] 重写 `winBonus()`: 用 `idxOrC(dimVal(state.dimensions['咒力操纵']))` 索引 `[-8,-5,-3,0,4,8,14,20,28,40]`
 - [ ] 重写 `techWinBonus()`: 用 `idxOrC(dimVal(state.dimensions['术式性能']))` 索引 `[-6,-4,-2,0,5,11,18,26,38,55]`
-- [ ] 重写 `clashBonus()`: 用 `idxOrC(dimVal(state.dimensions['体术']))` 索引 `[-5,-3,-1,0,2,3,5,8,12,18]`
+- [ ] 重写 `clashBonus()`: **体术加值 + 术式加值 (加法)**。体术表 `[-10,-7,-4,0,5,10,18,28,40,55]`, 术式表 `[-8,-5,-2,0,5,12,20,30,42,55]`
 - [ ] 重写 `dangerGrowth()`: 用 `idxOrC(dimVal(state.dimensions['运势']))` 索引 `[7,5,4,3,2,1.5,1,0.5,0.2,0]`
 - [ ] 重写 `bfRate()`: 全用 `idxOrC`, 上限 `Math.min(75, ...)`
 - [ ] 重写 `ceDrawRange()`: 用 `idxOrC(dimVal(state.dimensions['意志']))` 索引 `[35,38,42,50,58,68,78,88,94,98]`
 - [ ] 重写 `escapeRate()`: 用 `idxOrC(dimVal(state.dimensions['体术']))` 索引 `[-20,-10,-5,0,5,10,18,28,40,55]`
+- [ ] 新增 `enemyDangerGrowth()`: 查 ENEMY_TEMPLATES 敌人运势, 同上表
+- [ ] 新增双方 DZ 增量:每回合各自 dangerZone += 各自增速
 
 ### A.2 修复战斗初始化
 - [ ] `initCombat()`: `state.combat.hp = staminaMax()`
@@ -45,22 +47,23 @@
 - [ ] 旋转后: 写入 `state.combat.ce`, 显示抽取值
 - **验证**: p4_prep 出现可旋转转盘, 扇区标注 CE 值
 
-### B.2 体力轮 (p4_action mode='stamina')
-- [ ] 新增 `state.combat.mode` 字段
-- [ ] `roundStamina()` 改为设置 mode='stamina' 而非直接赋值
-- [ ] `refreshRound` 中: mode='stamina' 时构建体力轮 (5-7 扇区)
+### B.2 体力轮 (交战阶段: phase='player_stamina')
+- [ ] 新增 `state.combat.phase` 字段
+- [ ] `roundStamina()` 改为设置 `phase='player_stamina'`
+- [ ] `refreshRound` 中: `phase='player_stamina'` 时构建体力轮 (5-7 扇区)
 - [ ] 轮盘扇区: `drawStamina() - 3` ~ `drawStamina() + 3`, 均分
-- [ ] 旋转后: `state.combat.stamina = 抽取值`, mode 切换为 'technique'
-- **验证**: 每回合先转体力轮, 再进入招式选择
+- [ ] 旋转后: `state.combat.stamina = 抽取值`, phase 切换为 `'player_tech'`
+- [ ] 同理: 敌体力轮 `phase='enemy_stamina'`, 抽完后 `phase='enemy_tech'`
+- **验证**: 每回合先转体力轮, 再进入招式选择, 双方流程对称
 
-### B.3 对拼轮 (mode='clash')
-- [ ] 玩家收手或体力耗尽 → mode='clash'
-- [ ] `refreshRound` 中: mode='clash' 时构建对拼轮 (6-8 扇区)
-- [ ] 每扇区显示: 你的伤害 / 敌方伤害 (基准×[0.7~1.3])
-- [ ] 旋转后: 调用 `resolveDamage()`, 推进时钟, 检查胜负
+### B.3 对拼轮 (phase='clash')
+- [ ] 玩家和敌人招式轮均结束后 → `phase='clash'`
+- [ ] `refreshRound` 中: `phase='clash'` 时构建对拼轮 (6 扇区, 见 §10.1)
+- [ ] 每扇区显示双方伤害值, 权重受 DZ bias 修正
+- [ ] 旋转后: `resolveDamage()`, 推进时钟, 检查胜负
 - [ ] 胜负已决 → `goRound(p4_result_index)`
-- [ ] 未决 → `roundStamina()` → mode 回到 'stamina'
-- **验证**: 收手后出现对拼转盘 → HP/时钟更新 → 未死则新回合体力轮
+- [ ] 未决 → `roundStamina()` → `phase='player_stamina'` 新回合
+- **验证**: 招式轮结束 → 对拼转盘 → HP/时钟更新 → 未死则新回合体力轮
 
 ---
 
@@ -68,17 +71,18 @@
 
 **参考设计**: §1.1, §7, §13
 
-### C.1 敌人招式轮
-- [ ] 玩家收手后, mode='clash' 之前, 插入 mode='enemy_tech'
-- [ ] `refreshRound` 中: mode='enemy_tech' 时构建 enemy 技法轮盘
-- [ ] 敌人技法通过 `buildCombatItems(true)` 生成, 过滤敌人体力/CE
-- [ ] 玩家代转 1 次 → 结算敌人胜率 → mode='clash'
-- **验证**: 收手 → 敌人招式轮(可转) → 对拼轮
+### C.1 敌人招式轮 (完全对称)
+- [ ] 玩家招式轮结束后, `phase='enemy_stamina'`
+- [ ] `refreshRound`: `phase='enemy_stamina'` → 构建敌人体力轮, 玩家代转
+- [ ] `phase='enemy_tech'` → 构建敌人技法轮 (`buildCombatItems(true)`), 玩家逐招代转
+- [ ] 敌人领域展开作为普通扇区: `ENEMY_TEMPLATES[].domain.weight` 控制出现率
+- [ ] 敌人体力耗尽 → `phase='clash'`
+- **验证**: 玩家招式轮结束 → 敌人体力轮(可转) → 敌人招式轮(逐招代转) → 对拼轮
 
-### C.2 修复敌人行动频率
-- [ ] 从 `stop()` 的 p4_action 分支中**删除**敌方自动反击代码 (原 line ~1735 enemy auto-attack)
-- [ ] 敌方仅在 mode='enemy_tech' 时行动 1 次
-- **验证**: 玩家出 3 招 → 只吃 1 次敌方反击
+### C.2 删除旧的 enemy auto-attack
+- [ ] 从 `stop()` 的 p4_action 分支中**删除**敌方自动反击代码 (原 line ~1735)
+- [ ] 敌方仅在 `phase='enemy_tech'` 时由玩家代转行动
+- **验证**: 敌方行动只在专门的阶段出现, 不嵌入玩家招式里
 
 ### C.3 修复多回合循环
 - [ ] 对拼后未决 → `roundStamina()` 重置本回合状态 → mode='stamina'
@@ -95,6 +99,7 @@
 - [ ] 在 index.html 的 combat-bars div 下方添加 `<div class="btn-combat-row">`
 - [ ] 包含按钮: `🌐 领域展开` `🔥 极之番` `🔄 修复熔断` `🏃 逃跑`
 - [ ] `refreshRound` 中按条件显示/隐藏按钮 (参考 §16)
+- [ ] 删除旧的"再出一招""收手"按钮 HTML
 - **验证**: DOM 中按钮存在, 条件正确显示/隐藏
 
 ### D.2 领域展开按钮 (§4)
@@ -170,10 +175,12 @@
 - [ ] 在 p4_result 结果面板中追加折叠日志
 - **验证**: 战斗结束后可展开查看回合记录
 
-### F.4 dangerZone 纳入结算 (§A.5)
-- [ ] dangerZone ≥ 30%: 敌人暴击率 +15% (对拼伤害 ×1.3)
-- [ ] dangerZone ≥ 60%: 敌人暴击率 +30% (对拼伤害 ×1.5)
-- **验证**: 高危险区时对拼轮敌伤害明显偏高
+### F.4 DZ 显示 + 对拼轮偏袒标注 (§2.10, §10.1)
+- [ ] 资源条加双 DZ 行: `cbDZBar/cbDZVal` + `cbEDZBar/cbEDZVal`, 显示增速
+- [ ] 对拼轮上方加偏袒摘要行: `⚖ 偏袒 +X → 你 (敌DZ − 你DZ)`
+- [ ] DZ bias 公式接入对拼轮权重计算 (见 §2.10)
+- [ ] 致命互击扇区仅在 DZ≥50% 时出现
+- **验证**: DZ 条可见 + 偏袒方向正确 + 扇区大小随偏袒变化
 
 ---
 
