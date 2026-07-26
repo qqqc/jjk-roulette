@@ -270,9 +270,16 @@ function combatShieldUpdate(){if(state.combat&&state.combat.active)state.combat.
 // ========================================================= V3 PHASE HELPERS =========================================================
 function v3Spin(){
   if(state.spinning||isRoundDone(rd()))return;var r=rd();
-  // Handle special phases
   if(r&&r.id==='p4_action'){
     var c=state.combat;if(!c||!c.active)return;
+    // 特殊阶段: RCT修复/逃跑——不重建转盘, 直接spin已有轮盘
+    if(state._rctPhase||state._escapePhase){
+      var items=wheel.sectors;state.spinning=true;document.getElementById('btnSpin').disabled=true;document.getElementById('btnSpin').textContent='⏳ 旋转中…';
+      var tw=items.reduce(function(s,se){return s+(se.w||1)},0),rv0=Math.random()*tw,ti0=0;
+      for(var jj=0;jj<items.length;jj++){rv0-=items[jj].w||1;if(rv0<=0){ti0=jj;break}}var ca0=0;for(var kk=0;kk<ti0;kk++)ca0+=items[kk].arc;
+      state.targetAngle=wheel.angle+(6+Math.floor(Math.random()*4))*Math.PI*2-ca0-items[ti0].arc/2;
+      state.startAngle=wheel.angle;state.startTime=performance.now();state.duration=4000+Math.random()*1500;return
+    }
     if(!c.round||c.stamina<=0){v3RoundStamina()}
     if(c.phase==='player_stamina'){
       state.spinning=true;document.getElementById('btnSpin').disabled=true;document.getElementById('btnSpin').textContent='⏳ 旋转中…';
@@ -311,11 +318,23 @@ stop=function(){
   state.spinning=false;document.getElementById('btnSpin').disabled=false;document.getElementById('btnSpin').textContent='⚔ 出招';
   var norm=(-wheel.angle)%(Math.PI*2);if(norm<0)norm+=Math.PI*2;var cum=0,idx=0;
   for(var i=0;i<wheel.sectors.length;i++){cum+=wheel.sectors[i].arc;if(norm<cum){idx=i;break}}
-  var item=wheel.sectors[idx],tech=item._tech,c=state.combat;
-  if(!tech){showToast('无效技法');return}
-  // Resolve spin
-  var bf=false;if(Math.random()*100<v3BfRate()+c.bfCombo*v3BfRate()){bf=true;c.bfCombo=Math.min(3,c.bfCombo+1);c.stamina+=5;c.ce+=12;c.bfZone=true}
-  // Apply costs
+  var item=wheel.sectors[idx],c=state.combat;
+  // RCT修复阶段
+  if(state._rctPhase){state._rctPhase=false;var label=item.l,c=state.combat;
+    if(label.indexOf('完美')>=0){c.burnout=false;c.domainUsed=false;showToast('完美修复!')}
+    else if(label.indexOf('标准')>=0){c.burnout=false;c.domainUsed=false;c.ce=Math.max(0,c.ce-15);showToast('标准修复，CE-15')}
+    else if(label.indexOf('代价')>=0){c.burnout=false;c.domainUsed=false;c.ce=Math.max(0,c.ce-25);showToast('代价修复')}
+    else if(label.indexOf('失败')>=0){c.hp=Math.floor(c.hp*0.7);showToast('修复失败')}
+    else if(label.indexOf('反噬')>=0){state.traits=state.traits.filter(function(t){return normalizeTag(t)!=='领域展开'});c.hp=Math.floor(c.hp*0.5);showToast('反噬!')}
+    c.phase='player_tech';refreshAll();saveState();return}
+  // 逃跑阶段
+  if(state._escapePhase){state._escapePhase=false;
+    if(item.l.indexOf('成功')>=0){endCombat();showToast('成功脱出!');goNext();return}
+    else if(item.l.indexOf('险中')>=0){var cur=dimVal(state.dimensions['体质']);state.dimensions['体质']=dimLv(cur-1);endCombat();showToast('险脱，体质-1');goNext();return}
+    else{state.combat._escapeFail=true;c.phase='player_tech';showToast('脱出失败!');refreshAll();saveState();return}}
+  // 招式结算
+  var tech=item._tech;if(!tech){showToast('无效技法');return}
+  var bf=v3BfCheck(tech);
   c.stamina-=tech.st;if(tech.ce>0)c.ce-=tech.ce;c.win+=tech.win;
   if(bf){c.win=Math.floor(c.win*2.5)}if(c.bfZone){c.win+=Math.floor(c.win*0.1)}
   // Track combo
