@@ -146,6 +146,7 @@ stop=function(){
   _origStop()
 }
 function _v3HandlePrepStop(r){
+  state.spinning=false;var norm=(-wheel.angle)%(Math.PI*2);if(norm<0)norm+=Math.PI*2;var cum=0,idx=0;
   for(var i=0;i<wheel.sectors.length;i++){cum+=wheel.sectors[i].arc;if(norm<cum){idx=i;break}}
   var ceVal=parseInt(wheel.sectors[idx].l)||v3DrawCe();state.combat.ce=ceVal;state.combat.shield=Math.floor(ceVal*0.5);state.combat.prepped=true;
   updateCombatUI();refreshAll();
@@ -236,7 +237,7 @@ function updateCombatUI(){
   var ehPct=Math.max(0,Math.min(100,c.enemyHp/Math.max(1,e.hp)*100));document.getElementById('cbEhBar').style.width=ehPct+'%';document.getElementById('cbEhVal').textContent=c.enemyHp;
   if(c.burnout){document.getElementById('cbBurnout').style.display='block'}else{document.getElementById('cbBurnout').style.display='none'}
   // 战斗日志
-  var logSec=document.getElementById('rpCombatLogSec'),logEl=document.getElementById('rpCombatLog');if(logSec&&logEl){logSec.style.display='block';logEl.innerHTML=c.log.slice(-12).map(function(l){return'<div class="rh">'+l+'</div>'}).join('')}
+  var logSec=document.getElementById('rpCombatLogSec'),logEl=document.getElementById('rpCombatLog');if(logSec&&logEl&&c.log){logSec.style.display='block';logEl.innerHTML=c.log.slice(-12).map(function(l){return'<div class="rh">'+l+'</div>'}).join('')}
   updateBtnRow()
 }
 
