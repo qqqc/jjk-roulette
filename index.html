@@ -1375,6 +1375,7 @@ function getFilteredItems(items,rid){
 function getFilteredRoundItems(r){if(!r)return[];return getFilteredItems(r.items,r.id)}
 
 function buildWheel(items){
+  if(!items||items.length===0){items=[{l:'——',w:1,c:'#333',d:''}]}
   const canvas=document.getElementById('wheelCanvas');
   let w=canvas.parentElement.clientWidth;if(!w)w=Math.min(window.innerWidth*.8,370);const dpr=Math.min(devicePixelRatio||1,2);
   canvas.width=w*dpr;canvas.height=w*dpr;canvas.style.width=w+'px';canvas.style.height=w+'px';
@@ -1464,7 +1465,7 @@ function refreshRound(){
   if(r.type==='combat_action'){
     if(!state.combat.round||state.combat.stamina<=0||state.combat.round===0){roundStamina()}
     const items=buildCombatItems(false);if(items.length===0){showToast('无可用技法，体力或咒力不足');return}
-    wheel=buildWheel(items);wheel.angle=0;state.targetAngle=0;wheel.draw();document.getElementById('btnSpin').style.display='block';document.getElementById('btnSpin').textContent='⚔ 出招';document.getElementById('btnSpin').disabled=false;document.getElementById('resultPanel').style.display='none';document.getElementById('btnNext').style.display='none';return;
+    wheel=buildWheel(items);wheel.angle=0;state.targetAngle=0;initParticles();wheel.draw();document.getElementById('btnSpin').style.display='block';document.getElementById('btnSpin').textContent='⚔ 出招';document.getElementById('btnSpin').disabled=false;document.getElementById('resultPanel').style.display='none';document.getElementById('btnNext').style.display='none';return;
   }
   if(r.type==='combat_result'){
     const outcome=getResultOutcome();let items=[];const enemy=ENEMY_TEMPLATES[state.combat.enemyId];const eName=enemy?enemy.name:'敌人';
@@ -1478,7 +1479,7 @@ function refreshRound(){
       items.push({l:'殒命·'+eName,w:outcome.death||20,c:'#600',d:'咒术师生涯的终结',tags:['bt_death','殒命·'+eName]});
       items.push({l:eName+'放了你一马',w:outcome.mercy||25,c:'#876',d:'他转身离去了',tags:['bt_escape']});
     }
-    wheel=buildWheel(items);wheel.angle=0;state.targetAngle=0;wheel.draw();document.getElementById('btnSpin').style.display='block';document.getElementById('btnSpin').textContent='🎯 终结';document.getElementById('btnNext').style.display='none';return;
+    wheel=buildWheel(items);wheel.angle=0;state.targetAngle=0;initParticles();wheel.draw();document.getElementById('btnSpin').style.display='block';document.getElementById('btnSpin').textContent='🎯 终结';document.getElementById('btnNext').style.display='none';return;
   }
   const done=isRoundDone(r);
   if(r.type==='input'){
@@ -1860,7 +1861,7 @@ function loop(t){
   if(state.spinning){const p=Math.min((t-state.startTime)/state.duration,1),e=1-Math.pow(1-p,3);wheel.angle=state.startAngle+(state.targetAngle-state.startAngle)*e;if(p>=1){wheel.angle=state.targetAngle;wheel.draw();stop()}}
   if(particles){particles.update(dt);if(wheel){const pc=document.getElementById('pCanvas'),pctx=particles.ctx,sw=wheel.size;pc.width=wheel.canvas.width;pc.height=wheel.canvas.height;pctx.setTransform(wheel.dpr,0,0,wheel.dpr,0,0);pctx.clearRect(0,0,sw,sw);for(let p of particles.parts){pctx.save();pctx.globalAlpha=p.a;pctx.fillStyle=p.c;pctx.shadowBlur=p.s*4;pctx.shadowColor=p.c;pctx.beginPath();pctx.arc(p.x,p.y,p.s,0,Math.PI*2);pctx.fill();pctx.restore()}}}
   if(wheel)wheel.draw();
-  if(wheel){const ctx=wheel.ctx,dpr=wheel.dpr;ctx.setTransform(dpr,0,0,dpr,0,0);const ss=wheel.sectors;let norm=(-wheel.angle)%(Math.PI*2);if(norm<0)norm+=Math.PI*2;let cum=0,idx=0;for(let i=0;i<ss.length;i++){cum+=ss[i].arc;if(norm<cum){idx=i;break}}let sa=wheel.angle-Math.PI/2;for(let i=0;i<idx;i++)sa+=ss[i].arc;ctx.beginPath();ctx.moveTo(wheel.cx,wheel.cy);ctx.arc(wheel.cx,wheel.cy,wheel.radius+3,sa,sa+ss[idx].arc);ctx.closePath();ctx.strokeStyle='rgba(255,48,80,.45)';ctx.lineWidth=3;ctx.stroke();
+  if(wheel&&wheel.sectors&&wheel.sectors.length){const ctx=wheel.ctx,dpr=wheel.dpr;ctx.setTransform(dpr,0,0,dpr,0,0);const ss=wheel.sectors;let norm=(-wheel.angle)%(Math.PI*2);if(norm<0)norm+=Math.PI*2;let cum=0,idx=0;for(let i=0;i<ss.length;i++){cum+=ss[i].arc;if(norm<cum){idx=i;break}}let sa=wheel.angle-Math.PI/2;for(let i=0;i<idx;i++)sa+=ss[i].arc;ctx.beginPath();ctx.moveTo(wheel.cx,wheel.cy);ctx.arc(wheel.cx,wheel.cy,wheel.radius+3,sa,sa+ss[idx].arc);ctx.closePath();ctx.strokeStyle='rgba(255,48,80,.45)';ctx.lineWidth=3;ctx.stroke();
 const pl=document.getElementById('ptrLabel');if(pl){const s=ss[idx];pl.textContent=s?('🔻 '+s.l):'';pl.style.color='#fff';pl.style.borderColor='rgba(255,255,255,.3)';pl.style.textShadow='0 0 10px rgba(255,255,255,.5)';pl.style.visibility=s?'visible':'hidden'}}
   requestAnimationFrame(loop);
 }
