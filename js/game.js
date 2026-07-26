@@ -10,23 +10,8 @@ const state={spinning:false,results:[],traits:[],dimensions:initDimensions(),ski
 const SKILL_CHAINS={'领域展开':['p2_dt','p2_dn','p2_de1','p2_de2','p2_de3','p2_de4','p2_de5','p2_de6','p2_dname'],'极之番':['p2_max','p2_mname'],'反转术式':['p2_rev'],'咒骸制作':['p2_corpQ','p2_corpP1','p2_corpP2','p2_corpP3','p2_corpP4','p2_corpP5','p2_corpP6']};
 let wheel,particles;
 
-// ========================================================= COMBAT LOGIC =========================================================
-function initCombat(enemyId){
-  const e=ENEMY_TEMPLATES[enemyId];if(!e)return;
-  state.combat={active:true,enemyId,stance:"猛攻",stamina:0,ce:0,win:0,shield:0,hp:0,enemyStamina:0,enemyCe:0,enemyWin:0,enemyHp:e.hp||500,clockBK:0,clockLB:0,dangerZone:0,burnout:false,bfCombo:0,domainUsed:false,maxUsed:false,round:0,enemyWnd:0};
-  state.combat.hp=staminaMax();state.combat.shield=0;
-  state.traits=state.traits.filter(t=>!t.startsWith('bt_')&&!t.startsWith('enemy_'));
-  state.traits.push('enemy_'+enemyId);
-  updateCombatUI();
-}
-function endCombat(){
-  const keep=['bt_victory','bt_defeat','bt_death','bt_escape','bt_wounded'];
-  state.traits=state.traits.filter(t=>!t.startsWith('bt_')||keep.includes(t));
-  state.combat={active:false,enemyId:null,stance:null,stamina:0,ce:0,win:0,shield:0,hp:0,enemyStamina:0,enemyCe:0,enemyWin:0,enemyHp:0,clockBK:0,clockLB:0,dangerZone:0,burnout:false,bfCombo:0,domainUsed:false,maxUsed:false,round:0,enemyWnd:0};
-  updateCombatUI();
-}
-function drawStamina(){const base=staminaMax();let roll=Math.floor(10+base*0.03);const wnd=state.traits.filter(t=>t.startsWith('bt_wnd_')).length;roll=Math.max(8,roll-wnd*3);return roll}
-function drawCe(){const pct=ceDrawRange();const mx=ceMax();if(mx===Infinity)return 999;const min=Math.floor(mx*pct/100);return min+Math.floor(Math.random()*(mx-min+1))}
+// ========================================================= RENDER =========================================================
+function refreshAll(){refreshTopBar();refreshSidebar();refreshRound();refreshRight();refreshTabs();updateBadges();}
 function updateCombatUI(){
   const ec=document.getElementById('enemyCard');if(!ec)return;
   if(!state.combat.active||!state.combat.enemyId){ec.style.display='none';document.getElementById('combatBars').style.display='none';return}
@@ -45,52 +30,8 @@ function updateCombatUI(){
   const ehPct=Math.max(0,Math.min(100,state.combat.enemyHp/Math.max(1,e.hp)*100));document.getElementById('cbEhBar').style.width=ehPct+'%';document.getElementById('cbEhVal').textContent=state.combat.enemyHp;
   if(state.combat.burnout){document.getElementById('cbBurnout').style.display='block'}else{document.getElementById('cbBurnout').style.display='none'}
 }
-function roundStamina(){state.combat.stamina=drawStamina();state.combat.win=0;state.combat.enemyWin=0;state.combat.enemyStamina=Math.floor(10+(ENEMY_TEMPLATES[state.combat.enemyId].hp||500)*0.03);state.combat.dangerZone+=dangerGrowth();state.combat.round++;state.combat.bfCombo=0;updateCombatUI()}
-function resolveDamage(){
-  const enemy=ENEMY_TEMPLATES[state.combat.enemyId];
-  let pDmg=Math.floor(Math.random()*15)+Math.floor(state.combat.win*0.8);let eDmg=Math.floor(Math.random()*10)+Math.floor(state.combat.enemyWin*0.7)+Math.floor(Math.random()*(enemy.dmgRange?enemy.dmgRange[1]-enemy.dmgRange[0]:20))+enemy.baseDmg;
-  const clashAdd=clashBonus()+Math.floor(Math.random()*6);let pTotal=pDmg+clashAdd;let eTotal=eDmg;
-  if(state.combat.stance==="猛攻"){pTotal=Math.floor(pTotal*1.3);eTotal=Math.floor(eTotal*1.3)}
-  if(state.combat.stance==="坚牢"){pTotal=Math.floor(pTotal*0.8);eTotal=Math.floor(eTotal*0.7)}
-  if(state.combat.burnout){pTotal=Math.floor(pTotal*0.7)}
-  if(state.combat.shield>0){const abs=Math.min(state.combat.shield,eTotal);state.combat.shield-=abs;eTotal-=abs}
-  state.combat.hp-=Math.max(0,eTotal);if(state.combat.hp<0)state.combat.hp=0;
-  state.combat.enemyHp-=Math.max(0,pTotal);if(state.combat.enemyHp<0)state.combat.enemyHp=0;
-  const bSeg=Math.floor(pTotal/(enemy.hp/6));state.combat.clockBK=Math.min(6,state.combat.clockBK+bSeg);
-  const lSeg=Math.floor(eTotal/(staminaMax()/6));state.combat.clockLB=Math.min(6,state.combat.clockLB+lSeg);
-  updateCombatUI();
-  return{pDmg:pTotal,eDmg:eTotal};
-}
-function checkCombatEnd(){if(state.combat.clockBK>=6)return'victory';if(state.combat.clockLB>=6)return'defeat';if(state.combat.hp<=0)return'defeat';if(state.combat.enemyHp<=0)return'victory';return null}
-function combatShieldUpdate(){state.combat.shield=Math.floor(state.combat.ce*0.5)}
-function buildStaminaWheel(){let items=[];const base=drawStamina();for(let i=0;i<6;i++){items.push({l:''+(base-3+i),w:Math.abs(3-i)+1,c:'#aaa'})}return items}
-function tryBlackFlash(){
-  if(Math.floor(Math.random()*100)<bfRate()+state.combat.bfCombo*bfRate()){
-    state.combat.bfCombo=Math.min(3,state.combat.bfCombo+1);
-    if(!state.combat.burnout||true){state.combat.stamina+=5;state.combat.ce+=12;const mx=ceMax();if(mx!==Infinity&&state.combat.ce>mx)state.combat.ce=mx}
-    return true
-  }return false
-}
-
-function getResultOutcome(){
-  const alive=state.combat.hp>0;const shUp=state.combat.shield>0;
-  if(state.combat.clockBK>=6||state.combat.enemyHp<=0){
-    let w={complete:25,bitter:50,heavy:25};
-    if(shUp){w.complete+=30;w.bitter-=15;w.heavy-=15}
-    if(state.combat.hp>staminaMax()*0.7){w.complete+=25}
-    if(state.combat.clockLB<=2){w.complete+=20}
-    if(state.combat.clockLB>=5){w.complete-=30;w.bitter+=15;w.heavy+=15}
-    if(state.combat.round>8){w.complete-=15;w.bitter+=10}
-    return w
-  }
-  let w={retreat:30,heavy:25,death:20,mercy:25};
-  if(state.combat.clockBK<=1){w.retreat-=20;w.death+=15;w.mercy-=5}
-  if(state.combat.clockBK>=5){w.retreat+=30;w.heavy-=15;w.death-=10}
-  if(state.combat.hp>staminaMax()*0.5){w.retreat+=15;w.death-=10;w.mercy+=5}
-  const charm=dimVal(state.dimensions['魅力']);
-  if(charm>=5){w.mercy+=20;w.death-=10}
-  return w
-}
+// ========================================================= RENDER =========================================================
+function refreshAll(){refreshTopBar();refreshSidebar();refreshRound();refreshRight();refreshTabs();updateBadges();}
 
 // Condition check: supports "traitName" (has trait), "dimName|op|level" (e.g. "天赋|>=|A")
 function checkCond(cond){
