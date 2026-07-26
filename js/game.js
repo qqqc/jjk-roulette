@@ -105,7 +105,7 @@ function checkCond(cond){
   return true;
 }
 const ph=()=>DATA.phases[curPhase];
-const rd=()=>ph().rounds.filter(r=>checkCond(r.cond)).sort((a,b)=>a.order-b.order)[curRound];
+const rd=()=>{var ar=ph().rounds.filter(r=>checkCond(r.cond)).sort((a,b)=>a.order-b.order);return ar[Math.min(curRound,ar.length-1)]};
 const activeRounds=()=>ph().rounds.filter(r=>checkCond(r.cond)).sort((a,b)=>a.order-b.order);
 const isRoundDone=(r)=>{if(!r)return false;return state.results.some(rr=>rr.roundId===r.id)};
 const isPhaseDone=()=>activeRounds().every(r=>isRoundDone(r));
@@ -172,7 +172,7 @@ function getCurrentRoundIndex(){const ar=activeRounds();return ar.findIndex(r=>r
 
 function refreshTopBar(){
   document.getElementById('topPhase').textContent=ph().icon+' '+ph().name;
-  const ar=activeRounds();const renderDots=(id)=>{const el=document.getElementById(id);el.innerHTML='';ar.forEach((r,i)=>{const d=document.createElement('span');if(isRoundDone(r))d.className='done';if(r.id===rd().id)d.className='cur';d.style.cursor='pointer';d.onclick=()=>goRound(i);el.appendChild(d)})};
+  const ar=activeRounds();const renderDots=(id)=>{const el=document.getElementById(id);if(!el)return;el.innerHTML='';const cr=rd();ar.forEach((r,i)=>{if(!r||!cr)return;const d=document.createElement('span');if(isRoundDone(r))d.className='done';if(r.id===cr.id)d.className='cur';d.style.cursor='pointer';d.onclick=()=>goRound(i);el.appendChild(d)})};
   renderDots('topDots');renderDots('centerDots');
 }
 function refreshSidebar(){
