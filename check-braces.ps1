@@ -1,22 +1,21 @@
-# check-braces.ps1 — JS validation for index.html
+# check-braces.ps1 — JS validation for index.html + js/*.js
 # Run before every commit: .\check-braces.ps1
 # Checks: brace balance, d-string integrity, bracket nesting
 
-$c = Get-Content "index.html" -Raw -Encoding UTF8
-$m = [regex]::Match($c, '<script>(.*?)</script>', [System.Text.RegularExpressions.RegexOptions]::Singleline)
-if (-not $m.Success) { Write-Host "WARN: No <script> block found"; exit 0 }
-
-$js = $m.Groups[1].Value
 $errs = @()
 
-# 1. Brace/bracket balance
-$bDiff = ($js.ToCharArray() | Where-Object { $_ -eq '{' }).Count - ($js.ToCharArray() | Where-Object { $_ -eq '}' }).Count
-$qDiff = ($js.ToCharArray() | Where-Object { $_ -eq '[' }).Count - ($js.ToCharArray() | Where-Object { $_ -eq ']' }).Count
-if ($bDiff -ne 0) { $errs += "Brace mismatch: { - } = $bDiff" }
-if ($qDiff -ne 0) { $errs += "Bracket mismatch: [ - ] = $qDiff" }
+function CheckJS($path, $label) {
+  if (-not (Test-Path $path)) { Write-Host "SKIP: $label (not found)" -ForegroundColor Yellow; return }
+  $js = Get-Content $path -Raw -Encoding UTF8
 
-# 2. d-string integrity (Python subprocess for regex accuracy)
-$pyCheck = @'
+  $openB = ($js.ToCharArray() | Where-Object { $_ -eq '{' }).Count
+  $closeB = ($js.ToCharArray() | Where-Object { $_ -eq '}' }).Count
+  $openQ = ($js.ToCharArray() | Where-Object { $_ -eq '[' }).Count
+  $closeQ = ($js.ToCharArray() | Where-Object { $_ -eq ']' }).Count
+  if ($openB -ne $closeB) { $errs += ($label + ": Brace mismatch `{ - `} = " + ($openB - $closeB)) }
+  if ($openQ -ne $closeQ) { $errs += ($label + ": Bracket mismatch [ - ] = " + ($openQ - $closeQ)) }
+
+  $pyCheck = @'
 import re, sys
 js = sys.stdin.read()
 for i,line in enumerate(js.split('\n'),1):
@@ -25,9 +24,12 @@ for i,line in enumerate(js.split('\n'),1):
     if not m:
         print(f'Line {i}: broken d-string')
 '@
-$pyCheck | python -c $pyCheck 2>$null | ForEach-Object { if ($_) { $errs += $_ } }
+  $js | python -c $pyCheck 2>$null | ForEach-Object { if ($_) { $errs += ($label + ": " + $_) } }
+}
 
-# 3. Report
+CheckJS "index.html" "index.html"
+Get-ChildItem "js/*.js" 2>$null | ForEach-Object { CheckJS $_.FullName $_.Name }
+
 if ($errs.Count -eq 0) {
     Write-Host "OK: All checks passed" -ForegroundColor Green
     exit 0
