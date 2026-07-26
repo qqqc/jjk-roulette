@@ -5,3 +5,5 @@ frames/
 wheel_results.json
 crops/
 __pycache__/
+jjk-lore/*
+!jjk-lore/README.md

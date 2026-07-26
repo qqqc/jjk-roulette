@@ -29,26 +29,42 @@
   </div>
   <div class="center-area" id="centerArea">
     <div class="round-title" id="roundTitle"></div>
-    <div class="enemy-card" id="enemyCard" style="display:none">
-      <div class="ec-header">
-        <span class="ec-tier" id="ecTier">SSS</span>
-        <div class="ec-info">
-          <span class="ec-name" id="ecName"></span>
-          <span class="ec-title" id="ecTitle"></span>
+    <div class="enemy-card" id="enemyCard" style="display:none"></div>
+    <div class="combat-bars" id="combatBars" style="display:none"></div>
+    <div class="combat-vs" id="combatVS" style="display:none">
+      <div class="cv-header"><span class="cv-round" id="cvRound">⚔ 交锋</span><span class="cv-phase" id="cvPhase">出招</span></div>
+      <div class="cv-arena">
+        <div class="cv-card cv-player" id="cvPlayer">
+          <div class="cv-card-glow"></div>
+          <div class="cv-dims" id="cvPDims"></div>
+          <div class="cv-bars">
+            <div class="cv-bar-row"><span class="cv-lbl">🛡</span><span class="cv-bar-wrap"><span class="cv-bar cv-sh" id="cvShBar"></span></span><span id="cvShVal">0</span></div>
+            <div class="cv-bar-row"><span class="cv-lbl">❤</span><span class="cv-bar-wrap"><span class="cv-bar cv-hp" id="cvHpBar"></span></span><span id="cvHpVal">0</span></div>
+            <div class="cv-bar-row"><span class="cv-lbl">🟣</span><span class="cv-bar-wrap"><span class="cv-bar cv-ce" id="cvCeBar"></span></span><span id="cvCeVal">0</span></div>
+            <div class="cv-stats"><span>💪<b id="cvStVal">0</b></span><span>⚡<b id="cvWinVal">0</b></span><span title="运势恶化，影响对拼权重">⚠<b id="cvDZVal">0%</b></span></div>
+          </div>
+        </div>
+        <div class="cv-vs" id="cvVS">
+          <div class="cv-vs-ring"><span class="cv-vs-text">VS</span></div>
+          <div class="cv-clocks"><span class="cv-ck">⚔击破<b id="cvBK">0</b>/6</span><span class="cv-ck">💀败势<b id="cvLB">0</b>/6</span></div>
+        </div>
+        <div class="cv-card cv-enemy" id="cvEnemy">
+          <div class="cv-card-glow"></div>
+          <div class="cv-dims" id="cvEDims"></div>
+          <div class="cv-bars">
+            <div class="cv-bar-row"><span class="cv-lbl">🛡</span><span class="cv-bar-wrap"><span class="cv-bar cv-sh" id="cvEShBar"></span></span><span id="cvEShVal">0</span></div>
+            <div class="cv-bar-row"><span class="cv-lbl">❤</span><span class="cv-bar-wrap"><span class="cv-bar cv-hp" id="cvEHpBar"></span></span><span id="cvEHpVal">0</span></div>
+            <div class="cv-bar-row"><span class="cv-lbl">🟣</span><span class="cv-bar-wrap"><span class="cv-bar cv-ce" id="cvECeBar"></span></span><span id="cvECeVal">0</span></div>
+            <div class="cv-stats"><span>💪<b id="cvEStVal">0</b></span><span>⚡<b id="cvEWinVal">0</b></span><span title="运势恶化，影响对拼权重">⚠<b id="cvEDZVal">0%</b></span></div>
+          </div>
         </div>
       </div>
-      <div class="ec-body">
-        <div class="ec-dims" id="ecDims"></div>
-        <div class="ec-flavor" id="ecFlavor"></div>
-        <div class="ec-status" id="ecStatus"></div>
-        <div class="ec-ehp"><span style="color:var(--dim);font-size:9px">敌HP</span><span class="ec-hp-bar-wrap"><span class="ec-hp-bar" id="cbEhBar" style="width:100%"></span></span><span id="cbEhVal"></span></div>
+      <div class="cv-status-row">
+        <span class="cv-stance" id="cvStanceBadge">🔥猛攻</span>
+        <span class="cv-burnout" id="cvBurnoutBadge" style="display:none">⚠熔断</span>
+        <span class="cv-domain" id="cvDomainBadge" style="display:none">🌐领域</span>
+        <span class="cv-bias" id="cvBias" style="display:none">⚖偏袒+0</span>
       </div>
-    </div>
-    <div class="combat-bars" id="combatBars" style="display:none">
-      <div class="cb-row cb-horiz"><span class="cb-lbl">🛡护盾</span><span class="cb-val" id="cbShVal">0</span><span class="cb-bar-wrap"><span class="cb-bar cb-sh" id="cbShBar"></span></span><span class="cb-lbl">❤生命</span><span class="cb-val" id="cbHpVal">0</span><span class="cb-bar-wrap"><span class="cb-bar cb-hp" id="cbHpBar"></span></span><span class="cb-lbl">🟣咒力</span><span class="cb-val" id="cbCeVal">0</span><span class="cb-bar-wrap"><span class="cb-bar cb-ce" id="cbCeBar"></span></span></div>
-      <div class="cb-row cb-split"><span class="cb-lbl">💪体力</span><span class="cb-val" id="cbStVal">0</span><span class="cb-lbl">⚡胜率</span><span class="cb-val" id="cbWinVal">0</span><span class="cb-lbl" title="运势恶化程度，影响对拼权重">⚠危险区</span><span class="cb-val" id="cbDangerVal">0%</span></div>
-      <div class="cb-row cb-split" style="font-size:9px;color:#d84"><span>敌体力:<b id="cbEStVal">0</b></span><span>敌咒力:<b id="cbECeVal">0</b></span><span>敌胜率:<b id="cbEWinVal">0</b></span><span title="运势恶化程度，影响对拼权重">敌危险区:<b id="cbEDZBadge">0%</b></span></div>
-      <div class="cb-burnout" id="cbBurnout" style="display:none">⚠ 术式熔断</div>
     </div>
     <div class="stance-pick" id="stancePick" style="display:none">
       <div class="sp-header">⚔ 选择战术姿态</div>

@@ -1,0 +1,52 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>
+body{background:#0a0a0c;margin:0;display:flex;justify-content:center;align-items:center;min-height:100vh}
+.wrap{width:350px;aspect-ratio:1;position:relative}
+.wrap canvas{width:100%;height:100%}
+</style></head><body><div class="wrap"><canvas id="c"></canvas></div>
+<script>
+const items=[{l:'普通人',w:4,c:'#1a1a20'},{l:'咒术高层',w:1,c:'#201830'},{l:'咒灵',w:1,c:'#301020'}];
+const tw=items.reduce((s,i)=>s+i.w,0);
+const sectors=items.map(i=>({...i,arc:i.w/tw*Math.PI*2}));
+const c=document.getElementById('c'),ctx=c.getContext('2d');
+let angle=0,spinning=false,target=0,stA=0,stT=0,dur=0;
+
+function draw(){
+  const w=c.parentElement.clientWidth;
+  c.width=w;c.height=w;
+  const cx=w/2,cy=w/2,r=w/2-20;
+  ctx.setTransform(1,0,0,1,0,0);
+  ctx.clearRect(0,0,w,w);
+  ctx.fillStyle='#111';ctx.fillRect(0,0,w,w);
+  ctx.beginPath();ctx.arc(cx,cy,r+10,0,Math.PI*2);ctx.strokeStyle='rgba(200,40,60,.3)';ctx.lineWidth=2;ctx.stroke();
+  let a=angle-Math.PI/2;
+  for(let s of sectors){
+    ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,r,a,a+s.arc);ctx.closePath();ctx.fillStyle=s.c;ctx.fill();
+    ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,r,a,a+s.arc);ctx.lineTo(cx,cy);ctx.strokeStyle='rgba(200,160,70,.4)';ctx.lineWidth=1;ctx.stroke();
+    ctx.save();ctx.translate(cx,cy);ctx.rotate(a+s.arc/2);ctx.font='bold 14px sans-serif';ctx.textAlign='right';ctx.fillStyle='#fff';ctx.fillText(s.l,r-8,5);ctx.restore();a+=s.arc;
+  }
+  ctx.beginPath();ctx.arc(cx,cy,r*.15,0,Math.PI*2);ctx.fillStyle='#222';ctx.fill();ctx.strokeStyle='rgba(200,160,70,.4)';ctx.lineWidth=1;ctx.stroke();
+  if(!spinning){
+    let norm=(-angle)%(Math.PI*2);if(norm<0)norm+=Math.PI*2;
+    let cum=0,idx=0;for(let i=0;i<sectors.length;i++){cum+=sectors[i].arc;if(norm<cum){idx=i;break}}
+    let sa=angle-Math.PI/2;for(let i=0;i<idx;i++)sa+=sectors[i].arc;
+    ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,r+3,sa,sa+sectors[idx].arc);ctx.closePath();
+    ctx.strokeStyle='rgba(255,48,80,.5)';ctx.lineWidth=3;ctx.stroke();
+  }
+}
+c.addEventListener('click',()=>{
+  if(spinning)return;spinning=true;
+  const ti=Math.floor(Math.random()*sectors.length);let ca=0;
+  for(let i=0;i<ti;i++)ca+=sectors[i].arc;
+  target=angle+(6+4*Math.random())*2*Math.PI-ca-sectors[ti].arc/2;
+  stA=angle;stT=performance.now();dur=3000+2000*Math.random();
+});
+draw();window.addEventListener('resize',draw);
+function loop(t){
+  if(spinning){
+    const p=Math.min((t-stT)/dur,1),e=1-Math.pow(1-p,3);
+    angle=stA+(target-stA)*e;if(p>=1){angle=target;spinning=false}
+  }
+  draw();requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
+</script></body></html>

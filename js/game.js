@@ -12,24 +12,7 @@ let wheel,particles;
 
 // ========================================================= RENDER =========================================================
 function refreshAll(){refreshTopBar();refreshSidebar();refreshRound();refreshRight();refreshTabs();updateBadges();}
-function updateCombatUI(){
-  const ec=document.getElementById('enemyCard');if(!ec)return;
-  if(!state.combat.active||!state.combat.enemyId){ec.style.display='none';document.getElementById('combatBars').style.display='none';return}
-  ec.style.display='block';document.getElementById('combatBars').style.display='block';
-  const e=ENEMY_TEMPLATES[state.combat.enemyId];if(!e)return;
-  document.getElementById('ecTier').textContent=e.tier;document.getElementById('ecTier').style.background=e.tierColor;document.getElementById('ecTier').style.color='#1a1a1a';
-  document.getElementById('ecName').textContent=e.name;document.getElementById('ecTitle').textContent=e.title;
-  const eDimEl=document.getElementById('ecDims');eDimEl.innerHTML=(e.dim?Object.keys(e.dim).slice(0,6):Object.keys(e)).filter(k=>k!=='id'&&k!=='name'&&k!=='title'&&k!=='hp'&&k!=='tier'&&k!=='tierColor'&&k!=='desc'&&k!=='flair'&&k!=='hasDomain'&&k!=='stanceStrategy'&&k!=='baseDmg'&&k!=='dmgRange'&&k!=='weakTo'&&k!=='resistTo'&&k!=='techniques'&&k!=='uniqueTechniques').map(k=>{if(!e.dim||!e.dim[k])return'';const idx=dimVal(e.dim[k]);const clr=dimColor(idx);return'<span class="ecd"><span style="color:var(--dim);font-size:9px">'+k+'</span><span style="font-weight:700;color:'+clr+'">'+e.dim[k]+'</span></span>'}).filter(Boolean).join('');
-  const stEl=document.getElementById('ecStatus');let s='';if(state.combat.clockBK>0)s+='<span class="ecs adv">⚔击破'+state.combat.clockBK+'/6</span>';if(state.combat.clockLB>0)s+='<span class="ecs wnd">💀败势'+state.combat.clockLB+'/6</span>';if(state.combat.round>0)s+='<span class="ecs rnd">第'+state.combat.round+'回合</span>';stEl.innerHTML=s||'<span class="ecs neutral">⚡ 战斗开始</span>';
-  document.getElementById('ecFlavor').textContent=e.flair.intro;
-  // update bars
-  const hpPct=Math.max(0,Math.min(100,state.combat.hp/Math.max(1,staminaMax())*100));document.getElementById('cbHpBar').style.width=hpPct+'%';document.getElementById('cbHpVal').textContent=state.combat.hp;
-  const shPct=state.combat.shield>0?Math.min(100,state.combat.shield/Math.max(1,state.combat.hp)*100):0;document.getElementById('cbShBar').style.width=shPct+'%';document.getElementById('cbShVal').textContent=Math.floor(state.combat.shield);
-  const ceMx=ceMax();const cePct=ceMx===Infinity?100:Math.min(100,state.combat.ce/Math.max(1,ceMx)*100);document.getElementById('cbCeBar').style.width=cePct+'%';document.getElementById('cbCeVal').textContent=state.combat.ce+(ceMx===Infinity?'/∞':'');
-  document.getElementById('cbStVal').textContent=state.combat.stamina;document.getElementById('cbWinVal').textContent=state.combat.win;document.getElementById('cbDangerVal').textContent=Math.floor(state.combat.dangerZone)+'%';
-  const ehPct=Math.max(0,Math.min(100,state.combat.enemyHp/Math.max(1,e.hp)*100));document.getElementById('cbEhBar').style.width=ehPct+'%';document.getElementById('cbEhVal').textContent=state.combat.enemyHp;
-  if(state.combat.burnout){document.getElementById('cbBurnout').style.display='block'}else{document.getElementById('cbBurnout').style.display='none'}
-}
+function updateCombatUI(){}
 // ========================================================= RENDER =========================================================
 function refreshAll(){refreshTopBar();refreshSidebar();refreshRound();refreshRight();refreshTabs();updateBadges();}
 

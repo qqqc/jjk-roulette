@@ -225,24 +225,38 @@ function bBindStack(){var c=state.combat;c.stamina=Math.max(0,c.stamina-9);c.dan
 
 // ========================================================= V3 UI =========================================================
 function updateCombatUI(){
-  var ec=document.getElementById('enemyCard');if(!ec)return;if(!state.combat||!state.combat.active||!state.combat.enemyId){ec.style.display='none';var b=document.getElementById('combatBars');if(b)b.style.display='none';updateBtnRow();return}
-  ec.style.display='block';var b=document.getElementById('combatBars');if(b)b.style.display='block';var e=ENEMY_TEMPLATES[state.combat.enemyId];if(!e)return;var c=state.combat;
-  document.getElementById('ecTier').textContent=e.tier;document.getElementById('ecTier').style.background=e.tierColor;document.getElementById('ecTier').style.color='#1a1a1a';document.getElementById('ecName').textContent=e.name;document.getElementById('ecTitle').textContent=e.title;
+  var vs=document.getElementById('combatVS');if(!vs)return;if(!state.combat||!state.combat.active||!state.combat.enemyId){vs.style.display='none';updateBtnRow();return}
+  vs.style.display='block';var e=ENEMY_TEMPLATES[state.combat.enemyId];if(!e)return;var c=state.combat;
+  document.getElementById('cvRound').textContent='⚔ 第'+c.round+'回合';
+  var phaseMap={'player_stamina':'体力抽取','player_tech':'出招阶段','enemy_stamina':'敌体力','enemy_tech':'敌出招','clash':'⚔对拼','domain_clash':'🌐领域对拼','result':'胜负判定'};document.getElementById('cvPhase').textContent=phaseMap[c.phase]||c.phase||'';
+  // 玩家维度
+  var pDims=['体质','体术','咒力量','咒力效','咒力操','术式','运势','天赋','意志'];var pDimEl=document.getElementById('cvPDims'),pDH='';
+  pDims.forEach(function(k){var v=state.dimensions[k];if(!v)return;var clr=dimColor(dimVal(v));pDH+='<span class="cv-dim-dot" style="background:'+clr+'" title="'+k+':'+v+'"></span><span class="cv-dim-name">'+k+'</span>'});
+  if(pDimEl)pDimEl.innerHTML=pDH;
   // 敌人维度
-  var eDimEl=document.getElementById('ecDims');if(eDimEl)eDimEl.innerHTML=(e.dim?Object.keys(e.dim).slice(0,6):[]).map(function(k){if(!e.dim||!e.dim[k])return'';var idx=dimVal(e.dim[k]),clr=dimColor(idx);return'<span class="ecd"><span style="color:var(--dim);font-size:9px">'+k+'</span><span style="font-weight:700;color:'+clr+'">'+e.dim[k]+'</span></span>'}).filter(Boolean).join('');
-  // 敌人状态
-  var stEl=document.getElementById('ecStatus');if(stEl){var s='';if(c.clockBK>0)s+='<span class="ecs adv">⚔击破'+c.clockBK+'/6</span>';if(c.clockLB>0)s+='<span class="ecs wnd">💀败势'+c.clockLB+'/6</span>';if(c.round>0)s+='<span class="ecs rnd">第'+c.round+'回合</span>';stEl.innerHTML=s||'<span class="ecs neutral">⚡ 战斗开始</span>'}
-  var hpPct=Math.max(0,Math.min(100,c.hp/Math.max(1,v3StaminaMax())*100));document.getElementById('cbHpBar').style.width=hpPct+'%';document.getElementById('cbHpVal').textContent=c.hp;
-  var shPct=c.shield>0?Math.min(100,c.shield/Math.max(1,c.hp)*100):0;document.getElementById('cbShBar').style.width=shPct+'%';document.getElementById('cbShVal').textContent=Math.floor(c.shield);
-  var ceMx=v3CeMax(),cePct=ceMx>0?Math.min(100,c.ce/Math.max(1,ceMx)*100):0;document.getElementById('cbCeBar').style.width=cePct+'%';document.getElementById('cbCeVal').textContent=c.ce;
-  document.getElementById('cbStVal').textContent=c.stamina;document.getElementById('cbWinVal').textContent=c.win;document.getElementById('cbDangerVal').textContent=Math.floor(c.dangerZone)+'%';
-  // 敌人资源条
-  var eSt=document.getElementById('cbEStVal'),eCe=document.getElementById('cbECeVal'),eWi=document.getElementById('cbEWinVal'),eDZ=document.getElementById('cbEDZBadge');
-  if(eSt)eSt.textContent=c.enemyStamina;if(eCe)eCe.textContent=c.enemyCe;if(eWi)eWi.textContent=c.enemyWin;if(eDZ)eDZ.textContent=Math.floor(c.enemyDangerZone)+'%'
-  var ehPct=Math.max(0,Math.min(100,c.enemyHp/Math.max(1,e.hp)*100));document.getElementById('cbEhBar').style.width=ehPct+'%';document.getElementById('cbEhVal').textContent=c.enemyHp;
-  if(c.burnout){document.getElementById('cbBurnout').style.display='block'}else{document.getElementById('cbBurnout').style.display='none'}
-  // 战斗日志
-  var logSec=document.getElementById('rpCombatLogSec'),logEl=document.getElementById('rpCombatLog');if(logSec&&logEl&&c.log){logSec.style.display='block';logEl.innerHTML=c.log.slice(-12).map(function(l){return'<div class="rh">'+l+'</div>'}).join('')}
+  var eDimEl=document.getElementById('cvEDims');if(eDimEl)eDimEl.innerHTML=(e.dim?Object.keys(e.dim).slice(0,6):[]).map(function(k){if(!e.dim||!e.dim[k])return'';var idxV=dimVal(e.dim[k]),clr=dimColor(idxV);return'<span class="cv-dim-dot" style="background:'+clr+'" title="'+k+':'+e.dim[k]+'"></span><span class="cv-dim-name">'+k+'</span>'}).filter(Boolean).join('');
+  // 玩家条
+  var stMx=v3StaminaMax(),hpPct=Math.max(0,Math.min(100,c.hp/Math.max(1,stMx)*100));document.getElementById('cvHpBar').style.width=hpPct+'%';document.getElementById('cvHpVal').textContent=c.hp;
+  var shPct=c.shield>0?Math.min(100,c.shield/Math.max(1,c.hp)*100):0;document.getElementById('cvShBar').style.width=shPct+'%';document.getElementById('cvShVal').textContent=Math.floor(c.shield);
+  var ceMx=v3CeMax(),cePct=ceMx>0?Math.min(100,c.ce/Math.max(1,ceMx)*100):0;document.getElementById('cvCeBar').style.width=cePct+'%';document.getElementById('cvCeVal').textContent=c.ce;
+  document.getElementById('cvStVal').textContent=c.stamina;document.getElementById('cvWinVal').textContent=c.win;document.getElementById('cvDZVal').textContent=Math.floor(c.dangerZone)+'%';
+  // 敌人条
+  var eHpPct=Math.max(0,Math.min(100,c.enemyHp/Math.max(1,e.hp)*100));document.getElementById('cvEHpBar').style.width=eHpPct+'%';document.getElementById('cvEHpVal').textContent=c.enemyHp;
+  document.getElementById('cvEShBar').style.width='0%';document.getElementById('cvEShVal').textContent='0';
+  var eCeMx=v3EnemyDrawCe(),eCePct=v3EnemyDrawCe()>0?Math.min(100,c.enemyCe/Math.max(1,eCeMx)*100):0;document.getElementById('cvECeBar').style.width=eCePct+'%';document.getElementById('cvECeVal').textContent=c.enemyCe;
+  document.getElementById('cvEStVal').textContent=c.enemyStamina;document.getElementById('cvEWinVal').textContent=c.enemyWin;document.getElementById('cvEDZVal').textContent=Math.floor(c.enemyDangerZone)+'%';
+  // 姿态 & 熔断 & 领域徽章
+  document.getElementById('cvStanceBadge').textContent=c.stance?(c.stance==='猛攻'?'🔥猛攻':c.stance==='流转'?'🌊流转':'⛰坚牢'):'⚖未定';document.getElementById('cvStanceBadge').style.display=c.stance?'inline-block':'none';
+  document.getElementById('cvBurnoutBadge').style.display=c.burnout?'inline-block':'none';
+  document.getElementById('cvDomainBadge').style.display=c.yourDomainActive?'inline-block':'none';
+  // 偏袒显示
+  var bias=((c.enemyDangerZone||0)-(c.dangerZone||0))/100,bb=document.getElementById('cvBias');bb.style.display=bias!==0?'inline-block':'none';bb.textContent=bias>=0?'⚖偏袒敌+'+Math.round(bias*100)/100:'⚖偏袒你-'+Math.round(Math.abs(bias)*100)/100;
+  // 时钟
+  document.getElementById('cvBK').textContent=c.clockBK;document.getElementById('cvLB').textContent=c.clockLB;
+  // 卡片特殊 state
+  var pc=document.getElementById('cvPlayer'),ecEl=document.getElementById('cvEnemy');pc.classList.toggle('exhausted',c.stamina<=0);pc.classList.toggle('burnout',c.burnout);ecEl.classList.toggle('exhausted',c.enemyStamina<=0);
+  // 辉光
+  document.querySelectorAll('.cv-card-glow').forEach(function(gl){gl.classList.toggle('on',true)});
   updateBtnRow()
 }
 
