@@ -678,14 +678,14 @@ const SEED_DATA={phases:[
   {id:"p3_shin",name:"新宿决战",icon:"💥",cond:"era_新宿决战",rounds:[]},
    {id:"p4",name:"战斗模拟",icon:"⚔",rounds:[
      {id:"p4_enemy",title:"索敌·遭遇判定",icon:"👁",order:1,prop:"敌人",items:[
-       {l:"伏黑甚尔·天与暴君",w:12,c:"#ffcc00",d:"天与咒缚的极致——零咒力换来了超越人类的肉体。",tags:["enemy_fushiguro_toji"]},
+       {l:"伏黑甚尔·天与暴君",w:12,c:"#ffcc00",d:"天与咒缚的极致——零咒力换来了超越人类的肉体。",tags:["enemy_fushiguro_toji_kai"]},
        {l:"避而不战",w:3,c:"#666",d:"你感受到了危险的气息,选择了绕道而行。",tags:["battle_avoided"]}
      ]},
-     {id:"p4_prep",title:"开战·咒力抽取",icon:"🟣",order:2,cond:"enemy_fushiguro_toji",prop:"",type:"combat_prep",items:[]},
-     {id:"p4_stance",title:"战术姿态",icon:"⚖",order:3,cond:"enemy_fushiguro_toji",prop:"",type:"stance",items:[]},
-     {id:"p4_action",title:"交锋",icon:"🎯",order:4,cond:"enemy_fushiguro_toji",prop:"",type:"combat_action",items:[]},
-     {id:"p4_result",title:"终结",icon:"⌛",order:5,cond:"enemy_fushiguro_toji",prop:"",type:"combat_result",items:[]},
-     {id:"p4_rest",title:"战后休整",icon:"💤",order:6,cond:"enemy_fushiguro_toji",prop:"",items:[
+     {id:"p4_prep",title:"开战·咒力抽取",icon:"🟣",order:2,cond:"enemy_fushiguro_toji_kai",prop:"",type:"combat_prep",items:[]},
+     {id:"p4_stance",title:"战术姿态",icon:"⚖",order:3,cond:"enemy_fushiguro_toji_kai",prop:"",type:"stance",items:[]},
+     {id:"p4_action",title:"交锋",icon:"🎯",order:4,cond:"enemy_fushiguro_toji_kai",prop:"",type:"combat_action",items:[]},
+     {id:"p4_result",title:"终结",icon:"⌛",order:5,cond:"enemy_fushiguro_toji_kai",prop:"",type:"combat_result",items:[]},
+     {id:"p4_rest",title:"战后休整",icon:"💤",order:6,cond:"enemy_fushiguro_toji_kai",prop:"",items:[
        {l:"充分休整",w:3,c:"#4c8",d:"体力与咒力完全恢复。伤势有所好转。",dimMod:{体质:1},tags:["rest_full"],wMods:[{cond:"意志|>=|A",w:2.5},{cond:"意志|>=|S",w:1.5}]},
        {l:"短暂休整",w:5,c:"#888",d:"体力恢复大半,但咒力只回复了一半。",tags:["rest_short"]},
        {l:"勉强支撑",w:4,c:"#a64",d:"带伤进入下场战斗。",dimMod:{体质:-1},tags:["bt_wounded"]},
@@ -697,15 +697,15 @@ const SEED_DATA={phases:[
 
 // ========================================================= ENEMY TEMPLATES =========================================================
 const ENEMY_TEMPLATES={
-  fushiguro_toji:{
-    id:"fushiguro_toji",name:"伏黑甚尔",title:"术师杀手",
+  fushiguro_toji_kai:{
+    id:"fushiguro_toji_kai",name:"伏黑甚尔",title:"术师杀手·怀玉",type:"human",
     dim:{体质:"SSS",体术:"SSS",咒力总量:"E-",咒力效率:"E-",咒力操纵:"C",术式性能:"E-",意志:"SS",运势:"D",天赋:"C"},
-    hp:832,tier:"SSS",tierColor:"#ffcc00",
+    hp:520,tier:"SSS",tierColor:"#ffcc00",
     desc:"零咒力的身躯换来了超越人类的极致肉体。无法被咒力感知，无法被结界察觉——他就像猎杀咒术师的幽灵，悄无声息地接近，一击毙命。",
     flair:{intro:'\u300c术师？那种东西我杀过不少了。\u300d',taunt:'\u300c你的极限，我已经看穿了。\u300d',fall:'\u300c到头来……还是没能超越你啊……\u300d'},
-    techniques:["体术·瞬击","体术·连破","五感·先读","天与暴君·极","游云·三段打","天逆鉾·术式破断","万里锁链·束缚","重击","闪避"],
+    techniques:["体术·瞬击","体术·连破","五感·先读","天与暴君·极","游云·三段打","天逆鉾·术式破断","万里锁链·束缚","重击"],
     uniqueTechniques:{"游云·三段打":{st:10,ce:0,win:35},"天逆鉾·术式破断":{st:8,ce:0,win:30,eff:"对有术式目标胜率×1.8"},"万里锁链·束缚":{st:7,ce:0,win:25,eff:"下回敌体力-3"},"幽影奇袭":{st:6,ce:0,win:30,eff:"敌闪避不可"}},
-    hasDomain:false,stanceStrategy:"猛攻",baseDmg:35,dmgRange:[25,50],weakTo:["领域展开"],resistTo:[]
+    hasDomain:false,stanceAI:{default:"猛攻",switches:[{when:"hp<20%",to:"逃跑"},{when:"winGap<-40",to:"流转"},{when:"enemyBurnout",to:"猛攻"}]},baseDmg:35,dmgRange:[25,50],weakTo:["领域展开"],resistTo:[]
   }
 };
 
@@ -744,30 +744,27 @@ const TECHNIQUE_LIBRARY={
   universal:[
     {id:"atk",name:"普通攻击",st:6,ce:0,win:10,tier:"atk",c:"#888"},
     {id:"heavy",name:"重击",st:9,ce:0,win:20,tier:"atk",c:"#aa8"},
-    {id:"ce_punch",name:"咒力强化·拳",st:4,ce:8,win:24,tier:"atk_ce",c:"#88f"},
-    {id:"ce_blast",name:"咒力放出",st:2,ce:15,win:35,tier:"atk_ce",c:"#66f"}
+    {id:"ce_punch",name:"咒力强化·拳",st:4,ce:8,win:24,tier:"atk_ce",c:"#88f"}
   ],
   advanced:[
     {id:"simple_domain",name:"简易领域",st:3,ce:8,win:0,tier:"def",c:"#48a",eff:"敌胜率-30%",match:"简易领域(弥虚葛笼)"},
-    {id:"domain_amp",name:"领域展延",st:4,ce:12,win:18,tier:"atk_def",c:"#255",eff:"封锁敌术式1回合",match:"领域展延"},
+    {id:"domain_amp",name:"领域展延",st:4,ce:12,win:18,tier:"atk_def",c:"#255",eff:"封锁敌术式1回合(自身术式也禁用)",match:"领域展延"},
     {id:"rct_self",name:"反转术式·自愈",st:3,ce:15,win:-10,tier:"heal",c:"#4c8",eff:"清除1层负伤",match:"反转术式"},
-    {id:"rct_out",name:"反转术式·外放",st:4,ce:22,win:30,tier:"atk",c:"#e62",eff:"对咒灵胜率×2",match:"反转术式外放"},
-    {id:"ct_rev",name:"术式反转",st:4,ce:18,win:40,tier:"atk_ce",c:"#c84",match:"术式反转"},
+    {id:"rct_out",name:"反转术式·外放",st:4,ce:22,win:30,tier:"atk",c:"#e62",eff:"对咒灵胜率×3",match:"反转术式外放"},
+    {id:"ct_rev",name:"术式反转",st:4,ce:18,win:40,tier:"atk_ce",c:"#c84",cond:"反转术式",match:"术式反转"},
     {id:"barrier",name:"结界术",st:3,ce:9,win:0,tier:"def",c:"#339",eff:"受击伤害-20%",match:"结界术"},
-    {id:"expand",name:"术式扩张",st:3,ce:12,win:28,tier:"atk_ce",c:"#639",match:"术式对象扩张"},
-    {id:"bv_loan",name:"束缚强化·贷",st:0,ce:0,win:25,tier:"sp",c:"#c63",eff:"本回体力-5",match:"束缚强化·贷款"},
-    {id:"bv_stack",name:"束缚叠加",st:0,ce:0,win:50,tier:"sp",c:"#f80",eff:"本回体力-9危险区+10%",match:"束缚叠加·超级贷款王"},
-    {id:"corpse",name:"咒骸出击",st:6,ce:14,win:20,tier:"summon",c:"#864",match:"咒骸制作"}
+    {id:"expand",name:"术式扩张",st:3,ce:12,win:28,tier:"atk_ce",c:"#639",match:"术式对象扩张"}
   ],
   innate:{
     "无下限术式":[
       {id:"ao",name:"術式順転·蒼",st:2,ce:20,win:30,tier:"atk_ce",c:"#48f",eff:"敌闪避不可"},
       {id:"aka",name:"術式反転·赫",st:3,ce:35,win:55,tier:"atk_ce",c:"#f44",eff:"对拼值+4"},
-      {id:"murasaki",name:"虚式·茈",st:4,ce:60,win:100,tier:"ult_ce",c:"#80f",eff:"整场1次"}
+      {id:"murasaki",name:"虚式·茈",st:4,ce:100,win:100,tier:"ult_ce",c:"#80f"}
     ],
     "御厨子":[
       {id:"kai",name:"解",st:1,ce:12,win:22,tier:"atk_ce",c:"#e66",eff:"连斩"},
       {id:"hachi",name:"捌",st:2,ce:22,win:45,tier:"atk_ce",c:"#c22",eff:"无视术式防御"},
+      {id:"flame",name:"火焰(宿儺)",st:2,ce:18,win:35,tier:"atk_ce",c:"#f60"},
       {id:"fuga",name:"開(竈)",st:3,ce:50,win:90,tier:"ult_ce",c:"#f80",eff:"领域内×2"}
     ],
     _default:[
