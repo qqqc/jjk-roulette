@@ -199,7 +199,7 @@ function refreshRound(){
   const r=rd();if(!r)return;
   const ec=document.getElementById('enemyCard');const cb=document.getElementById('combatBars');const sp=document.getElementById('stancePick');
   if(ec){if(state.combat.active&&r.id&&!r.id.startsWith('p4_enemy')){ec.style.display='block';if(cb)cb.style.display='block';updateCombatUI()}else{ec.style.display='none';if(cb)cb.style.display='none'}}
-  if(sp){if(r.type==='stance'){sp.style.display='block';document.getElementById('btnSpin').style.display='none';document.getElementById('btnNext').style.display='none';document.getElementById('resultPanel').style.display='none'}else{sp.style.display='none'}}
+  if(sp){if(r.type==='stance'){sp.style.display='block';document.getElementById('btnSpin').style.display='none';document.getElementById('btnNext').style.display='none';document.getElementById('resultPanel').style.display='none'}else if(state.combat&&state.combat.phase==='player_stance'){}else{sp.style.display='none'}}
   document.getElementById('roundTitle').innerHTML=`<span style="font-size:18px">${r.icon}</span> 第${getCurrentRoundIndex()+1}转：${r.title}`;
   if(r.type==='combat_prep'){
     if(!state.combat.prepped){
@@ -223,6 +223,7 @@ function refreshRound(){
   if(r.type==='combat_action'){
     if(!state.combat.round||state.combat.stamina<=0||state.combat.round===0){roundStamina();state.combat.phase='player_stamina'}
     document.getElementById('wheelWrap').style.display='block';
+    if(typeof v3BuildPhaseWheel==='function'){var w=v3BuildPhaseWheel();if(w){wheel=buildWheel(w);wheel.angle=0;state.targetAngle=0;initParticles();wheel.draw()}}
     document.getElementById('btnSpin').style.display='block';document.getElementById('btnSpin').textContent='🌀 旋转';document.getElementById('btnSpin').disabled=false;
     document.getElementById('resultPanel').style.display='none';document.getElementById('btnNext').style.display='none';return;
   }
