@@ -682,10 +682,10 @@ const SEED_DATA={phases:[
        {l:"避而不战",w:3,c:"#666",d:"你感受到了危险的气息,选择了绕道而行。",tags:["battle_avoided"]}
      ]},
      {id:"p4_prep",title:"开战·咒力抽取",icon:"🟣",order:2,cond:"enemy_fushiguro_toji_kai",prop:"",type:"combat_prep",items:[]},
-     {id:"p4_stance",title:"战术姿态",icon:"⚖",order:3,cond:"enemy_fushiguro_toji_kai",prop:"",type:"stance",items:[]},
-     {id:"p4_action",title:"交锋",icon:"🎯",order:4,cond:"enemy_fushiguro_toji_kai",prop:"",type:"combat_action",items:[]},
-     {id:"p4_result",title:"终结",icon:"⌛",order:5,cond:"enemy_fushiguro_toji_kai",prop:"",type:"combat_result",items:[]},
-     {id:"p4_rest",title:"战后休整",icon:"💤",order:6,cond:"enemy_fushiguro_toji_kai",prop:"",items:[
+      // p4_stance 已删除——姿态选择集成在每回合体力轮后(§1.1②)
+      {id:"p4_action",title:"交锋",icon:"🎯",order:3,cond:"enemy_fushiguro_toji_kai",prop:"",type:"combat_action",items:[]},
+      {id:"p4_result",title:"终结",icon:"⌛",order:4,cond:"enemy_fushiguro_toji_kai",prop:"",type:"combat_result",items:[]},
+      {id:"p4_rest",title:"战后休整",icon:"💤",order:5,cond:"enemy_fushiguro_toji_kai",prop:"",items:[
        {l:"充分休整",w:3,c:"#4c8",d:"体力与咒力完全恢复。伤势有所好转。",dimMod:{体质:1},tags:["rest_full"],wMods:[{cond:"意志|>=|A",w:2.5},{cond:"意志|>=|S",w:1.5}]},
        {l:"短暂休整",w:5,c:"#888",d:"体力恢复大半,但咒力只回复了一半。",tags:["rest_short"]},
        {l:"勉强支撑",w:4,c:"#a64",d:"带伤进入下场战斗。",dimMod:{体质:-1},tags:["bt_wounded"]},

@@ -8,6 +8,8 @@ const _WC=[1.3,1.2,1.1,1.0,0.9,0.8,0.7,0.6,0.5,0.4];
 const WILL_RCT=[[-1,-1,0,0,1,2,3,5,8,12],[-2,-1,0,0,1,2,4,6,8,12],[2,1,1,0,0,0,-1,-2,-3,-5],[3,2,1,0,-1,-2,-4,-6,-8,-12],[2,1,1,0,-1,-2,-3,-4,-6,-8]];
 const RCT_BASE=[[5,30,35,20,10],[3,24,32,25,16],[1,16,28,30,25],[0,8,22,35,35]];
 
+// §5.3 咒力操纵修正 + §2.3b意志修正(5结果×10级)
+const RCT_MANIP=[[-2,-2,-1,0,1,3,6,10,15,20],[-3,-2,-1,0,1,3,6,8,10,15],[2,1,1,0,0,0,0,0,0,0],[3,2,1,0,-1,-3,-5,-7,-10,-15],[3,2,1,0,-1,-3,-5,-7,-10,-13]];
 function v3StaminaMax(){var i=idxOrC(dimVal(state.dimensions['体质'])),m=_STAM[i];if(state.traits.indexOf('重伤')>=0)m=Math.floor(m*0.6);if(state.traits.indexOf('残废')>=0)m=Math.floor(m*0.4);return Math.max(1,m)}
 function v3CeMax(){if(state.traits.some(function(t){return t.indexOf('天与咒缚')>=0}))return 0;var i=idxOrC(dimVal(state.dimensions['咒力总量'])),m=_CE[i];if(state.traits.indexOf('重伤')>=0)m=Math.floor(m*0.7);if(state.traits.indexOf('残废')>=0)m=Math.floor(m*0.5);if(state.traits.indexOf('半人半咒')>=0)m=Math.floor(m*1.2);if(state.traits.indexOf('特殊受肉体')>=0)m=Math.floor(m*1.15);if(state.traits.indexOf('双面四臂')>=0)m=Math.floor(m*1.3);if(state.results.some(function(r){return r.label==='储存咒力(里香戒指)'}))m+=30;return Math.max(1,m)}
 function v3StamCostMul(){var m=_SMUL[idxOrC(dimVal(state.dimensions['体术']))];if(state.traits.some(function(t){return t.indexOf('天与咒缚')>=0}))m=Math.max(0.2,m-0.2);return m}
@@ -47,7 +49,7 @@ function v3BuildCombatItems(forEnemy){
     if(isHeavenlyRestricted())TECHNIQUE_LIBRARY.hrOnly.forEach(function(t){techs.push(t)});
     var smul=v3StamCostMul(),cemul=v3CeCostMul(),wbonus=v3WinBonus()+v3TechWinBonus();
     techs=techs.filter(function(t){if(isHeavenlyRestricted()&&t.ce>0)return false;if(c.burnout&&t.tier&&t.tier.indexOf('atk_ce')>=0&&t.id!=='tech_basic')return false;if(c.burnout&&(t.tier==='ult_ce'||t.tier==='ult'))return false;var st=Math.max(1,Math.floor(t.st*smul)),ce=Math.floor(t.ce*cemul);if(st>c.stamina)return false;if(ce>0&&ce>c.ce)return false;return true});
-    var stance=c.stance||'猛攻';techs=techs.map(function(t){var st=Math.max(1,Math.floor(t.st*smul)),ce=Math.floor(t.ce*cemul),win=t.win+wbonus;if(t.tier&&t.tier.indexOf('atk_ce')>=0)win+=v3TechWinBonus();var w=8;if(stance==='猛攻'){if(t.id==='murasaki'||t.id==='fuga')w=24;else if(t.id==='aka'||t.id==='heavy'||t.id==='tech_full')w=16}else if(stance==='流转'){if(t.tier==='heal'||t.id==='tech_basic')w=16;else if(t.id==='kai')w=20}else if(stance==='坚牢'){if(t.id==='simple_domain'||t.id==='barrier')w=24;else if(t.id==='rct_self')w=16}return{l:t.name,w:w,c:t.c||'#888',d:t.eff||'',_tech:{st:st,ce:ce,win:win,id:t.id,tier:t.tier}}})
+    var stance=c.stance||'猛攻';techs=techs.map(function(t){var st=Math.max(1,Math.floor(t.st*smul)),ce=Math.floor(t.ce*cemul),win=t.win+wbonus;if(t.tier&&t.tier.indexOf('atk_ce')>=0)win+=v3TechWinBonus();if(c.yourDomainActive&&c.domainEffect==='增幅术式')win=Math.floor(win*2);var w=8;if(stance==='猛攻'){if(t.id==='murasaki'||t.id==='fuga')w=24;else if(t.id==='aka'||t.id==='heavy'||t.id==='tech_full')w=16}else if(stance==='流转'){if(t.tier==='heal'||t.id==='tech_basic')w=16;else if(t.id==='kai')w=20}else if(stance==='坚牢'){if(t.id==='simple_domain'||t.id==='barrier')w=24;else if(t.id==='rct_self')w=16}return{l:t.name,w:w,c:t.c||'#888',d:t.eff||'',_tech:{st:st,ce:ce,win:win,id:t.id,tier:t.tier}}})
     return techs
   }else{
     techs=techs.concat(TECHNIQUE_LIBRARY.universal);if(isHeavenlyRestricted())TECHNIQUE_LIBRARY.hrOnly.forEach(function(t){techs.push(t)});
@@ -75,10 +77,10 @@ var _origSelectStance=selectStance;selectStance=function(s){state.combat.stance=
 
 function v3BuildPhaseWheel(){
   var c=state.combat,ph=c.phase,items=[];
-  if(ph==='player_stamina'){var p=v3DrawStamina();for(var i=0;i<6;i++){var v=p-3+i;items.push({l:''+v,w:Math.abs(3-i)+1,c:'#aaa'})}}
-  else if(ph==='player_tech'||ph==='enemy_tech'){items=v3BuildCombatItems(ph==='enemy_tech');if(!items||items.length===0){showToast(ph==='enemy_tech'?'敌人无可用技法':'无可用技法');return null}}
-  else if(ph==='enemy_stamina'){var p=v3EnemyDrawStamina();for(var i=0;i<6;i++){var v=p-3+i;items.push({l:''+v,w:Math.abs(3-i)+1,c:'#d84'})}}
-  else if(ph==='clash'){var pW=c.win,eW=c.enemyWin;var names=['完全压制','有效打击','互伤','招架吃力','被压制','致命互击'];var wts=[Math.max(1,3+Math.floor(pW/30)),Math.max(1,4+Math.floor(pW/20)),6,Math.max(1,4+Math.floor(eW/20)),Math.max(1,3+Math.floor(eW/30)),(c.dangerZone>=50||c.enemyDangerZone>=50)?1:0];for(var i=0;i<6;i++){if(wts[i]>0)items.push({l:names[i],w:wts[i],c:['#0f0','#4c8','#888','#c84','#f44','#f80'][i]})}}
+  if(ph==='player_stamina'){var p=v3DrawStamina(),n=Math.min(7,Math.max(5,Math.floor(p/6)+3));var items=[];for(var i=0;i<n;i++){var v=p-Math.floor(n/2)+i;items.push({l:''+v,w:(i===Math.floor(n/2)?2:1),c:'#aaa'})}return items}
+  else if(ph==='player_tech'||ph==='enemy_tech'){var items=v3BuildCombatItems(ph==='enemy_tech');if(!items||items.length===0){showToast(ph==='enemy_tech'?'敌人无可用技法':'无可用技法');return null}return items}
+  else if(ph==='enemy_stamina'){var p=v3EnemyDrawStamina(),n=Math.min(7,Math.max(5,Math.floor(p/6)+3));var items=[];for(var i=0;i<n;i++){var v=p-Math.floor(n/2)+i;items.push({l:''+v,w:(i===Math.floor(n/2)?2:1),c:'#d84'})}return items}
+  else   if(ph==='clash'){var pW=c.win,eW=c.enemyWin;var names=['完全压制','有效打击','互伤','招架吃力','被压制','致命互击'];var bias=(c.enemyDangerZone-c.dangerZone)/100;var wts=[Math.max(1,Math.floor(3+pW/30)*(1+bias)),Math.max(1,Math.floor(4+pW/20)*(1+bias*0.7)),6,Math.max(1,Math.floor(4+eW/20)*(1-bias*0.5)),Math.max(1,Math.floor(3+eW/30)*(1-bias*0.7)),(c.dangerZone>=50||c.enemyDangerZone>=50)?1:0];var items=[];for(var i=0;i<6;i++){if(wts[i]>0)items.push({l:names[i],w:wts[i],c:['#0f0','#4c8','#888','#c84','#f44','#f80'][i]})}return items}
   else if(ph==='domain_clash'){items=[{l:'你的领域占上风',w:5,c:'#0f0'},{l:'对方领域占上风',w:5,c:'#f44'},{l:'领域对消灭',w:3,c:'#80f'},{l:'精密度僵持',w:2,c:'#888'}]}
   else if(ph==='result'){var out=getResultOutcome();if(out.complete!==undefined)items=[{l:'完胜',w:out.complete,c:'#ff0'},{l:'苦战险胜',w:out.bitter,c:'#c94'},{l:'惨胜',w:out.heavy,c:'#c84'}];else items=[{l:'败退',w:out.retreat,c:'#c66'},{l:'惨败',w:out.heavy,c:'#c44'},{l:'殒命',w:out.death,c:'#600'},{l:'敌人放你一马',w:out.mercy,c:'#876'}]}
   if(items.length===0){showToast('无可用选项');return null}return items
@@ -90,8 +92,9 @@ function _spinExisting(){state.spinning=true;document.getElementById('btnSpin').
 spin=function(){if(state.spinning||isRoundDone(rd()))return;var r=rd();if(!r||r.id!=='p4_action')return _origSpin();var c=state.combat;if(!c||!c.active)return;if(state._rctPhase||state._escapePhase){_spinExisting();return}var items=v3BuildPhaseWheel();if(!items)return;wheel=buildWheel(items);wheel.angle=0;state.targetAngle=0;initParticles();wheel.draw();state.spinning=true;document.getElementById('btnSpin').disabled=true;document.getElementById('btnSpin').textContent='⏳ 旋转中…';document.getElementById('resultPanel').style.display='none';document.getElementById('btnNext').style.display='none';_startSpin()}
 
 stop=function(){
-  var r=rd();if(!r||r.id==='p4_action'){}else if(r.type==='combat_prep'){_v3HandlePrepStop(r);return}
-  else{_origStop();return}state.spinning=false;document.getElementById('btnSpin').disabled=false;document.getElementById('btnSpin').textContent='🌀 旋转';
+  var r=rd();if(!r){_origStop();return}
+  if(r.type==='combat_prep'){_v3HandlePrepStop(r);return}
+  if(r.id!=='p4_action'){_origStop();return}state.spinning=false;document.getElementById('btnSpin').disabled=false;document.getElementById('btnSpin').textContent='🌀 旋转';
   var norm=(-wheel.angle)%(Math.PI*2);if(norm<0)norm+=Math.PI*2;var cum=0,idx=0;for(var i=0;i<wheel.sectors.length;i++){cum+=wheel.sectors[i].arc;if(norm<cum){idx=i;break}}
   var item=wheel.sectors[idx],c=state.combat,ph=c.phase,val=parseInt(item.l);
   if(state._rctPhase){state._rctPhase=false;v3RCTResult(item.l);refreshAll();saveState();return}
