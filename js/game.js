@@ -137,7 +137,7 @@ function refreshRound(){
     if(typeof v3BuildStaminaWheel==='function'){var sw=v3BuildStaminaWheel();if(sw){wheel=buildWheel(sw);wheel.angle=0;state.targetAngle=0;initParticles();wheel.draw()}}return;
   }
   if(r.type==='combat_stance'){
-    document.getElementById('wheelWrap').style.display='block';document.getElementById('btnSpin').style.display='none';document.getElementById('btnNext').style.display='none';
+    document.getElementById('wheelWrap').style.display='none';document.getElementById('btnSpin').style.display='none';document.getElementById('btnNext').style.display='none';
     document.getElementById('stancePick').style.display='block';document.getElementById('resultPanel').style.display='none';document.getElementById('btnReroll').style.display='none';return;
   }
   if(r.type==='combat_repeatable'){
