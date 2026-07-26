@@ -1730,9 +1730,9 @@ function stop(){
   }else if(rid==='p4_prep'){
     state.combat.prepped=true;updateCombatUI();
   }else if(rid==='p4_action'){
-    const tech=item._tech;if(tech){const bf=tryBlackFlash();resolveTechSpin(item,false);
-    if(bf){state.combat.win=Math.floor(state.combat.win*2.5)}const eTechs=buildCombatItems(true);if(eTechs.length>0){const eItem=eTechs[Math.floor(Math.random()*eTechs.length)];if(eItem._tech){resolveTechSpin(eItem,true)}}
-    const dmg=resolveDamage();combatShieldUpdate();const ended=checkCombatEnd();}
+    let bf=false;const tech=item._tech;if(tech){bf=tryBlackFlash();resolveTechSpin(item,false);
+    if(bf){state.combat.win=Math.floor(state.combat.win*2.5)}const eTechs=buildCombatItems(true);if(eTechs.length>0){const eItem=eTechs[Math.floor(Math.random()*eTechs.length)];if(eItem._tech){resolveTechSpin(eItem,true)}}}
+    const dmg=resolveDamage();combatShieldUpdate();const ended=checkCombatEnd();
     if(!ended&&state.combat.stamina>0){state.combat.bfCombo=0;updateCombatUI();refreshAll();document.getElementById('btnSpin').style.display='block';document.getElementById('btnSpin').textContent='⚔ 再出一招';document.getElementById('btnSpin').disabled=false;document.getElementById('resultPanel').style.display='block';document.getElementById('resultPanel').innerHTML='<div class="rp-cat">'+rd().icon+' '+rd().title+'</div><div class="rp-val" style="color:'+(item.c||'#888')+'">'+item.l+(bf?' ⚡黑闪!':'')+'</div><div class="rp-desc">体力-'+(tech?tech.st:'?')+' 咒力-'+(tech&&tech.ce?tech.ce:'0')+' 胜率+'+(tech?tech.win:'?')+(bf?' ×2.5':'')+' | 造成'+dmg.pDmg+'伤害 受击'+dmg.eDmg+'</div>';document.getElementById('btnNext').style.display='block';document.getElementById('btnNext').textContent='→ 收手';document.getElementById('btnReroll').style.display='none';saveState();return}
     if(ended){goRound(activeRounds().findIndex(r=>r.id==='p4_result'));refreshAll();return}updateCombatUI();roundStamina();refreshAll();return;
   }else if(rid==='p4_result'){endCombat()}
