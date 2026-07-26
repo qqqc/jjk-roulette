@@ -1,4 +1,3 @@
-<style>
 :root{--bg:#060608;--bg2:#12121a;--bg3:#1a1a24;--red:#c41e3a;--glow:#ff3050;--purple:#6b21a8;--gold:#c9a84c;--text:#e0d8d0;--dim:#9a9490;--r:12px}
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:var(--bg);color:var(--text);font-family:"PingFang SC","Microsoft YaHei",sans-serif;min-height:100vh;overflow-x:hidden;-webkit-tap-highlight-color:transparent;user-select:none}
@@ -17,18 +16,18 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
 .dot{position:absolute;border-radius:50%;background:var(--glow);opacity:0;animation:dotUp linear infinite}
 @keyframes dotUp{0%{transform:translateY(105vh)scale(0);opacity:0}10%{opacity:.3}90%{opacity:.06}100%{transform:translateY(-10vh)scale(1.5);opacity:0}}
 
-/* 主容�?*/
+/* 主容器 */
 .app{position:relative;z-index:1;display:flex;flex-direction:column;min-height:100vh;padding-bottom:64px}
 @media(min-width:768px){.app{display:grid;grid-template-columns:240px 1fr 250px;min-height:100vh;padding:0}}
 
-/* 顶部�?移动) */
+/* 顶部栏(移动) */
 .top-bar{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:var(--bg2);border-bottom:1px solid rgba(255,255,255,.05);flex-shrink:0;gap:6px}
 .top-bar .p-name{font-size:13px;font-weight:700;cursor:pointer}
 .p-dots{display:flex;gap:5px;flex-wrap:wrap;justify-content:center}
 .p-dots span{width:9px;height:9px;border-radius:50%;border:1.5px solid rgba(255,255,255,.12);transition:.3s}
 .p-dots span.done{background:var(--gold);border-color:var(--gold)}
 .p-dots span.cur{background:var(--red);border-color:var(--red);box-shadow:0 0 8px var(--glow)}
-/* 移动端阶段下�?*/
+/* 移动端阶段下拉 */
 .phase-menu{position:fixed;inset:0;z-index:55}
 .phase-menu .pm-backdrop{position:absolute;inset:0;background:rgba(0,0,0,.6)}
 .phase-menu .pm-list{position:absolute;top:44px;left:12px;right:12px;background:var(--bg2);border-radius:12px;border:1px solid rgba(255,255,255,.08);padding:8px 0;box-shadow:0 8px 30px rgba(0,0,0,.5);animation:fadeIn .2s ease}
@@ -43,7 +42,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
 @media(min-width:768px){#centerDots{display:flex!important}}
 @media(min-width:768px){.top-bar{display:none}}
 
-/* 左侧�?*/
+/* 左侧栏 */
 .sidebar{display:none;background:var(--bg2);border-right:1px solid rgba(255,255,255,.05);flex-direction:column;overflow-y:auto}
 @media(min-width:768px){.sidebar{display:flex}}
 .sb-header{padding:16px 14px 10px;flex-shrink:0}
@@ -117,7 +116,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
 .result-panel .rp-cat{font-size:10px;color:var(--dim);letter-spacing:2px}
 .result-panel .rp-val{font-size:clamp(18px,4vw,24px);font-weight:800;margin:4px 0 6px;letter-spacing:1px}
 .result-panel .rp-desc{font-size:13px;color:rgba(224,216,208,.8);line-height:1.6;margin-top:4px}
-/* 价值观自选面�?*/
+/* 价值观自选面板 */
 .moral-pick{width:100%;max-width:480px;margin-top:4px;text-align:center}
 .mp-toggle{display:block;width:100%;padding:12px 16px;border-radius:12px;border:none;cursor:pointer;font-size:14px;font-weight:700;letter-spacing:1px;background:linear-gradient(135deg,#e8d44d,#c08030);color:#1a1a1a;box-shadow:0 4px 16px rgba(201,168,76,.35);animation:mpPulse 2.5s ease infinite}
 @keyframes mpPulse{0%,100%{box-shadow:0 4px 16px rgba(201,168,76,.35)}50%{box-shadow:0 6px 28px rgba(201,168,76,.6),0 0 40px rgba(232,212,77,.25)}}
@@ -144,7 +143,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
 .rp-hist .rh{display:flex;gap:6px;align-items:flex-start;font-size:10px;padding:3px 6px;border-radius:4px;background:rgba(255,255,255,.012);border-left:3px solid transparent}
 .rp-hist .rh .rhd{width:5px;height:5px;border-radius:2px;margin-top:3px;flex-shrink:0}
 
-/* 底部Tab(移动�? */
+/* 底部Tab(移动端) */
 .btm-tabs{position:fixed;bottom:0;left:0;right:0;z-index:50;display:flex;background:var(--bg2);border-top:1px solid rgba(255,255,255,.06);padding:3px 0 env(safe-area-inset-bottom,3px)}
 .btm-tabs .bt{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:5px 0;cursor:pointer;color:var(--dim);font-size:10px;gap:2px;transition:.2s;position:relative}
 .btm-tabs .bt.active{color:#fff}
@@ -216,7 +215,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
   .editor-panel{width:100vw}
 }
 
-/* ---- 敌人�?---- */
+/* ---- 敌人卡 ---- */
 .enemy-card{width:100%;max-width:480px;background:linear-gradient(135deg,rgba(18,8,8,.95),rgba(8,4,14,.98));border:1px solid rgba(200,60,60,.35);border-radius:16px;padding:12px 16px;margin-bottom:4px;animation:bfxIn .5s ease;box-shadow:0 0 30px rgba(200,40,40,.1),inset 0 0 40px rgba(0,0,0,.5)}
 .enemy-card .ec-header{display:flex;align-items:center;gap:10px;margin-bottom:8px}
 .ec-header .ec-tier{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:8px;font-size:13px;font-weight:900;flex-shrink:0;box-shadow:0 0 12px rgba(255,204,0,.4)}
@@ -243,7 +242,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
 /* 战斗按钮 */
 .btn-retry{border-color:var(--gold)!important;color:var(--gold)!important}
 .btn-continue{border-color:#f44!important;color:#f44!important}
-/* 战斗资源�?*/
+/* 战斗资源条 */
 .combat-bars{width:100%;max-width:480px;background:rgba(12,8,16,.95);border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:6px 12px;margin-bottom:4px;font-size:10px}
 .cb-row{display:flex;align-items:center;gap:6px;padding:2px 0}
 .cb-lbl{color:var(--dim);width:36px;flex-shrink:0;font-size:9px}
