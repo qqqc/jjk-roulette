@@ -221,11 +221,12 @@ function refreshRound(){
     document.getElementById('wheelWrap').style.display='none';return;
   }
   if(r.type==='combat_action'){
-    if(!state.combat.round||state.combat.stamina<=0||state.combat.round===0){roundStamina();state.combat.phase='player_stamina'}
+    var firstEntry=(!state.combat.round||state.combat.round===0);
+    if(firstEntry){roundStamina();state.combat.phase='player_stamina'}
     document.getElementById('wheelWrap').style.display='block';
-    if(typeof v3BuildPhaseWheel==='function'&&(!wheel||!wheel.sectors||wheel.sectors.length===0)){var w=v3BuildPhaseWheel();if(w){wheel=buildWheel(w);wheel.angle=0;state.targetAngle=0;initParticles();wheel.draw()}}
-    document.getElementById('btnSpin').style.display='block';document.getElementById('btnSpin').textContent='🌀 旋转';document.getElementById('btnSpin').disabled=false;
-    document.getElementById('resultPanel').style.display='none';document.getElementById('btnNext').style.display='none';return;
+    if(firstEntry&&typeof v3BuildPhaseWheel==='function'&&(!wheel||!wheel.sectors||wheel.sectors.length===0)){var w=v3BuildPhaseWheel();if(w){wheel=buildWheel(w);wheel.angle=0;state.targetAngle=0;initParticles();wheel.draw()}}
+    // 按钮由 combat.js 管控，refreshRound 不覆盖
+    return;
   }
   if(r.type==='combat_result'){
     const outcome=getResultOutcome();let items=[];const enemy=ENEMY_TEMPLATES[state.combat.enemyId];const eName=enemy?enemy.name:'敌人';
