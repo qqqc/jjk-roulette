@@ -602,7 +602,7 @@ p3 标签对 p4 的影响: `p3_riko_dead`→意志临时+2级且不可逃跑; `p
 | dim.天赋 | C |
 | hp | 832 |
 | hasDomain | false |
-| stanceStrategy | 猛攻 |
+| stanceAI | default:猛攻 / switches:hp<20%→逃跑, winGap<-40→流转, enemyBurnout→猛攻 |
 | baseDmg | 35 |
 | dmgRange | [25, 50] |
 | weakTo | [领域展开] |
@@ -979,7 +979,7 @@ URL 加 `?debug` 进入调试模式。p4 侧边栏底部展示:
 - 术式系统 (p2_sys1): 仅用于自定义术式分类, 不影响战斗
 - 元素类型 (p2_ele1): 可用于未来残响·环境系统
 - 魅力/声望/信用: 魅力影响"放你一马"概率, 其余不纳入战斗
-- 咒骸数量/实力 (p2_corpQ/P): 咒骸出击技法未与咒骸实力联动
+- 咒骸数量/实力 (p2_corpQ/P): 咒骸技法已删除，不纳入战斗
 
 ### A.4 实现 vs 设计的已知差距
 | # | 设计 | 现状 |
@@ -995,4 +995,4 @@ URL 加 `?debug` 进入调试模式。p4 侧边栏底部展示:
 | 9 | bfCombo 连击累积 | 每发重置为 0 |
 | 10 | domainUsed/maxUsed 强制 | 未检查 |
 | 11 | 熔断触发 | 未实现 |
-| 12 | tableLookup 数值错误 | 已识别的 bug |
+| 12 | 数值体系重写 (dimI+数组) | Phase A 任务 |
