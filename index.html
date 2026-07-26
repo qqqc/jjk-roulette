@@ -45,12 +45,9 @@
       </div>
     </div>
     <div class="combat-bars" id="combatBars" style="display:none">
-      <div class="cb-row"><span class="cb-lbl">🛡护盾</span><span class="cb-bar-wrap"><span class="cb-bar cb-sh" id="cbShBar"></span></span><span class="cb-val" id="cbShVal">0</span></div>
-      <div class="cb-row"><span class="cb-lbl">❤生命</span><span class="cb-bar-wrap"><span class="cb-bar cb-hp" id="cbHpBar"></span></span><span class="cb-val" id="cbHpVal">0</span></div>
-      <div class="cb-row"><span class="cb-lbl">🟣咒力</span><span class="cb-bar-wrap"><span class="cb-bar cb-ce" id="cbCeBar"></span></span><span class="cb-val" id="cbCeVal">0</span></div>
-      <div class="cb-row cb-split"><span class="cb-lbl">💪体力</span><span class="cb-val" id="cbStVal">0</span><span class="cb-lbl">⚡胜率</span><span class="cb-val" id="cbWinVal">0</span><span class="cb-lbl">💀</span><span class="cb-val" id="cbDangerVal">0%</span></div>
-      <div class="cb-row"><span class="cb-lbl">🟡你DZ</span><span class="cb-val" id="cbDZVal" style="font-size:9px">0%</span><span class="cb-bar-wrap"><span class="cb-bar" id="cbDZBar" style="background:#c9a84c;width:0%"></span></span></div>
-      <div class="cb-row"><span class="cb-lbl">🔴敌DZ</span><span class="cb-val" id="cbEDZVal" style="font-size:9px">0%</span><span class="cb-bar-wrap"><span class="cb-bar" id="cbEDZBar" style="background:#e04040;width:0%"></span></span></div>
+      <div class="cb-row cb-horiz"><span class="cb-lbl">🛡护盾</span><span class="cb-val" id="cbShVal">0</span><span class="cb-bar-wrap"><span class="cb-bar cb-sh" id="cbShBar"></span></span><span class="cb-lbl">❤生命</span><span class="cb-val" id="cbHpVal">0</span><span class="cb-bar-wrap"><span class="cb-bar cb-hp" id="cbHpBar"></span></span><span class="cb-lbl">🟣咒力</span><span class="cb-val" id="cbCeVal">0</span><span class="cb-bar-wrap"><span class="cb-bar cb-ce" id="cbCeBar"></span></span></div>
+      <div class="cb-row cb-split"><span class="cb-lbl">💪体力</span><span class="cb-val" id="cbStVal">0</span><span class="cb-lbl">⚡胜率</span><span class="cb-val" id="cbWinVal">0</span><span class="cb-lbl" title="运势恶化程度，影响对拼权重">⚠危险区</span><span class="cb-val" id="cbDangerVal">0%</span></div>
+      <div class="cb-row cb-split" style="font-size:9px;color:#d84"><span>敌体力:<b id="cbEStVal">0</b></span><span>敌咒力:<b id="cbECeVal">0</b></span><span>敌胜率:<b id="cbEWinVal">0</b></span><span title="运势恶化程度，影响对拼权重">敌危险区:<b id="cbEDZBadge">0%</b></span></div>
       <div class="cb-burnout" id="cbBurnout" style="display:none">⚠ 术式熔断</div>
     </div>
     <div class="stance-pick" id="stancePick" style="display:none">

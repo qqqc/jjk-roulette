@@ -372,7 +372,7 @@ function reroll(){
   state.results.forEach(rr=>{if(rr._item)applyEffects(rr._item)});
   rebuildSkills();rebuildPers();
   if(curPhase===DATA.phases.findIndex(p=>p.id==='p4')&&state.combat.enemyId){
-    state.combat={active:true,enemyId:state.combat.enemyId,stance:state.combat.stance||"猛攻",stamina:0,ce:state.combat.ce,win:0,shield:Math.floor(state.combat.ce*0.5),hp:state.combat.hp,enemyStamina:0,enemyCe:0,enemyWin:0,enemyHp:state.combat.enemyHp||ENEMY_TEMPLATES[state.combat.enemyId].hp,clockBK:0,clockLB:0,dangerZone:0,burnout:false,bfCombo:0,domainUsed:false,maxUsed:false,round:0,enemyWnd:0};
+    var oc=state.combat;state.combat={active:true,enemyId:oc.enemyId,stance:oc.stance||"猛攻",stamina:0,ce:oc.ce,win:0,shield:Math.floor(oc.ce*0.5),hp:oc.hp,enemyStamina:0,enemyCe:oc.enemyCe,enemyWin:0,enemyHp:oc.enemyHp||ENEMY_TEMPLATES[oc.enemyId].hp,clockBK:oc.clockBK||0,clockLB:oc.clockLB||0,dangerZone:oc.dangerZone||0,enemyDangerZone:oc.enemyDangerZone||0,burnout:false,bfCombo:0,domainUsed:false,enemyBlocked:false,round:oc.round||0,phase:null,log:oc.log||[],comboFlags:{ao:false,aka:false,kai:false,hachi:false},bindLoanUsed:false};
     updateCombatUI();
   }
   refreshAll();wheel.angle=0;state.targetAngle=0;wheel.draw();
