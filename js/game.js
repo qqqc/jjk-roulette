@@ -567,12 +567,6 @@ const pl=document.getElementById('ptrLabel');if(pl){const s=ss[idx];pl.textConte
   document.querySelectorAll('.btm-tabs .bt').forEach(b=>b.addEventListener('click',()=>setTab(b.dataset.t)));
   // load saved state
   try{const s=JSON.parse(localStorage.getItem('jjk_state'));if(s){curPhase=s.curPhase||0;curRound=s.curRound||0;if(curPhase>=DATA.phases.length){curPhase=0;curRound=0}state.results=s.results||[];state.traits=s.traits||[];state.dimensions=s.dimensions||initDimensions()}}catch(e){}
-  if(DATA.phases[curPhase]&&DATA.phases[curPhase].id==='p4'){
-    const enemyTag=state.traits.find(t=>t.startsWith('enemy_'));
-    if(enemyTag)initCombat(enemyTag.replace('enemy_',''));
-  }
-  rebuildSkills();
-  rebuildPers();
-  setTimeout(()=>{refreshAll();requestAnimationFrame(loop)},100);
+  setTimeout(()=>{if(DATA.phases[curPhase]&&DATA.phases[curPhase].id==='p4'){const etg=state.traits.find(t=>t.startsWith('enemy_'));if(etg&&typeof initCombat==='function')initCombat(etg.replace('enemy_',''))}refreshAll();requestAnimationFrame(loop)},100);
   window.addEventListener('resize',()=>{if(!rd())return;if(wheel){wheel=buildWheel(getFilteredRoundItems(rd()));initParticles();wheel.draw()}refreshSidebar();refreshRight()});
 })();
