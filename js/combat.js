@@ -145,7 +145,7 @@ stop=function(){
   if(rt==='combat_result'){v3HandleResult(item.l);refreshAll();saveState();return}
   _origStop()
 }
-  state.spinning=false;var norm=(-wheel.angle)%(Math.PI*2);if(norm<0)norm+=Math.PI*2;var cum=0,idx=0;
+function _v3HandlePrepStop(r){
   for(var i=0;i<wheel.sectors.length;i++){cum+=wheel.sectors[i].arc;if(norm<cum){idx=i;break}}
   var ceVal=parseInt(wheel.sectors[idx].l)||v3DrawCe();state.combat.ce=ceVal;state.combat.shield=Math.floor(ceVal*0.5);state.combat.prepped=true;
   updateCombatUI();refreshAll();
