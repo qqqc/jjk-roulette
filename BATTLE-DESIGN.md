@@ -550,7 +550,7 @@ bias = (敌DZ − 你DZ) / 100    // bias > 0: 偏袒你; bias < 0: 偏袒敌
 
 ### 4b.1 持续时间
 
-   N = 3 + floor(idx / 2), idx = DIM_LEVELS 体质索引 (E-=0, ..., EX=9)
+   N = 3 + floor(idx / 2), idx = DIM_LEVELS 咒力总量索引 (E-=0, ..., EX=9)
    咒力总量 E-~D(idx 0~2): N=3~4   C~B(idx 3~4): N=4~5   A~S(idx 5~6): N=5~6   SS~SSS(idx 7~8): N=6~7   EX(idx 9): N=7
 
    领域覆盖期间: **战斗流程完全不变**
@@ -722,9 +722,9 @@ p3 标签对 p4 的影响: `p3_riko_dead`→意志临时+2级且不可逃跑; `p
 
 ```javascript
 {
-  id: "fushiguro_toji",
+  id: "fushiguro_toji_kai",
   name: "伏黑甚尔",
-  title: "术师杀手",
+  title: "术师杀手·怀玉",
   dim: { 体质:"SSS", 体术:"SSS", 咒力总量:"E-", ... },
   hp: 520,
   tier: "SSS", tierColor: "#ffcc00",
@@ -779,7 +779,7 @@ p3 标签对 p4 的影响: `p3_riko_dead`→意志临时+2级且不可逃跑; `p
 | dmgRange | [25, 50] |
 | weakTo | [领域展开] |
 
-**技法池**: 体术·瞬击, 体术·连破, 五感·先读, 天与暴君·极, 游云·三段打, 天逆鉾·术式破断, 万里锁链·束缚, 重击, 闪避
+**技法池**: 体术·瞬击, 体术·连破, 五感·先读, 天与暴君·极, 游云·三段打, 天逆鉾·术式破断, 万里锁链·束缚, 重击
 
 **专属技法基础值**:
 - 游云·三段打: {st:10, ce:0, win:35}
@@ -836,7 +836,7 @@ state.combat = {
   enemyBlocked: false,  // 敌人术式被封锁 (从领域展延等)
   activeTools: [],      // 当前生效咒具列表 (最多3件)
   round: 0,             // 当前回合数
-  phase: null           // 当前阶段: 'player_stamina'|'player_tech'|'enemy_stamina'|'enemy_tech'|'clash'
+  phase: null           // 'player_stamina'|'player_tech'|'enemy_stamina'|'enemy_tech'|'clash'|'domain_clash'|'rct_repair'|'escape'|'result'|'rest'
 }
 ```
 
@@ -936,7 +936,8 @@ state.combat = {
 | 🔥 极之番 | btn-combat ult | 触发极之番 |
 | 🔄 修复 | btn-combat | 触发 RCT 修复轮 |
 | 🏃 逃跑 | btn-combat escape | 触发逃跑轮 |
-
+| 🔗 束缚·贷 | btn-combat bind | 体力−5, 胜率+25, 本回合1次 |
+| 🔗 束缚·叠加 | btn-combat bind | 体力−9, DZ+10%, 胜率+50, 需贷已用 |
 ### 9.7 轮盘扇区标注
 
 每个技法扇区应显示:
@@ -1028,7 +1029,7 @@ state.combat = {
 |------|---------|------|
 | 成功脱出 | 50% + 逃跑率 | 战斗结束, 无伤 |
 | 险中脱出 | 25% | 战斗结束, 体质−1 |
-| 脱出失败 | 25% − 逃跑率 | 继续, 敌免伤一次 |
+| 脱出失败 | 25% − 逃跑率 | 战斗继续, 下个对拼轮你受击伤害 ×1.3(逃跑被抓回) |
 
 ---
 
