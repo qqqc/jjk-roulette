@@ -2,14 +2,27 @@
 
 > **参考**: `BATTLE-DESIGN.md` 对应章节。
 > **提交**: 每完成一个 checkbox → `.\check-braces.ps1` → `git commit -m "Phase X.Y: ..."`
-> **测试**: 每阶段完成后浏览器打开, 抽角色进入 p4 验证。
+> **测试**: 每阶段完成后浏览器打开 `index.html`, 抽角色进入 p4 验证。
+> **文件结构**: `js/seed-data.js`(数据+表格+技法库) | `js/game.js`(p1~p3引擎+旧战斗临时保留) | `js/combat.js`(v3战斗全部，新建) | `index.html`(HTML+N引用) | `style.css`
+
+---
+
+## Phase 0: 预备 (文件搭建)
+
+**改动文件**: `index.html`, `js/combat.js`
+**前置**: 无
+
+- [ ] 新建 `js/combat.js` (空文件, 写 `// 战斗系统 v3`)
+- [ ] `index.html` 在 `js/game.js` 之后加 `<script src="js/combat.js"></script>`
+- **验证**: 浏览器打开无报错, `combat.js` 成功加载(Network tab 200)
 
 ---
 
 ## Phase A: 数值体系重写
 
 **参考设计**: §2
-**前置**: 无 (最先执行)
+**前置**: Phase 0 完成
+**改动文件**: `js/seed-data.js`(常量+辅助函数), `js/combat.js`(新战斗函数)
 
 ### A.1 基础数组与查表函数
 
@@ -78,6 +91,7 @@
 
 **参考设计**: §1.0~§1.1, §6, §14
 **前置**: Phase A 数值函数就绪
+**改动文件**: `js/combat.js`(phase状态机+轮盘构建), `index.html`(姿态面板微调)
 
 ### B.1 Phase 状态机
 
@@ -181,8 +195,9 @@
 
 **参考设计**: §3.7, §7, §13
 **前置**: Phase A 数值函数 + Phase B.1 状态机就绪
+**改动文件**: `js/seed-data.js`(TECHNIQUE_LIBRARY+ENEMY_TEMPLATES), `js/combat.js`(buildCombatItems+敌人逻辑)
 
-### C.0 技法库更新 (TECHNIQUE_LIBRARY in index.html)
+### C.0 技法库更新 (TECHNIQUE_LIBRARY in js/seed-data.js)
 
 - [ ] **删除**: `ce_blast` (通用池), 束缚强化·贷, 束缚叠加 (已转按钮)
 - [ ] **更新值**: 茈 st:4/ce:100/win:100, 開 st:3/ce:50/win:90; 解st:1, 捌st:2, 火焰st:2
@@ -254,6 +269,7 @@
 
 **参考设计**: §3.6, §3.9, §4, §4b, §5, §10.3, §16
 **前置**: Phase B 所有轮盘 + Phase C 敌人系统就绪
+**改动文件**: `js/combat.js`(按钮逻辑+领域+修复+束缚), `index.html`(按钮HTML)
 
 ### D.1 按钮 HTML + 条件显示
 
@@ -344,6 +360,7 @@
 
 **参考设计**: §2.11~§2.12, §3.7~§3.8, §11.3, §12
 **前置**: Phase C buildCombatItems + Phase D 按钮就绪
+**改动文件**: `js/combat.js`(黑闪/咒灵易伤/combo/天赋/极番debuff)
 
 ### E.1 黑闪系统 (§2.11~§2.12)
 
@@ -387,6 +404,7 @@
 
 **参考设计**: §9~§17
 **前置**: Phase B~E 功能就绪
+**改动文件**: `js/combat.js`(扇区标注/休整/DZ偏袒/放一马/咒具上限/日志/debug), `index.html`(DZ条元素/偏袒标注行)
 
 ### F.1 轮盘扇区标注 (§15)
 
@@ -437,10 +455,11 @@
 
 ## 实施约定
 
-1. **每阶段 commit**: `git add index.html && .\check-braces.ps1 && git commit -m "Phase X.Y: desc"`
+1. **每阶段 commit**: `git add js/ index.html style.css && .\check-braces.ps1 && git commit -m "Phase X.Y: desc"`
 2. **参考设计**: 改动前查 `BATTLE-DESIGN.md` 对应 §
-3. **测试**: 浏览器打开 → p1+p2 抽取到关键维度 → p4 验证
+3. **测试**: 浏览器打开 `index.html` → p1+p2 抽取角色 → p4 验证
 4. **疑问**: 存疑记录到 commit message 或对话中, 不跳过
+5. **追踪**: 每个 checkbox 完成后立即 commit, commit 后用 ✓ 标记
 
 ## 关键验证参考值
 
