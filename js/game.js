@@ -624,7 +624,7 @@ const pl=document.getElementById('ptrLabel');if(pl){const s=ss[idx];pl.textConte
   const db=document.getElementById('dotsBg');for(let i=0;i<20;i++){const d=document.createElement('div');d.className='dot';d.style.left=Math.random()*100+'%';d.style.width=d.style.height=(1.5+Math.random()*3)+'px';d.style.animationDuration=(10+Math.random()*20)+'s';d.style.animationDelay=Math.random()*20+'s';d.style.background=Math.random()<.5?'var(--glow)':'var(--gold)';db.appendChild(d)}
   document.querySelectorAll('.btm-tabs .bt').forEach(b=>b.addEventListener('click',()=>setTab(b.dataset.t)));
   // load saved state
-  try{const s=JSON.parse(localStorage.getItem('jjk_state'));if(s){curPhase=s.curPhase||0;curRound=s.curRound||0;state.results=s.results||[];state.traits=s.traits||[];state.dimensions=s.dimensions||initDimensions()}}catch(e){}
+  try{const s=JSON.parse(localStorage.getItem('jjk_state'));if(s){curPhase=s.curPhase||0;curRound=s.curRound||0;if(curPhase>=DATA.phases.length){curPhase=0;curRound=0}state.results=s.results||[];state.traits=s.traits||[];state.dimensions=s.dimensions||initDimensions()}}catch(e){}
   if(DATA.phases[curPhase]&&DATA.phases[curPhase].id==='p4'){
     const enemyTag=state.traits.find(t=>t.startsWith('enemy_'));
     if(enemyTag)initCombat(enemyTag.replace('enemy_',''));
