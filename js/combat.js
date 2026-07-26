@@ -79,7 +79,7 @@ goNext=function(){
       var items=v3BuildCombatItems(false);if(!items||items.length===0){c.phase=c.stamina<=0?'enemy_stamina':'player_tech';if(c.stamina<=0){showToast('体力耗尽→敌人阶段');_v3AutoBuildEnemyStamina();return}else{showToast('无可出招');return}}
       wheel=buildWheel(items);wheel.angle=0;state.targetAngle=0;initParticles();wheel.draw();document.getElementById('btnSpin').style.display='block';document.getElementById('btnSpin').textContent='⚔ 出招';document.getElementById('btnNext').style.display='none'
     }else{_v3AutoBuildEnemyTech();document.getElementById('btnSpin').style.display='block';document.getElementById('btnNext').style.display='none'}return}
-  _origGoNext()
+  _origGoNext()}
 
 function showStancePanel(){document.getElementById('btnSpin').style.display='none';document.getElementById('btnNext').style.display='none';document.getElementById('stancePick').style.display='block'}
 var _origSelectStance=selectStance;selectStance=function(s){state.combat.stance=s;state.combat.phase='player_tech';document.querySelectorAll('.sp-card').forEach(function(cx){cx.classList.toggle('sel',cx.dataset.stance===s)});document.getElementById('stancePick').style.display='none';document.getElementById('btnSpin').style.display='block';document.getElementById('btnSpin').textContent='⚔ 出招';refreshAll();saveState()}
