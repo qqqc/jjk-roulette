@@ -1115,55 +1115,70 @@ const ENEMY_TEMPLATES={
 };
 
 // ========================================================= COMBAT TABLES =========================================================
-const STAM_TABLE={10:30,20:50,35:80,50:120,70:160,95:220,130:300,170:400,220:520,280:700};
-function tableLookup(table,v,fallback){const keys=Object.keys(table).map(Number).sort((a,b)=>a-b);for(let i=keys.length-1;i>=0;i--){if(v>=dimVal(keys[i].toString())||i===0)return table[keys[i]]}return fallback||50}
-function staminaMax(){let m=tableLookup(STAM_TABLE,state.dimensions['体质'],50);if(state.traits.some(t=>t.includes('天与咒缚')))m=Math.floor(m*1.6);if(state.traits.includes('重伤'))m=Math.floor(m*0.6);if(state.traits.includes('残废'))m=Math.floor(m*0.4);return m}
-function ceMax(){const v=dimVal(state.dimensions['咒力总量']);if(v>=9)return Infinity;let m=tableLookup({10:15,20:30,40:55,65:90,90:140,120:200,160:280,220:400,320:600},state.dimensions['咒力总量'],50);const wv=dimVal(state.dimensions['意志']);const willPct=[-20,-10,-5,0,8,16,25,35,50,70][Math.max(0,Math.min(9,wv+2))]||0;m=Math.floor(m*(1+willPct/100));if(state.traits.includes('重伤'))m=Math.floor(m*0.7);if(state.traits.includes('残废'))m=Math.floor(m*0.5);if(state.traits.includes('半人半咒'))m=Math.floor(m*1.2);if(state.traits.includes('特殊受肉体'))m=Math.floor(m*1.15);if(state.traits.includes('双面四臂'))m=Math.floor(m*1.3);if(state.results.some(r=>r.label==='储存咒力(里香戒指)'))m+=30;return Math.max(1,m)}
-function stamCostMul(){const v=dimVal(state.dimensions['体术']);return[1.6,1.4,1.2,1.0,0.9,0.8,0.7,0.6,0.5,0.4][Math.max(0,Math.min(9,v+2))]||1.0}
-function ceCostMul(){if(state.traits.includes('六眼'))return 0.3;const v=dimVal(state.dimensions['咒力效率']);return[1.6,1.4,1.2,1.0,0.9,0.8,0.7,0.6,0.45,0.3][Math.max(0,Math.min(9,v+2))]||1.0}
-function winBonus(){const v=dimVal(state.dimensions['咒力操纵']);return[-8,-5,-3,0,4,8,14,20,28,40][Math.max(0,Math.min(9,v+2))]||0}
-function techWinBonus(){const v=dimVal(state.dimensions['术式性能']);return[-6,-4,-2,0,5,11,18,26,38,55][Math.max(0,Math.min(9,v+2))]||0}
-function clashBonus(){const v=dimVal(state.dimensions['体术']);return[-5,-3,-1,0,2,3,5,8,12,18][Math.max(0,Math.min(9,v+2))]||0}
-function dangerGrowth(){const v=dimVal(state.dimensions['运势']);return[7,5,4,3,2,1.5,1,0.5,0.2,0][Math.max(0,Math.min(9,v+2))]||3}
-function bfRate(){let r=3;const t=dimVal(state.dimensions['天赋']),l=dimVal(state.dimensions['运势']);r+=[-3,-1,0,1,3,5,8,12,18,25][Math.max(0,Math.min(9,t+2))]||0;if(state.skills.includes('黑闪·68虎水平'))r+=8;if(state.traits.includes('六眼'))r+=8;if(state.traits.includes('特殊受肉体'))r+=3;r+=[0,0,1,1,1,1,2,3,5,8][Math.max(0,Math.min(9,l+2))]||0;return Math.min(75,Math.max(0,r))}
-function ceDrawRange(){const v=dimVal(state.dimensions['意志']);return[35,38,42,50,58,68,78,88,94,98][Math.max(0,Math.min(9,v+2))]||50}
-function escapeRate(){const v=dimVal(state.dimensions['体术']);return[-20,-10,-5,0,5,10,18,28,40,55][Math.max(0,Math.min(9,v+2))]||0}
+function dimI(v){const i=v<0?3:Math.max(0,Math.min(9,v));return i}
+const STAM_ARR=[30,50,80,120,160,220,300,400,520,700];
+const CE_ARR=[15,30,55,90,140,200,280,400,600,Infinity];
+const SMUL=[1.6,1.4,1.2,1.0,0.9,0.8,0.7,0.6,0.5,0.4];
+const CMUL=[1.6,1.4,1.2,1.0,0.9,0.8,0.7,0.6,0.45,0.3];
+const WBONUS=[-8,-5,-3,0,4,8,14,20,28,40];
+const TWBONUS=[-6,-4,-2,0,5,11,18,26,38,55];
+const MCLASH=[-10,-7,-4,0,5,10,18,28,40,55];
+const TCLASH=[-8,-5,-2,0,5,12,20,30,42,55];
+const DGROW=[7,5,4,3,2,1.5,1,0.5,0.2,0];
+const BFRATE=[-3,-1,0,1,3,5,8,12,18,25];
+const BFLUCK=[0,0,0,1,1,1,1,2,3,5];
+const CDRANGE=[35,38,42,50,58,68,78,88,94,98];
+const ESCAPE=[-20,-10,-5,0,5,10,18,28,40,55];
+const WILLPCT=[-20,-10,-5,0,8,16,25,35,50,70];
+
+function staminaMax(){let m=STAM_ARR[dimI(dimVal(state.dimensions['体质']))];if(state.traits.some(t=>t.includes('天与咒缚')))m=Math.floor(m*1.6);if(state.traits.includes('重伤'))m=Math.floor(m*0.6);if(state.traits.includes('残废'))m=Math.floor(m*0.4);return Math.max(1,m)}
+function ceMax(){const v=dimVal(state.dimensions['咒力总量']);if(v>=9)return Infinity;if(state.traits.some(t=>t.includes('天与咒缚')))return 0;let m=CE_ARR[dimI(v)];m=Math.floor(m*(1+WILLPCT[dimI(dimVal(state.dimensions['意志']))]/100));if(state.traits.includes('重伤'))m=Math.floor(m*0.7);if(state.traits.includes('残废'))m=Math.floor(m*0.5);if(state.traits.includes('半人半咒'))m=Math.floor(m*1.2);if(state.traits.includes('特殊受肉体'))m=Math.floor(m*1.15);if(state.traits.includes('双面四臂'))m=Math.floor(m*1.3);if(state.results.some(r=>r.label==='储存咒力(里香戒指)'))m+=30;return Math.max(1,m)}
+function stamCostMul(){return SMUL[dimI(dimVal(state.dimensions['体术']))]||1.0}
+function ceCostMul(){if(state.traits.includes('六眼'))return 0.3;return CMUL[dimI(dimVal(state.dimensions['咒力效率']))]||1.0}
+function winBonus(){return WBONUS[dimI(dimVal(state.dimensions['咒力操纵']))]||0}
+function techWinBonus(){return TWBONUS[dimI(dimVal(state.dimensions['术式性能']))]||0}
+function clashBonus(){const mv=dimI(dimVal(state.dimensions['体术'])),tv=dimI(dimVal(state.dimensions['术式性能']));return(MCLASH[mv]||0)+(TCLASH[tv]||0)}
+function dangerGrowth(){return DGROW[dimI(dimVal(state.dimensions['运势']))]||3}
+function bfRate(){let r=3;r+=BFRATE[dimI(dimVal(state.dimensions['天赋']))]||0;r+=BFLUCK[dimI(dimVal(state.dimensions['运势']))]||0;if(state.skills.includes('黑闪·68虎水平'))r+=8;if(state.traits.includes('六眼'))r+=8;if(state.traits.includes('特殊受肉体'))r+=3;return Math.min(75,Math.max(0,r))}
+function ceDrawRange(){return CDRANGE[dimI(dimVal(state.dimensions['意志']))]||50}
+function escapeRate(){return ESCAPE[dimI(dimVal(state.dimensions['体术']))]||0}
+function enemyDangerGrowth(){const e=ENEMY_TEMPLATES[state.combat.enemyId];if(!e||!e.dim)return 3;return DGROW[dimI(dimVal(e.dim['运势']))]||3}
 
 // ========================================================= TECHNIQUE LIBRARY =========================================================
 const TECHNIQUE_LIBRARY={
   universal:[
     {id:"atk",name:"普通攻击",st:6,ce:0,win:10,tier:"atk",c:"#888"},
     {id:"heavy",name:"重击",st:9,ce:0,win:20,tier:"atk",c:"#aa8"},
-    {id:"ce_punch",name:"咒力强化·拳",st:6,ce:8,win:24,tier:"atk_ce",c:"#88f"},
-    {id:"ce_blast",name:"咒力放出",st:8,ce:15,win:35,tier:"atk_ce",c:"#66f"}
+    {id:"ce_punch",name:"咒力强化·拳",st:4,ce:8,win:24,tier:"atk_ce",c:"#88f"},
+    {id:"ce_blast",name:"咒力放出",st:2,ce:15,win:35,tier:"atk_ce",c:"#66f"}
   ],
   advanced:[
-    {id:"simple_domain",name:"简易领域",st:4,ce:8,win:0,tier:"def",c:"#48a",eff:"敌胜率-30%",match:"简易领域(弥虚葛笼)"},
-    {id:"domain_amp",name:"领域展延",st:5,ce:12,win:18,tier:"atk_def",c:"#255",eff:"封锁敌术式1回合",match:"领域展延"},
-    {id:"rct_self",name:"反转术式·自愈",st:4,ce:15,win:-10,tier:"heal",c:"#4c8",eff:"清除1层负伤",match:"反转术式"},
-    {id:"rct_out",name:"反转术式·外放",st:5,ce:22,win:30,tier:"atk",c:"#e62",eff:"对咒灵胜率×2",match:"反转术式外放"},
-    {id:"ct_rev",name:"术式反转",st:6,ce:18,win:40,tier:"atk_ce",c:"#c84",match:"术式反转"},
-    {id:"barrier",name:"结界术",st:4,ce:9,win:0,tier:"def",c:"#339",eff:"受击伤害-20%",match:"结界术"},
-    {id:"expand",name:"术式扩张",st:5,ce:12,win:28,tier:"atk_ce",c:"#639",match:"术式对象扩张"},
+    {id:"simple_domain",name:"简易领域",st:3,ce:8,win:0,tier:"def",c:"#48a",eff:"敌胜率-30%",match:"简易领域(弥虚葛笼)"},
+    {id:"domain_amp",name:"领域展延",st:4,ce:12,win:18,tier:"atk_def",c:"#255",eff:"封锁敌术式1回合",match:"领域展延"},
+    {id:"rct_self",name:"反转术式·自愈",st:3,ce:15,win:-10,tier:"heal",c:"#4c8",eff:"清除1层负伤",match:"反转术式"},
+    {id:"rct_out",name:"反转术式·外放",st:4,ce:22,win:30,tier:"atk",c:"#e62",eff:"对咒灵胜率×2",match:"反转术式外放"},
+    {id:"ct_rev",name:"术式反转",st:4,ce:18,win:40,tier:"atk_ce",c:"#c84",match:"术式反转"},
+    {id:"barrier",name:"结界术",st:3,ce:9,win:0,tier:"def",c:"#339",eff:"受击伤害-20%",match:"结界术"},
+    {id:"expand",name:"术式扩张",st:3,ce:12,win:28,tier:"atk_ce",c:"#639",match:"术式对象扩张"},
     {id:"bv_loan",name:"束缚强化·贷",st:0,ce:0,win:25,tier:"sp",c:"#c63",eff:"本回体力-5",match:"束缚强化·贷款"},
     {id:"bv_stack",name:"束缚叠加",st:0,ce:0,win:50,tier:"sp",c:"#f80",eff:"本回体力-9危险区+10%",match:"束缚叠加·超级贷款王"},
     {id:"corpse",name:"咒骸出击",st:6,ce:14,win:20,tier:"summon",c:"#864",match:"咒骸制作"}
   ],
   innate:{
     "无下限术式":[
-      {id:"ao",name:"術式順転·蒼",st:6,ce:20,win:30,tier:"atk_ce",c:"#48f",eff:"敌闪避不可"},
-      {id:"aka",name:"術式反転·赫",st:8,ce:35,win:55,tier:"atk_ce",c:"#f44",eff:"对拼值+4"},
-      {id:"murasaki",name:"虚式·茈",st:14,ce:60,win:100,tier:"ult_ce",c:"#80f",eff:"整场1次"}
+      {id:"ao",name:"術式順転·蒼",st:2,ce:20,win:30,tier:"atk_ce",c:"#48f",eff:"敌闪避不可"},
+      {id:"aka",name:"術式反転·赫",st:3,ce:35,win:55,tier:"atk_ce",c:"#f44",eff:"对拼值+4"},
+      {id:"murasaki",name:"虚式·茈",st:4,ce:60,win:100,tier:"ult_ce",c:"#80f",eff:"整场1次"}
     ],
     "御厨子":[
-      {id:"kai",name:"解",st:3,ce:12,win:22,tier:"atk_ce",c:"#e66",eff:"连斩"},
-      {id:"hachi",name:"捌",st:6,ce:22,win:45,tier:"atk_ce",c:"#c22",eff:"无视术式防御"},
-      {id:"fuga",name:"開(竈)",st:12,ce:50,win:90,tier:"ult_ce",c:"#f80",eff:"领域内×2"}
+      {id:"kai",name:"解",st:1,ce:12,win:22,tier:"atk_ce",c:"#e66",eff:"连斩"},
+      {id:"hachi",name:"捌",st:2,ce:22,win:45,tier:"atk_ce",c:"#c22",eff:"无视术式防御"},
+      {id:"fuga",name:"開(竈)",st:3,ce:50,win:90,tier:"ult_ce",c:"#f80",eff:"领域内×2"}
     ],
     _default:[
-      {id:"tech_basic",name:"术式·基础",st:5,ce:15,win:22,tier:"atk_ce",c:"#a5f"},
-      {id:"tech_full",name:"术式·全力",st:7,ce:28,win:40,tier:"atk_ce",c:"#83f"},
-      {id:"tech_ult",name:"术式·极限",st:10,ce:45,win:65,tier:"ult_ce",c:"#60f",eff:"整场1次"}
+      {id:"tech_basic",name:"术式·基础",st:3,ce:15,win:22,tier:"atk_ce",c:"#a5f"},
+      {id:"tech_full",name:"术式·全力",st:4,ce:28,win:40,tier:"atk_ce",c:"#83f"},
+      {id:"tech_ult",name:"术式·极限",st:5,ce:45,win:65,tier:"ult_ce",c:"#60f",eff:"整场1次"}
     ]
   },
   hrOnly:[
@@ -1272,7 +1287,7 @@ function endCombat(){
   state.combat={active:false,enemyId:null,stance:null,stamina:0,ce:0,win:0,shield:0,hp:0,enemyStamina:0,enemyCe:0,enemyWin:0,enemyHp:0,clockBK:0,clockLB:0,dangerZone:0,burnout:false,bfCombo:0,domainUsed:false,maxUsed:false,round:0,enemyWnd:0};
   updateCombatUI();
 }
-function drawStamina(){const v=dimVal(state.dimensions['体质']);const base=state.combat.hp;let roll=Math.floor(Math.random()*10)+1;let add=Math.floor(base*0.1);const wnd=state.traits.filter(t=>t.startsWith('bt_wnd_')).length;add=Math.max(0,add-wnd*3);return Math.max(1,roll+add)}
+function drawStamina(){const base=staminaMax();let roll=Math.floor(10+base*0.03);const wnd=state.traits.filter(t=>t.startsWith('bt_wnd_')).length;roll=Math.max(8,roll-wnd*3);return roll}
 function drawCe(){const pct=ceDrawRange();const mx=ceMax();if(mx===Infinity)return 999;const min=Math.floor(mx*pct/100);return min+Math.floor(Math.random()*(mx-min+1))}
 function updateCombatUI(){
   const ec=document.getElementById('enemyCard');if(!ec)return;
@@ -1292,7 +1307,7 @@ function updateCombatUI(){
   const ehPct=Math.max(0,Math.min(100,state.combat.enemyHp/Math.max(1,e.hp)*100));document.getElementById('cbEhBar').style.width=ehPct+'%';document.getElementById('cbEhVal').textContent=state.combat.enemyHp;
   if(state.combat.burnout){document.getElementById('cbBurnout').style.display='block'}else{document.getElementById('cbBurnout').style.display='none'}
 }
-function roundStamina(){state.combat.stamina=drawStamina();state.combat.win=0;state.combat.enemyWin=0;state.combat.enemyStamina=Math.floor(Math.random()*10)+1+Math.floor(state.combat.enemyHp/Math.max(1,ENEMY_TEMPLATES[state.combat.enemyId].hp)*15);state.combat.dangerZone+=dangerGrowth();state.combat.round++;state.combat.bfCombo=0;updateCombatUI()}
+function roundStamina(){state.combat.stamina=drawStamina();state.combat.win=0;state.combat.enemyWin=0;state.combat.enemyStamina=Math.floor(10+(ENEMY_TEMPLATES[state.combat.enemyId].hp||500)*0.03);state.combat.dangerZone+=dangerGrowth();state.combat.round++;state.combat.bfCombo=0;updateCombatUI()}
 function resolveDamage(){
   const enemy=ENEMY_TEMPLATES[state.combat.enemyId];
   let pDmg=Math.floor(Math.random()*15)+Math.floor(state.combat.win*0.8);let eDmg=Math.floor(Math.random()*10)+Math.floor(state.combat.enemyWin*0.7)+Math.floor(Math.random()*(enemy.dmgRange?enemy.dmgRange[1]-enemy.dmgRange[0]:20))+enemy.baseDmg;
