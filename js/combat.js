@@ -159,7 +159,7 @@ function buildCombatItems(forEnemy){return v3BuildCombatItems(forEnemy)}
 function v3RoundStamina(){
   var c=state.combat;
   if(!c||!c.active)return;
-  c.phase='player_stamina';
+  c.phase='player_tech';
   c.win=0;c.enemyWin=0;
   c.stamina=v3DrawStamina();
   c.enemyStamina=v3EnemyDrawStamina();
