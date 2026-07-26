@@ -708,37 +708,7 @@ const ENEMY_TEMPLATES={
   }
 };
 
-// ========================================================= COMBAT TABLES =========================================================
-function dimI(v){const i=v<0?3:Math.max(0,Math.min(9,v));return i}
-const STAM_ARR=[30,50,80,120,160,220,300,400,520,700];
-const CE_ARR=[15,30,55,90,140,200,280,400,600,Infinity];
-const SMUL=[1.6,1.4,1.2,1.0,0.9,0.8,0.7,0.6,0.5,0.4];
-const CMUL=[1.6,1.4,1.2,1.0,0.9,0.8,0.7,0.6,0.45,0.3];
-const WBONUS=[-8,-5,-3,0,4,8,14,20,28,40];
-const TWBONUS=[-6,-4,-2,0,5,11,18,26,38,55];
-const MCLASH=[-10,-7,-4,0,5,10,18,28,40,55];
-const TCLASH=[-8,-5,-2,0,5,12,20,30,42,55];
-const DGROW=[7,5,4,3,2,1.5,1,0.5,0.2,0];
-const BFRATE=[-3,-1,0,1,3,5,8,12,18,25];
-const BFLUCK=[0,0,0,1,1,1,1,2,3,5];
-const CDRANGE=[35,38,42,50,58,68,78,88,94,98];
-const ESCAPE=[-20,-10,-5,0,5,10,18,28,40,55];
-const WILLPCT=[-20,-10,-5,0,8,16,25,35,50,70];
-
-function staminaMax(){let m=STAM_ARR[dimI(dimVal(state.dimensions['体质']))];if(state.traits.some(t=>t.includes('天与咒缚')))m=Math.floor(m*1.6);if(state.traits.includes('重伤'))m=Math.floor(m*0.6);if(state.traits.includes('残废'))m=Math.floor(m*0.4);return Math.max(1,m)}
-function ceMax(){const v=dimVal(state.dimensions['咒力总量']);if(v>=9)return Infinity;if(state.traits.some(t=>t.includes('天与咒缚')))return 0;let m=CE_ARR[dimI(v)];m=Math.floor(m*(1+WILLPCT[dimI(dimVal(state.dimensions['意志']))]/100));if(state.traits.includes('重伤'))m=Math.floor(m*0.7);if(state.traits.includes('残废'))m=Math.floor(m*0.5);if(state.traits.includes('半人半咒'))m=Math.floor(m*1.2);if(state.traits.includes('特殊受肉体'))m=Math.floor(m*1.15);if(state.traits.includes('双面四臂'))m=Math.floor(m*1.3);if(state.results.some(r=>r.label==='储存咒力(里香戒指)'))m+=30;return Math.max(1,m)}
-function stamCostMul(){return SMUL[dimI(dimVal(state.dimensions['体术']))]||1.0}
-function ceCostMul(){if(state.traits.includes('六眼'))return 0.3;return CMUL[dimI(dimVal(state.dimensions['咒力效率']))]||1.0}
-function winBonus(){return WBONUS[dimI(dimVal(state.dimensions['咒力操纵']))]||0}
-function techWinBonus(){return TWBONUS[dimI(dimVal(state.dimensions['术式性能']))]||0}
-function clashBonus(){const mv=dimI(dimVal(state.dimensions['体术'])),tv=dimI(dimVal(state.dimensions['术式性能']));return(MCLASH[mv]||0)+(TCLASH[tv]||0)}
-function dangerGrowth(){return DGROW[dimI(dimVal(state.dimensions['运势']))]||3}
-function bfRate(){let r=3;r+=BFRATE[dimI(dimVal(state.dimensions['天赋']))]||0;r+=BFLUCK[dimI(dimVal(state.dimensions['运势']))]||0;if(state.skills.includes('黑闪·68虎水平'))r+=8;if(state.traits.includes('六眼'))r+=8;if(state.traits.includes('特殊受肉体'))r+=3;return Math.min(75,Math.max(0,r))}
-function ceDrawRange(){return CDRANGE[dimI(dimVal(state.dimensions['意志']))]||50}
-function escapeRate(){return ESCAPE[dimI(dimVal(state.dimensions['体术']))]||0}
-function enemyDangerGrowth(){const e=ENEMY_TEMPLATES[state.combat.enemyId];if(!e||!e.dim)return 3;return DGROW[dimI(dimVal(e.dim['运势']))]||3}
-
-// ========================================================= TECHNIQUE LIBRARY =========================================================
+// ========================================================= TECHNIQUE LIBRARY (v3已重写, 保留供combat.js引用) =========================================================
 const TECHNIQUE_LIBRARY={
   universal:[
     {id:"atk",name:"普通攻击",st:6,ce:0,win:10,tier:"atk",c:"#888"},
@@ -779,66 +749,6 @@ const TECHNIQUE_LIBRARY={
     {id:"hr_ult",name:"天与暴君·极",st:12,ce:0,win:55,tier:"ult",c:"#f60",eff:"整场1次"}
   ]
 };
-
-const DOMAIN_EFFECTS={
-  "打击灵魂(虎杖悠仁)":{eff:"clash",val:8,desc:"对拼值+8"},
-  "强控(五条悟)":{eff:"noDodge",desc:"敌闪避不可"},
-  "规则(日车宽见)":{eff:"blockOne",desc:"敌随机1技法封锁"},
-  "必中(真人)":{eff:"winx2",desc:"术式胜率×2"},
-  "自动攻击(宿儺)":{eff:"autoAtk",desc:"每回追加1次攻击"},
-  "增幅自身(秤金次)":{eff:"stamUp",val:50,desc:"体力上限+50%"},
-  "增幅术式(乙骨忧太)":{eff:"techx2",desc:"术式胜率×2"}
-};
-
-function getPlayerTechs(){
-  let techs=[...TECHNIQUE_LIBRARY.universal];
-  const burnout=state.combat&&state.combat.burnout;
-  TECHNIQUE_LIBRARY.advanced.forEach(t=>{if(state.skills.includes(t.match)){if(burnout&&(t.id==='ct_rev'||t.id==='expand'))return;techs.push(t)}});
-  const innateName=state.skills.find(s=>state.results.some(r=>(r.roundId==='p2_tech_h'||r.roundId==='p2_tech_c')&&r.label===s&&r.label!=='0'));
-  if(innateName){
-    const iTechs=TECHNIQUE_LIBRARY.innate[innateName]||TECHNIQUE_LIBRARY.innate._default;
-    iTechs.forEach(t=>{if(burnout&&t.tier.indexOf('atk_ce')>=0&&t.id!=='tech_basic')return;techs.push(t)});
-  }
-  if(state.traits.some(t=>t.includes('天与咒缚')))TECHNIQUE_LIBRARY.hrOnly.forEach(t=>techs.push(t));
-  return techs;
-}
-function getEnemyTechs(enemy){
-  let techs=[...TECHNIQUE_LIBRARY.universal];
-  if(enemy.dim&&dimVal(enemy.dim['体质'])>=7)TECHNIQUE_LIBRARY.hrOnly.forEach(t=>techs.push(t));
-  (enemy.techniques||[]).forEach(tn=>{const ub=enemy.uniqueTechniques&&enemy.uniqueTechniques[tn];techs.push({id:tn,name:tn,st:ub?ub.st:8,ce:ub?ub.ce:0,win:ub?ub.win:22,tier:"atk",c:"#d84",eff:ub?ub.eff:"",isEnemy:true})});
-  return techs;
-}
-function buildCombatItems(forEnemy){
-  const enemy=ENEMY_TEMPLATES[state.combat.enemyId];if(!enemy)return[];
-  let techs=forEnemy?getEnemyTechs(enemy):getPlayerTechs();
-  const smul=forEnemy?1.0:stamCostMul(),cemul=forEnemy?1.0:ceCostMul(),wbonus=forEnemy?0:winBonus()+techWinBonus();
-  const stance=forEnemy?enemy.stanceStrategy||"猛攻":state.combat.stance||"猛攻";
-  let items=[];
-  techs.forEach(t=>{
-    if(forEnemy&&t.isEnemy){
-      const ub=enemy.uniqueTechniques&&enemy.uniqueTechniques[t.name];
-      if(ub){items.push({l:t.name,w:10,c:"#d84",d:t.eff||"",_tech:{st:ub.st,ce:ub.ce,win:ub.win,id:t.id,tier:t.tier}});return}
-    }
-    if(!forEnemy&&state.combat.burnout&&t.tier.indexOf('atk_ce')>=0&&!t.id.startsWith('tech_basic'))return;
-    let st=Math.max(1,Math.floor(t.st*smul)),ce=Math.floor(t.ce*cemul),win=Math.max(0,t.win+wbonus);
-    if(stance==="猛攻"&&t.tier.indexOf('atk')>=0)win=Math.floor(win*1.3);
-    if(stance==="流转"&&(t.tier==='heal'||t.id==='ct_rev'))win=Math.floor(win*1.5);
-    if(stance==="坚牢"&&(t.tier==='def'||t.tier==='heal'))win=Math.floor(win*1.5);
-    if(t.tier==='ult'||t.tier==='ult_ce')win=Math.floor(win*1.5);
-    if(forEnemy&&st>0)items.push({l:t.name,w:8,c:t.c||"#888",d:t.eff||"",_tech:{st,ce,win,id:t.id,tier:t.tier}});
-    else if(!forEnemy&&st>0&&ce<=state.combat.ce){items.push({l:t.name,w:8,c:t.c||"#888",d:t.eff||"",_tech:{st,ce,win,id:t.id,tier:t.tier}})}
-  });
-  return items.filter(it=>it._tech.st<=state.combat.stamina&&(!forEnemy||it._tech.st<=state.combat.enemyStamina)&&(forEnemy?true:it._tech.ce<=state.combat.ce));
-}
-
-function resolveTechSpin(item,forEnemy){
-  const t=item._tech;if(!t)return;
-  if(forEnemy){state.combat.enemyWin+=t.win;state.combat.enemyStamina-=t.st}else{state.combat.win+=t.win;state.combat.stamina-=t.st;if(t.ce>0)state.combat.ce-=t.ce}
-  if(t.id==='rct_self'&&!forEnemy){state.traits=state.traits.filter(x=>!x.startsWith('bt_wnd_'));updateCombatUI()}
-  if(t.id==='bv_loan'&&!forEnemy){state.combat.stamina=Math.max(0,state.combat.stamina-5)}
-  if(t.id==='bv_stack'&&!forEnemy){state.combat.stamina=Math.max(0,state.combat.stamina-9);state.combat.dangerZone+=10}
-  state.combat.bfCombo=0;
-}
 
 // ========================================================= DATA LOADING =========================================================
 let DATA=JSON.parse(JSON.stringify(SEED_DATA));
