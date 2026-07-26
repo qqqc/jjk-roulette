@@ -9,6 +9,7 @@
 ## Phase A: 数值体系重写
 
 **参考设计**: §2
+**前置**: 无 (最先执行)
 
 ### A.1 基础数组与查表函数
 
@@ -62,18 +63,21 @@
 ### A.3 战斗初始化
 
 - [ ] `drawStamina()`: `max(8, floor(6 + staminaMax() × 0.04))` (§2.2)
-- [ ] `enemyDrawStamina()`: `max(8, floor(6 + ENEMY_TEMPLATES.hp × 0.04))`
+- [ ] `enemyDrawStamina()`: `max(8, floor(6 + STAM_ARR[idxOrC(ENEMY_TEMPLATES.dim.体质)] × 0.04))` (从敌人维度查表, 不用 hp)
 - [ ] `drawCe()`: 下限~上限均分扇区 `min(8, max(4, ceil(范围/30)))`, 中间加权×2
-- [ ] `initCombat()`: `hp = staminaMax()`, `ce = drawCe()`, `shield = 0`
+- [ ] `initCombat()`: `hp = staminaMax()`, `ce = drawCe()`, `shield = floor(ce × 0.5)`
+- [ ] `initCombat()`: `enemyCe = drawEnemyCe()` (按敌人咒力维度查 §2.4 抽取)
 - [ ] `initCombat()`: 初始化所有 state.combat 字段(参考 §8):
-  `selfBlocked=false`, `bfZone=false`, `yourDomainActive=false`, `enemyDomainActive=false`, `domainRemaining=0`, `burnoutAttempts=0`, `activeTools=[]`, `enemyDangerZone=0`, `stance=null`
+  `selfBlocked=false`, `bfZone=false`, `yourDomainActive=false`, `enemyDomainActive=false`, `domainRemaining=0`, `burnoutAttempts=0`, `maxPenalty=false`, `activeTools=[]`, `enemyDangerZone=0`, `stance=null`
 - [ ] 天与咒缚角色: `ce=0`, `ceMax=0`, `shield=0`
+- [ ] CE 变化时同步更新 `shield = floor(ce × 0.5)`
 
 ---
 
 ## Phase B: 轮盘系统 (phase 驱动)
 
 **参考设计**: §1.0~§1.1, §6, §14
+**前置**: Phase A 数值函数就绪
 
 ### B.1 Phase 状态机
 
@@ -98,6 +102,9 @@
 - [ ] 每回合均可重选(不锁定整场)
 - [ ] 点击设 `state.combat.stance`, phase→`player_tech`
 - [ ] **删除** p4_stance 独立轮次(§6: 姿态集成进交战循环)
+- [ ] 猛攻/坚牢: 逃跑按钮灰显(不可点击)
+- [ ] 流转: 逃跑成功率+10%
+- **验证**: 每回合体力轮后姿态面板自动弹出, 选择后正常进入招式轮
 
 ### B.5 敌人体力轮 (phase='enemy_stamina')
 
@@ -108,25 +115,59 @@
 
 - [ ] 构建 6 扇区: 完全压制/有效打击/互伤/招架吃力/被压制/致命互击
 - [ ] 基准伤害: `累计胜率×0.8 + 对拼加值 + random(0~6)` (§10.1)
-- [ ] 权重受 DZ bias 修正 (§2.10)
+- [ ] **DZ bias 计算**: `bias = (敌DZ − 你DZ) / 100` → 乘入各扇区权重(§2.10偏袒表)
 - [ ] 致命互击扇区: DZ≥50% 时出现(替换1扇区)
 - [ ] 转后: HP 扣减, 时钟推进
 - [ ] 击破时钟: `floor(伤害 ÷ (ENEMY_TEMPLATES.hp上限 ÷ 6))` — 上限HP匀速推进
 - [ ] 败势时钟: `floor(敌伤害 ÷ (staminaMax() ÷ 6)) × willClockMul()`
 - [ ] 未决→`roundStamina()`(新回合); 已决→`p4_result`
 
+### B.8 领域对拼轮 (phase='domain_clash')
+
+- [ ] 仅双方都有领域时触发(§4.4)
+- [ ] 构建 4 扇区: 你的领域占上风 / 对方领域占上风 / 领域对消灭 / 精密度僵持
+- [ ] 权重由双方精密度差距决定: `精密度 = 术式性能值 + 咒力操纵值 + 领域类型加成 + 结界穿透`
+- [ ] **结果 flags**:
+  - 占上风→`yourDomainActive=true`, 对方 `burnout=true`
+  - 被压制→`enemyDomainActive=true`, 你 `burnout=true`
+  - 对消灭→双方 `burnout=true`, `yourDomainActive=false`, `enemyDomainActive=false`
+  - 僵持→本轮平局, 下回合自动再触发对拼
+
+### B.9 其他特殊轮盘构建
+
+- [ ] **RCT 修复轮** (phase='rct_repair'): 5扇区(完美/标准/代价/失败/反噬), 扇区权重=概率(经 §5.3/§5.4/§2.3b 修正+归一化后)
+- [ ] **逃跑轮** (phase='escape'): 3扇区(成功脱出/险中脱出/脱出失败), 概率见 §10.3
+- [ ] **p4_result 胜负轮**: 按 §10.2 动态权重构建扇区(完胜/苦战/惨胜/败退/惨败/殒命/放一马)，基准+偏移表
+- [ ] **p4_rest 休整轮**: 4扇区(充分/短暂/勉强/恶化), SEED_DATA items 驱动
+
 ### B.7 多回合循环
 
-- [ ] `roundStamina()`: `phase='player_stamina'`, 重置 `win=0, enemyWin=0`, 重抽 stamina, `dangerZone递增`, `round++`
-- [ ] `bfCombo` 在 `roundStamina()` 时重置
+- [ ] `roundStamina()`: `phase='player_stamina'`, 重置 `win=0, enemyWin=0`
+- [ ] 重抽 stamina(玩家+敌人), `dangerZone递增`, `round++`
+- [ ] 重置: `bfCombo=0`, `bfZone=false`, `selfBlocked=false`, Combo追踪清零(蒼/赫/解/捌)
+- [ ] `domainRemaining--`(双方各自); 归零→`yourDomainActive=false` / `enemyDomainActive=false`
+- [ ] 处理 `maxPenalty`: 检查旗标→生效到 `stamCostMul()`, 回合开始后清除旗标
+- [ ] `enemyBlocked` 重置(领域展延效果 1 回合)
+- [ ] 敌人姿态: 新回合前 stanceAI 检查并切换
 
 ---
 
-## Phase C: 敌人系统 (完全对称)
+## Phase C: 敌人系统 + 技法库更新
 
 **参考设计**: §3.7, §7, §13
+**前置**: Phase A 数值函数 + Phase B.1 状态机就绪
+
+### C.0 技法库更新 (TECHNIQUE_LIBRARY in index.html)
+
+- [ ] **删除**: `ce_blast` (通用池), 束缚强化·贷, 束缚叠加 (已转按钮)
+- [ ] **更新值**: 茈 st:4/ce:100/win:100, 開 st:3/ce:50/win:90; 解st:1, 捌st:2, 火焰st:2
+- [ ] **刪除**: `咒骸出击` 整行 (p2 有但战斗不支持)
+- [ ] **更新**: 术式反转加 `cond:"反转术式"`, 领域展延 eff 加"自身术式也禁用"
+- [ ] 咒力放出: 从通用池移出 → 仅限拥有对应术式标签时 buildCombatItems 动态添加
 
 ### C.1 `buildCombatItems()` 全面重写
+
+**执行顺序**: ①收集 ②过滤(§3.7所有规则) ③姿态权重修正(§3.8表) ④返回最终列表
 
 - [ ] **universal**: atk(6,0,10) / heavy(9,0,20) / ce_punch(4,8,24) — 删 ce_blast
 - [ ] **advanced**: 按 `normalizeTag()` 匹配 `state.traits/skills`:
@@ -163,7 +204,7 @@
 
 ### C.5 敌人·甚尔数据 (§7.1)
 
-- [ ] `ENEMY_TEMPLATES['fushiguro_toji_kai']`: hp=520, dim 见 §7.1
+- [ ] `ENEMY_TEMPLATES['fushiguro_toji_kai']`: `type:'human'`, hp=520, dim 见 §7.1
 - [ ] 技法池: 体术·瞬击/连破/先读/暴君·极, 游云·三段打(st:10), 天逆鉾·术式破断(st:8,×1.8), 万里锁链·束缚(st:7), 幽影奇袭(st:6), 重击 (**无"闪避"**)
 - [ ] `stanceAI`: default猛攻, hp<20%→逃跑, winGap<-40→流转, enemyBurnout→猛攻
 - [ ] `hasDomain=false`
@@ -178,6 +219,7 @@
 ## Phase D: 按钮系统
 
 **参考设计**: §3.6, §3.9, §4, §4b, §5, §10.3, §16
+**前置**: Phase B 所有轮盘 + Phase C 敌人系统就绪
 
 ### D.1 按钮 HTML + 条件显示
 
@@ -202,15 +244,16 @@
 ### D.3 领域展开 + 对拼 (§4, §4b)
 
 - [ ] 点击→消耗 80CE → `burnout=true`
-- [ ] 敌人有领域→**领域对拼轮**; 无→**直接覆盖**
-- [ ] **直接覆盖**: `yourDomainActive=true`, `domainRemaining=calcDomainDur()`, 必中(+0.2倍率) + 领域效果(p2抽取)
-- [ ] **领域对拼** (双方都有领域):
+- [ ] 若敌人领域已活跃(`enemyDomainActive=true`)→必须走**领域对拼**(不允许直接覆盖)
+- [ ] 敌人有领域标签但未活跃→**领域对拼轮**; 无领域→**直接覆盖**
+- [ ] **直接覆盖**: `yourDomainActive=true`, `domainRemaining=calcDomainDur(咒力总量idx)`, 必中(+0.2倍率) + 领域效果(p2抽取)
+- [ ] **领域对拼** (双方都有领域→BS.8):
   1. 精密度判定: 术式性能+咒力操纵+领域类型加成+结界穿透
-  2. 对拼轮(4扇区): 占上风/被压制/对消灭/僵持
-  3. 赢方覆盖战场, 输方熔断
+  2. 进入 `phase='domain_clash'` → 调用 B.8 对拼轮
+  3. B.8 中 flags: 占上风→``yourDomainActive=true` 对方熔断; 被压制→`enemyDomainActive=true` 你熔断; 对消灭→双方熔断+无领域; 僵持→下回合再拼
 - [ ] 领域覆盖: 流程不变, 领域方享必中+领域效果(§4b.2~§4b.3)
-- [ ] `domainRemaining` 每回合−1; 归零→`yourDomainActive=false`
-- [ ] 我方领域活跃时: 開(御厨子)出现
+- [ ] `domainRemaining` 每回合−1(在 B.7 中); 归零→`yourDomainActive=false`
+- [ ] 我方领域活跃时: 開(御厨子)自动出现在 buildCombatItems 中
 
 ### D.4 极之番按钮 (§3.6)
 
@@ -228,7 +271,7 @@
 - [ ] 反噬最低保底 3%
 - [ ] 完美/标准/代价成功: `burnout=false`, **`domainUsed=false`** (重置!)
 - [ ] `burnoutAttempts` 累加; 第5次起沿用第4次数据
-- [ ] 反噬: 永久失去领域展开(移除标签)
+- [ ] 反噬: 永久失去领域展开 → `state.traits = state.traits.filter(t => normalizeTag(t) !== '领域展开')`
 
 ### D.6 逃跑按钮 (§10.3)
 
@@ -248,6 +291,7 @@
 ## Phase E: 战术深度
 
 **参考设计**: §2.11~§2.12, §3.7~§3.8, §11.3, §12
+**前置**: Phase C buildCombatItems + Phase D 按钮就绪
 
 ### E.1 黑闪系统 (§2.11~§2.12)
 
@@ -263,29 +307,23 @@
 - [ ] `rct_out` 叠加: ×1.5→×3.0
 - [ ] `rct_self` 对咒灵不产生伤害(自愈)
 
-### E.3 姿态重选 (§1.1②, §3.8)
-
-- [ ] 每回合体力轮后弹出姿态面板, stance 不锁定整场
-- [ ] 猛攻/坚牢: 逃跑按钮灰显
-- [ ] 流转: 逃跑成功率+10%
-
-### E.4 Combo + 领域前置 (§3.7)
+### E.3 Combo + 领域前置 (§3.7)
 
 - [ ] 茈: 本回合已用蒼 or 赫→出现 (每回合重置)
 - [ ] 開: `yourDomainActive && domainName==='伏魔御厨子'` →出现
 - [ ] Combo 状态在招式轮内追踪, `roundStamina()` 时重置
 
-### E.5 天赋修正 (§12)
+### E.4 天赋修正 (§12)
 
 - [ ] 半人半咒: `ceMax ×1.2`
 - [ ] 特殊受肉体: `ceMax ×1.15`, `bfRate +2%`
 - [ ] 星浆体: `hp ×1.25`
 - [ ] 双生子: 有领域→术式性能 +2级
 - [ ] 六眼: `ceCostMul` 强制 EX(×0.3), 不在 EX 上再乘
-- [ ] 双面四臂: `stamina池 +8`, `ceMax ×1.3`
+- [ ] 双面四臂: `ceMax ×1.3`; `drawStamina()` 末尾 `if (双面四臂) pool += 8` (加在公式后，非公式内)
 - [ ] 天与咒缚: `ceMax=0`, `ce=0`, 禁咒力技法, `stamCostMul 额外−0.2`, 领域必中免疫
 
-### E.6 极之番 debuff (§3.6)
+### E.5 极之番 debuff (§3.6)
 
 - [ ] 使用后→`state.combat.maxPenalty = true`
 - [ ] `stamCostMul()` 检测→额外 ×1.5
@@ -296,6 +334,7 @@
 ## Phase F: UI & 打磨
 
 **参考设计**: §9~§17
+**前置**: Phase B~E 功能就绪
 
 ### F.1 轮盘扇区标注 (§15)
 
@@ -310,12 +349,14 @@
 - [ ] 勉强: `hp=floor(staminaMax()×0.3)`
 - [ ] 恶化: 体质 `dimMod −1`
 
-### F.3 DZ 显示 + 偏袒 (§2.10, §10.1)
+### F.3 DZ 显示 + 偏袒标注 (§2.10)
 
 - [ ] 资源条: `cbDZBar/cbDZVal`(你DZ+增速) + `cbEDZBar/cbEDZVal`(敌DZ+增速)
-- [ ] 对拼轮上方: `⚖ 偏袒 +X → 你 (敌DZ% − 你DZ%)`
-- [ ] DZ bias: `bias = (敌DZ−你DZ)/100` → 乘入各扇区权重
-- [ ] 致命互击扇区: DZ≥50% 出现
+- [ ] 对拼轮上方显示: `⚖ 偏袒 +X → 你 (敌DZ% − 你DZ%)`
+- [ ] 偏袒为负时箭头反向, 红色标注
+- [ ] 致命互击扇区: DZ≥50% 出现(视觉加红提示)
+
+> DZ bias 计算已在 B.6 对拼轮中实现, F.3 仅负责界面显示。
 
 ### F.4 放一马 (§10.2)
 
@@ -348,3 +389,19 @@
 2. **参考设计**: 改动前查 `BATTLE-DESIGN.md` 对应 §
 3. **测试**: 浏览器打开 → p1+p2 抽取到关键维度 → p4 验证
 4. **疑问**: 存疑记录到 commit message 或对话中, 不跳过
+
+## 关键验证参考值
+
+| 场景 | 预期 | 计算 |
+|------|------|------|
+| 体质C(体力轮) | pool=10 | `max(8, floor(6+120×0.04))` |
+| 体质EX(体力轮) | pool=34 | `max(8, floor(6+700×0.04))` |
+| 天与咒缚+体术SSS | 暴君·极=4体 | `12×(0.6-0.2)` |
+| 六眼+効率EX | 茈消耗30CE | `100×0.3` (EX索引, 不叠) |
+| CE上限SSS | ceMax=600 | 基础600+天赋修正 |
+| CE上限EX | ceMax=999 | EX max value (非∞) |
+| 黑闪率最大值 | 21%→35% | `3+12+3+4+2=25%`(卡21%), 连击 cap35% |
+| 甚尔hp/体力池 | hp=520, pool=26 | `max(8, floor(6+520×0.04))` |
+| 领域持续时间(EX) | 7回合 | `3+floor(9/2)` |
+| 放一马基准 | 5% | 魅力最高+8% |
+| 咒具上限 | 3件 | 超出仅视觉 |
