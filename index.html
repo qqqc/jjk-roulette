@@ -95,6 +95,14 @@
     <button class="btn-next" id="btnNext" onclick="goNext()">→ 下一轮</button>
     <button class="btn-reroll" id="btnReroll" style="display:none" onclick="reroll()">🔄 重抽</button>
     <button class="btn-phase" id="btnPhase" style="display:none" onclick="goNextPhase()">→ 进入下一阶段</button>
+    <div class="btn-combat-row" id="btnCombatRow" style="display:none">
+      <button class="btn-combat ult" id="bcDomain" onclick="bDomain()">🌐 领域展开</button>
+      <button class="btn-combat ult" id="bcMax" onclick="bMax()">🔥 极之番</button>
+      <button class="btn-combat" id="bcRCT" onclick="bRCT()">🔄 修复熔断</button>
+      <button class="btn-combat escape" id="bcEscape" onclick="bEscape()">🏃 逃跑</button>
+      <button class="btn-combat" id="bcBindLoan" onclick="bBindLoan()">🔗 束缚·贷</button>
+      <button class="btn-combat" id="bcBindStack" onclick="bBindStack()">🔗 束缚·叠加</button>
+    </div>
     <div style="margin-top:4px"><button class="btn-reset" id="btnReset" onclick="resetGame()">↺ 重置本轮</button></div>
     <div class="result-panel" id="resultPanel"></div>
     <button class="btn-char" id="btnChar" style="display:none" onclick="charCard()">🎴 生成角色卡</button>

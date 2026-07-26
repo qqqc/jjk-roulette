@@ -90,15 +90,8 @@ function v3BuildCombatItems(forEnemy){
     var innateName=null;
     if(state.skills.indexOf('无下限术式')>=0)innateName='无下限术式';
     else if(state.skills.indexOf('御厨子')>=0)innateName='御厨子';
-    else{// 找其他术式标签
-      var found=false;
-      for(var i=0;i<state.skills.length;i++){
-        if(TECHNIQUE_LIBRARY.innate[state.skills[i]]){innateName=state.skills[i];found=true;break}
-      }
-      if(!found)innateName='_default'
-    }
-    if(innateName==='_default'&&state.skills.some(function(s){return TECHNIQUE_LIBRARY.innate[s]}))innateName='_default';
-    else if(innateName==='_default'){} // 无术式→不进
+    else{for(var i=0;i<state.skills.length;i++){if(TECHNIQUE_LIBRARY.innate[state.skills[i]]){innateName=state.skills[i];break}}
+    if(!innateName&&state.skills.some(function(s){return TECHNIQUE_LIBRARY.innate[s]}))innateName='_default'}
     var iTechs=TECHNIQUE_LIBRARY.innate[innateName];
     if(iTechs){
       iTechs.forEach(function(t){
@@ -361,3 +354,126 @@ stop=function(){
   if(ended){var ri=activeRounds().findIndex(function(rx){return rx.id==='p4_result'});if(ri>=0){goRound(ri);refreshAll()}return}
   refreshAll();saveState()
 }
+
+// ========================================================= V3 BUTTONS =========================================================
+function updateBtnRow(){
+  var b=document.getElementById('btnCombatRow'),c=state.combat;if(!b)return;
+  if(!c||!c.active||!c.phase){b.style.display='none';return}
+  var vis=c.phase==='player_tech';
+  b.style.display=vis?'flex':'none';if(!vis)return;
+  document.getElementById('bcDomain').style.display=(c.burnout||c.domainUsed)?'none':'inline-block';
+  document.getElementById('bcMax').style.display=c.burnout?'none':'inline-block';
+  document.getElementById('bcRCT').style.display=(c.burnout&&hasTrait('反转术式'))?'inline-block':'none';
+  var esc=document.getElementById('bcEscape');esc.style.display=(c.stance==='流转')?'inline-block':'none';
+  document.getElementById('bcBindLoan').style.display=c.bindLoanUsed?'none':'inline-block';
+  document.getElementById('bcBindStack').style.display=c.bindLoanUsed?'inline-block':'none'
+}
+
+function bDomain(){
+  var c=state.combat;if(!c||c.burnout||c.domainUsed){showToast('无法展开领域');return}
+  c.ce-=80;c.burnout=true;c.domainUsed=true;
+  var enemy=ENEMY_TEMPLATES[c.enemyId];
+  if(enemy&&enemy.hasDomain){c.phase='domain_clash';showToast('领域对拼!')}
+  else{c.yourDomainActive=true;c.domainRemaining=v3CalcDomainDur(idxOrC(dimVal(state.dimensions['咒力总量'])));showToast('领域展开!')}
+  updateCombatUI();updateBtnRow()
+}
+
+function bMax(){
+  var c=state.combat;if(!c||c.burnout){showToast('熔断中无法使用极之番');return}
+  if(c.ce<80){showToast('咒力不足(需80)');return}
+  c.ce-=80;c.win+=Math.floor(70*(1+v3TechWinBonus()/100));c.maxPenalty=true;showToast('极之番!')
+  updateCombatUI();updateBtnRow()
+}
+
+function bRCT(){
+  var c=state.combat;if(!c||!c.burnout){showToast('不在熔断状态');return}
+  var att=c.burnoutAttempts||0,idx=Math.min(att,3);
+  var base=_RCT_BASE[idx],manip=idxOrC(dimVal(state.dimensions['咒力操纵'])),will=idxOrC(dimVal(state.dimensions['意志']));
+  var ps=[0,0,0,0,0];for(var i=0;i<5;i++)ps[i]=Math.max(0,base[i]+_RCT[i][manip]+_RCT[i][will]);ps[4]=Math.max(3,ps[4]);
+  var sum=ps[0]+ps[1]+ps[2]+ps[3]+ps[4];if(sum!==100){var rem=100;for(var j=0;j<4;j++){ps[j]=Math.round(ps[j]/sum*100);rem-=ps[j]}ps[4]=Math.max(0,rem)}
+  var names=['完美修复','标准修复','代价修复','修复失败','反噬'],items=[];
+  for(var k=0;k<5;k++)items.push({l:names[k],w:ps[k],c:['#ff0','#8a4','#c84','#888','#f44'][k]});
+  c.burnoutAttempts=att+1;
+  wheel=buildWheel(items);wheel.angle=0;state.targetAngle=0;initParticles();wheel.draw();
+  document.getElementById('btnSpin').style.display='block';document.getElementById('btnSpin').textContent='🔮 修复';document.getElementById('btnSpin').disabled=false;
+  document.getElementById('resultPanel').style.display='none';document.getElementById('btnNext').style.display='none';
+  state._rctPhase=true
+}
+
+function bEscape(){
+  var c=state.combat;if(c.stance!=='流转'){showToast('仅流转姿态可逃跑');return}
+  var er=v3EscapeRate(),items=[{l:'成功脱出',w:Math.max(er,1),c:'#4c8'},{l:'险中脱出',w:25,c:'#888'},{l:'脱出失败',w:Math.max(100-er-25,1),c:'#c44'}];
+  wheel=buildWheel(items);wheel.angle=0;state.targetAngle=0;initParticles();wheel.draw();
+  document.getElementById('btnSpin').style.display='block';document.getElementById('btnSpin').textContent='🏃 逃跑';document.getElementById('btnSpin').disabled=false;
+  document.getElementById('resultPanel').style.display='none';document.getElementById('btnNext').style.display='none';
+  state._escapePhase=true
+}
+
+function bBindLoan(){
+  var c=state.combat;c.stamina=Math.max(0,c.stamina-5);c.win+=25;c.bindLoanUsed=true;
+  if(c.stamina<=0){c.phase='enemy_stamina';showToast('体力耗尽，回合结束')}
+  updateCombatUI();updateBtnRow()
+}
+
+function bBindStack(){
+  var c=state.combat;c.stamina=Math.max(0,c.stamina-9);c.dangerZone+=10;c.win+=50;
+  if(c.stamina<=0){c.phase='enemy_stamina';showToast('体力耗尽，回合结束')}
+  updateCombatUI();updateBtnRow()
+}
+
+// ========================================================= V3 TACTICAL DEPTH =========================================================
+function v3BfCheck(tech){
+  var c=state.combat,rate=Math.min(35,v3BfRate()+c.bfCombo*v3BfRate()*0.5);
+  if(Math.random()*100<rate){c.bfCombo=Math.min(3,c.bfCombo+1);c.stamina+=5;c.ce+=12;c.bfZone=true;return true}return false
+}
+
+function v3ApplyCurseDMG(tech,baseDmg){
+  var enemy=ENEMY_TEMPLATES[state.combat.enemyId];if(!enemy||enemy.type!=='curse')return baseDmg;
+  if(tech.tier==='heal')return Math.floor(baseDmg*1.5);
+  if(tech.id==='rct_out')return Math.floor(baseDmg*3);
+  return baseDmg
+}
+
+// ========================================================= V3 UI POLISH =========================================================
+function v3UpdateCombatUI(){
+  var ec=document.getElementById('enemyCard');if(!ec)return;
+  if(!state.combat||!state.combat.active||!state.combat.enemyId){ec.style.display='none';var b=document.getElementById('combatBars');if(b)b.style.display='none';updateBtnRow();return}
+  ec.style.display='block';var b=document.getElementById('combatBars');if(b)b.style.display='block';
+  var e=ENEMY_TEMPLATES[state.combat.enemyId];if(!e)return;
+  var c=state.combat;
+  document.getElementById('ecTier').textContent=e.tier;document.getElementById('ecTier').style.background=e.tierColor;document.getElementById('ecTier').style.color='#1a1a1a';
+  document.getElementById('ecName').textContent=e.name;document.getElementById('ecTitle').textContent=e.title;
+  var hpPct=Math.max(0,Math.min(100,c.hp/Math.max(1,v3StaminaMax())*100));document.getElementById('cbHpBar').style.width=hpPct+'%';document.getElementById('cbHpVal').textContent=c.hp;
+  var shPct=c.shield>0?Math.min(100,c.shield/Math.max(1,c.hp)*100):0;document.getElementById('cbShBar').style.width=shPct+'%';document.getElementById('cbShVal').textContent=Math.floor(c.shield);
+  var ceMx=v3CeMax(),cePct=ceMx>0?Math.min(100,c.ce/Math.max(1,ceMx)*100):0;document.getElementById('cbCeBar').style.width=cePct+'%';document.getElementById('cbCeVal').textContent=c.ce;
+  document.getElementById('cbStVal').textContent=c.stamina;document.getElementById('cbWinVal').textContent=c.win;document.getElementById('cbDangerVal').textContent=Math.floor(c.dangerZone)+'%';
+  var ehPct=Math.max(0,Math.min(100,c.enemyHp/Math.max(1,e.hp)*100));document.getElementById('cbEhBar').style.width=ehPct+'%';document.getElementById('cbEhVal').textContent=c.enemyHp;
+  if(c.burnout){document.getElementById('cbBurnout').style.display='block'}else{document.getElementById('cbBurnout').style.display='none'}
+  updateBtnRow()
+}
+
+function updateCombatUI(){v3UpdateCombatUI()}
+
+// ========================================================= V3 SECTOR LABELS =========================================================
+var _v3BuildWheel=null;
+(function patchBuildWheel(){
+  if(typeof buildWheel!=='function')return;
+  _v3BuildWheel=buildWheel;
+  buildWheel=function(items){
+    var w=_v3BuildWheel(items),orig=w.draw;
+    w.draw=function(){
+      orig.call(this);
+      if(!items||items.length===0)return;
+      var ctx=this.ctx,dpr=this.dpr,a=this.angle-Math.PI/2;
+      for(var i=0;i<this.sectors.length;i++){
+        var s=this.sectors[i],sa=a,ea=a+s.arc;if(!s._tech)continue;
+        ctx.save();ctx.translate(this.cx,this.cy);ctx.rotate(sa+s.arc/2);ctx.textAlign='right';ctx.fillStyle='#999';
+        var fs2=Math.max(7,this.radius*.06);
+        ctx.font=fs2+'px sans-serif';
+        var txt='-'+s._tech.st+'体 -'+s._tech.ce+'咒 +'+s._tech.win;
+        ctx.fillText(txt,this.radius-8,-fs2*.5);ctx.restore();a=ea
+      }
+    };
+    return w
+  }
+})();
