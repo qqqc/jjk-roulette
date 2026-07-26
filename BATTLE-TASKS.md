@@ -68,7 +68,7 @@
 - [ ] `initCombat()`: `hp = staminaMax()`, `ce = drawCe()`, `shield = floor(ce × 0.5)`
 - [ ] `initCombat()`: `enemyCe = drawEnemyCe()` (按敌人咒力维度查 §2.4 抽取)
 - [ ] `initCombat()`: 初始化所有 state.combat 字段(参考 §8):
-  `selfBlocked=false`, `bfZone=false`, `yourDomainActive=false`, `enemyDomainActive=false`, `domainRemaining=0`, `burnoutAttempts=0`, `maxPenalty=false`, `activeTools=[]`, `enemyDangerZone=0`, `stance=null`
+  `selfBlocked=false`, `bfZone=false`, `barrierActive=false`, `yourDomainActive=false`, `enemyDomainActive=false`, `domainRemaining=0`, `burnoutAttempts=0`, `maxPenalty=false`, `activeTools=[]`, `enemyDangerZone=0`, `stance=null`, `comboFlags={ao:false,aka:false,kai:false,hachi:false}`
 - [ ] 天与咒缚角色: `ce=0`, `ceMax=0`, `shield=0`
 - [ ] CE 变化时同步更新 `shield = floor(ce × 0.5)`
 
@@ -81,8 +81,9 @@
 
 ### B.1 Phase 状态机
 
-- [ ] `state.combat.phase` 完整流程: `player_stamina → player_stance → player_tech → enemy_stamina → enemy_tech → clash → (回player_stamina 或 跳p4_result)`
-- [ ] 每步 transition 在轮盘旋转后自动切换 phase
+- [ ] `state.combat.phase` 完整枚举(§8): `player_stamina → player_stance → player_tech → enemy_stamina → enemy_tech → clash → domain_clash → rct_repair → escape → result → rest`
+- [ ] 主线流程: `player_stamina → player_stance → player_tech → enemy_stamina → enemy_tech → clash → (回player_stamina 或 跳result→rest)`
+- [ ] 按钮/事件可跳入: `domain_clash`(领域对拼), `rct_repair`(修复熔断), `escape`(逃跑)
 
 ### B.2 咒力抽取轮 (p4_prep)
 
@@ -122,33 +123,57 @@
 - [ ] 败势时钟: `floor(敌伤害 ÷ (staminaMax() ÷ 6)) × willClockMul()`
 - [ ] 未决→`roundStamina()`(新回合); 已决→`p4_result`
 
-### B.8 领域对拼轮 (phase='domain_clash')
-
-- [ ] 仅双方都有领域时触发(§4.4)
-- [ ] 构建 4 扇区: 你的领域占上风 / 对方领域占上风 / 领域对消灭 / 精密度僵持
-- [ ] 权重由双方精密度差距决定: `精密度 = 术式性能值 + 咒力操纵值 + 领域类型加成 + 结界穿透`
-- [ ] **结果 flags**:
-  - 占上风→`yourDomainActive=true`, 对方 `burnout=true`
-  - 被压制→`enemyDomainActive=true`, 你 `burnout=true`
-  - 对消灭→双方 `burnout=true`, `yourDomainActive=false`, `enemyDomainActive=false`
-  - 僵持→本轮平局, 下回合自动再触发对拼
-
-### B.9 其他特殊轮盘构建
-
-- [ ] **RCT 修复轮** (phase='rct_repair'): 5扇区(完美/标准/代价/失败/反噬), 扇区权重=概率(经 §5.3/§5.4/§2.3b 修正+归一化后)
-- [ ] **逃跑轮** (phase='escape'): 3扇区(成功脱出/险中脱出/脱出失败), 概率见 §10.3
-- [ ] **p4_result 胜负轮**: 按 §10.2 动态权重构建扇区(完胜/苦战/惨胜/败退/惨败/殒命/放一马)，基准+偏移表
-- [ ] **p4_rest 休整轮**: 4扇区(充分/短暂/勉强/恶化), SEED_DATA items 驱动
-
 ### B.7 多回合循环
 
 - [ ] `roundStamina()`: `phase='player_stamina'`, 重置 `win=0, enemyWin=0`
 - [ ] 重抽 stamina(玩家+敌人), `dangerZone递增`, `round++`
-- [ ] 重置: `bfCombo=0`, `bfZone=false`, `selfBlocked=false`, Combo追踪清零(蒼/赫/解/捌)
+- [ ] 重置: `bfCombo=0`, `bfZone=false`, `selfBlocked=false`, `comboFlags = {ao:false, aka:false, kai:false, hachi:false}` (§3.4 茈/開前置追踪)
 - [ ] `domainRemaining--`(双方各自); 归零→`yourDomainActive=false` / `enemyDomainActive=false`
 - [ ] 处理 `maxPenalty`: 检查旗标→生效到 `stamCostMul()`, 回合开始后清除旗标
-- [ ] `enemyBlocked` 重置(领域展延效果 1 回合)
+- [ ] `enemyBlocked` 重置(领域展延效果: 敌方招式轮结束后清除, 非新回合)
+- [ ] `barrierActive` 重置(结界术效果: 持续 1 回合, 对拼后清除)
 - [ ] 敌人姿态: 新回合前 stanceAI 检查并切换
+
+### B.8 领域对拼轮 (phase='domain_clash')
+
+- [ ] 仅双方都有领域时触发(§4.4)——**领域冲突必对拼, 场上最多只有1个领域**
+- [ ] 若对拼前某方已有活跃领域, 对拼输方清空:`yourDomainActive=false` / `enemyDomainActive=false`
+- [ ] 构建 4 扇区: 你的领域占上风 / 对方领域占上风 / 领域对消灭 / 精密度僵持
+- [ ] 权重由双方精密度差距决定: `精密度 = 术式性能值 + 咒力操纵值 + 领域类型加成 + 结界穿透`
+- [ ] **结果 flags**:
+  - 占上风→`yourDomainActive=true`, 对方 `burnout=true`, `enemyDomainActive=false`
+  - 被压制→`enemyDomainActive=true`, 你 `burnout=true`, `yourDomainActive=false`
+  - 对消灭→双方 `burnout=true`, `yourDomainActive=false`, `enemyDomainActive=false`
+  - 僵持→本轮平局, 下回合自动再触发对拼
+
+### B.9 RCT 修复轮 (phase='rct_repair')
+
+- [ ] 点击修复按钮→进入此 phase
+- [ ] 构建 5 扇区: 完美/标准/代价/失败/反噬
+- [ ] 扇区权重 = 概率(经累积风险表§5.4→操纵修正§5.3→意志修正§2.3b 叠加+归一化后)
+- [ ] 转后: 按 §5.2 效果执行(完美/标准/代价→熔断清零+domainUsed重置; 失败→保持; 反噬→移除领域标签)
+- [ ] `burnoutAttempts` 累加
+
+### B.10 逃跑轮 (phase='escape')
+
+- [ ] 点击逃跑/敌人 stanceAI 触发→进入此 phase
+- [ ] 构建 3 扇区: 成功脱出/险中脱出/脱出失败
+- [ ] 概率: 成功=50%+escapeRate(), 险脱=25%, 失败=25%−escapeRate()
+- [ ] 转后: 按 §10.3 效果执行
+
+### B.11 胜负轮 (phase='result')
+
+- [ ] 击破/败势时钟满或 HP 归零→进入此 phase
+- [ ] 按 §10.2 动态权重构建扇区(完胜/苦战/惨胜/败退/惨败/殒命/放一马)
+- [ ] 胜方: 条件偏移表(剩余HP/败势段数/回合数/熔断)累加
+- [ ] 败方: 放一马基准 5% + 魅力加成(最高+8%)
+- [ ] 转后跳转 `p4_rest`
+
+### B.12 休整轮 (phase='rest')
+
+- [ ] 胜负轮后→进入此 phase
+- [ ] 构建 4 扇区: 充分/短暂/勉强/恶化 (SEED_DATA items 驱动)
+- [ ] 转后: 按 F.2 恢复 HP/CE, 或体质 dimMod−1
 
 ---
 
@@ -165,13 +190,22 @@
 - [ ] **更新**: 术式反转加 `cond:"反转术式"`, 领域展延 eff 加"自身术式也禁用"
 - [ ] 咒力放出: 从通用池移出 → 仅限拥有对应术式标签时 buildCombatItems 动态添加
 
+**更新后 TECHNIQUE_LIBRARY 核对清单**:
+| 分类 | 应保留的技法 | 应删除的 |
+|------|-------------|---------|
+| universal | atk, heavy, ce_punch | ce_blast |
+| advanced | 简易领域, 领域展延, 反转术式·自愈, 反转术式·外放, 术式反转, 结界术, 术式扩张, corpse(咒骸) | 束缚强化·贷, 束缚叠加 |
+| innate.无下限 | 蒼(20,30), 赫(35,55), 茈(100,100) | — |
+| innate.御厨子 | 解(12,22), 捌(22,45), 火焰(18,35), 開(50,90) | — |
+| innate._default | 术式·基础(15,22), 全力(28,40), 极限(45,65) | — |
+
 ### C.1 `buildCombatItems()` 全面重写
 
 **执行顺序**: ①收集 ②过滤(§3.7所有规则) ③姿态权重修正(§3.8表) ④返回最终列表
 
 - [ ] **universal**: atk(6,0,10) / heavy(9,0,20) / ce_punch(4,8,24) — 删 ce_blast
 - [ ] **advanced**: 按 `normalizeTag()` 匹配 `state.traits/skills`:
-  - 简易领域, 领域展延(同时设 selfBlocked), 反转术式·自愈, 反转术式·外放, 结界术, 术式扩张
+  - 简易领域, 领域展延(同时设 selfBlocked), 反转术式·自愈, 反转术式·外放, 结界术(**使用后设 `barrierActive=true`**), 术式扩张
   - 术式反转: 需"反转术式"+"术式反转" 两个标签同时存在
 - [ ] **innate**: 按术式标签分支:
   - 无下限: 蒼(2,20,30)+赫(3,35,55) + 茈(4,100,100, combo:本回合用蒼or赫后出现)
@@ -247,13 +281,31 @@
 - [ ] 若敌人领域已活跃(`enemyDomainActive=true`)→必须走**领域对拼**(不允许直接覆盖)
 - [ ] 敌人有领域标签但未活跃→**领域对拼轮**; 无领域→**直接覆盖**
 - [ ] **直接覆盖**: `yourDomainActive=true`, `domainRemaining=calcDomainDur(咒力总量idx)`, 必中(+0.2倍率) + 领域效果(p2抽取)
-- [ ] **领域对拼** (双方都有领域→BS.8):
+- [ ] **领域对拼** (双方都有领域→B.8):
   1. 精密度判定: 术式性能+咒力操纵+领域类型加成+结界穿透
   2. 进入 `phase='domain_clash'` → 调用 B.8 对拼轮
-  3. B.8 中 flags: 占上风→``yourDomainActive=true` 对方熔断; 被压制→`enemyDomainActive=true` 你熔断; 对消灭→双方熔断+无领域; 僵持→下回合再拼
+  3. B.8 中 flags: 占上风→`yourDomainActive=true` 对方熔断; 被压制→`enemyDomainActive=true` 你熔断; 对消灭→双方熔断+无领域; 僵持→下回合再拼
 - [ ] 领域覆盖: 流程不变, 领域方享必中+领域效果(§4b.2~§4b.3)
 - [ ] `domainRemaining` 每回合−1(在 B.7 中); 归零→`yourDomainActive=false`
 - [ ] 我方领域活跃时: 開(御厨子)自动出现在 buildCombatItems 中
+
+### D.3b 领域效果实现 (§4b.3, p2_de1-6 抽取)
+
+- [ ] `state.combat.domainEffect` 在领域覆盖时从 p2 标签读取(`p2_de1`~`p2_de6`), 写入效果类型
+- [ ] 打击灵魂(虎杖): 对拼轮领域方伤害基准 +8
+- [ ] 强控(五条): 敌技法轮中防御类(简易领域/结界术)隐藏(在 C.1 buildCombatItems 中过滤)
+- [ ] 规则(日车): 敌技法轮随机 1 个技法类型封锁(在 C.1 中随机隐藏)
+- [ ] 自动攻击(宿儺): 对拼轮多转 1 次, 取伤害高的那次
+- [ ] 增幅自身(秤): 体力轮抽取结果 ×1.5 (在 B.3 drawStamina 后乘)
+- [ ] 增幅术式(乙骨): 所有术式类技法胜率 ×2 (在 winBonus 中叠加)
+
+### D.3c 领域类型实现 (§4b.4, p2_dt 抽取)
+
+- [ ] `state.combat.domainType` 在领域覆盖时从 p2 标签读取
+- [ ] 封闭式(+0): 基准, 无特殊规则
+- [ ] 开放式(+8 精密度): 我方展开时对拼+8; 劣势后**不可逃跑**(D.6 增加判断)
+- [ ] 半成品(−6 精密度): 我方展开时对拼−6; **必中效果不生效**(+0.2 不叠加); 领域内胜率−30%
+- [ ] 开放封闭自由调控: 每回合可选模式(在姿态选择时增加选项)
 
 ### D.4 极之番按钮 (§3.6)
 
