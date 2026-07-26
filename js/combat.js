@@ -415,6 +415,7 @@ function bRCT(){
   c.burnoutAttempts=att+1;
   wheel=buildWheel(items);wheel.angle=0;state.targetAngle=0;initParticles();wheel.draw();
   document.getElementById('btnSpin').style.display='block';document.getElementById('btnSpin').textContent='🔮 修复';document.getElementById('btnSpin').disabled=false;
+  document.getElementById('wheelWrap').style.display='block';
   document.getElementById('resultPanel').style.display='none';document.getElementById('btnNext').style.display='none';
   state._rctPhase=true
 }
@@ -424,6 +425,7 @@ function bEscape(){
   var er=v3EscapeRate(),items=[{l:'成功脱出',w:Math.max(er,1),c:'#4c8'},{l:'险中脱出',w:25,c:'#888'},{l:'脱出失败',w:Math.max(100-er-25,1),c:'#c44'}];
   wheel=buildWheel(items);wheel.angle=0;state.targetAngle=0;initParticles();wheel.draw();
   document.getElementById('btnSpin').style.display='block';document.getElementById('btnSpin').textContent='🏃 逃跑';document.getElementById('btnSpin').disabled=false;
+  document.getElementById('wheelWrap').style.display='block';
   document.getElementById('resultPanel').style.display='none';document.getElementById('btnNext').style.display='none';
   state._escapePhase=true
 }
