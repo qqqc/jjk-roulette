@@ -23,6 +23,7 @@ function v3BfRate(){var r=3+_BF[idxOrC(dimVal(state.dimensions['天赋']))];var 
 function v3CeDrawLower(){return _CE_DL[idxOrC(dimVal(state.dimensions['意志']))]}
 function v3EscapeRate(){return Math.min(100,50+_ESC[idxOrC(dimVal(state.dimensions['体术']))])}
 function v3WillClockMul(){return _WC[idxOrC(dimVal(state.dimensions['意志']))]}
+function v3EnemyWinBonus(){var e=ENEMY_TEMPLATES[state.combat.enemyId];if(!e||!e.dim)return 0;return _MJ[idxOrC(dimVal(e.dim['体术']))]+_TJ[idxOrC(dimVal(e.dim['术式性能']))]}
 function v3CalcDomainDur(idx){return 3+Math.floor(idx/2)}
 function v3DrawStamina(){var i=idxOrC(dimVal(state.dimensions['体质'])),pool=Math.max(8,Math.floor(6+_STAM[i]*0.04));if(state.traits.indexOf('双面四臂')>=0)pool+=8;if(state.combat&&state.combat.yourDomainActive&&state.combat.domainEffect==='增幅自身')pool=Math.floor(pool*1.5);return pool}
 function v3EnemyDrawStamina(){var e=ENEMY_TEMPLATES[state.combat.enemyId];if(!e)return 8;var i=idxOrC(dimVal(e.dim['体质']));return Math.max(8,Math.floor(6+_STAM[i]*0.04))}
@@ -54,15 +55,15 @@ function v3BuildCombatItems(forEnemy){
     var smul=v3StamCostMul(),cemul=v3CeCostMul(),wbonus=v3WinBonus()+v3TechWinBonus();
     techs=techs.filter(function(t){if(isHeavenlyRestricted()&&t.ce>0)return false;if(c.burnout&&t.tier&&t.tier.indexOf('atk_ce')>=0&&t.id!=='tech_basic')return false;if(c.burnout&&(t.tier==='ult_ce'||t.tier==='ult'))return false;var st=Math.max(1,Math.floor(t.st*smul)),ce=Math.floor(t.ce*cemul);if(st>c.stamina)return false;if(ce>0&&ce>c.ce)return false;return true});
     var stance=c.stance||'猛攻';techs=techs.map(function(t){var st=Math.max(1,Math.floor(t.st*smul)),ce=Math.floor(t.ce*cemul),win=t.win+wbonus;if(t.tier&&t.tier.indexOf('atk_ce')>=0)win+=v3TechWinBonus();if(c.yourDomainActive&&c.domainEffect==='增幅术式')win=Math.floor(win*2);var w=8;if(stance==='猛攻'){if(t.id==='murasaki'||t.id==='fuga')w=24;else if(t.id==='aka'||t.id==='heavy'||t.id==='tech_full')w=16}else if(stance==='流转'){if(t.tier==='heal'||t.id==='tech_basic')w=16;else if(t.id==='kai')w=20}else if(stance==='坚牢'){if(t.id==='simple_domain'||t.id==='barrier')w=24;else if(t.id==='rct_self')w=16}return{l:t.name,w:w,c:t.c||'#888',d:t.eff||'',_tech:{st:st,ce:ce,win:win,id:t.id,tier:t.tier}}})
-    // 黑闪扇区(独立转盘选项, 权重=触发率, 连击叠增)
-    var bfR=v3BfRate();if(c.bfCombo>0)bfR=Math.min(35,bfR*c.bfCombo);if(bfR>0)techs.push({l:'⚡黑闪',w:Math.ceil(bfR/2),c:'#ff0',d:'胜率×2.5 体力+5 咒力+12',_tech:{st:0,ce:0,win:0,id:'__bf__',tier:'bf'}})
+    // 黑闪扇区(独立转盘选项, 权重=触发率, 连击叠增, 不超过最大技法权重)
+    var bfR=v3BfRate(),maxOW=0;techs.forEach(function(t){maxOW=Math.max(maxOW,t.w||8)});if(c.bfCombo>0)bfR=Math.min(35,bfR*c.bfCombo);var bfW=Math.min(maxOW,Math.ceil(bfR/2));if(bfW>0)techs.push({l:'⚡黑闪',w:bfW,c:'#ff0',d:'胜率×2.5 体力+5 咒力+12',_tech:{st:0,ce:0,win:0,id:'__bf__',tier:'bf'}})
     return techs
   }else{
     techs=techs.concat(TECHNIQUE_LIBRARY.universal);if(isHeavenlyRestricted())TECHNIQUE_LIBRARY.hrOnly.forEach(function(t){techs.push(t)});
     (enemy.techniques||[]).forEach(function(tn){var ub=enemy.uniqueTechniques&&enemy.uniqueTechniques[tn];techs.push({id:tn,name:tn,st:ub?ub.st:8,ce:ub?ub.ce:0,win:ub?ub.win:22,tier:'atk',c:'#d84',eff:ub?ub.eff:'',isEnemy:true})});
     // 敌人领域作为普通扇区
     if(enemy.hasDomain&&!state.combat.burnout){techs.push({l:'🌐'+enemy.title,st:5,ce:80,win:100,tier:'ult',c:'#80f',isEnemy:true})}
-    return techs.map(function(t){var st=Math.max(1,Math.floor((t.st||8)*1)),ce=Math.floor((t.ce||0)*1),win=t.win||20;return{l:t.name,w:8,c:t.c||'#d84',d:t.eff||'',_tech:{st:st,ce:ce,win:win,id:t.id,tier:t.tier||'atk'}}}).filter(function(t){if(c.enemyBlocked&&t._tech.tier&&t._tech.tier.indexOf('atk_ce')>=0)return false;if(t._tech.st>c.enemyStamina)return false;if(t._tech.ce>c.enemyCe)return false;return true})
+    return techs.map(function(t){var st=Math.max(1,Math.floor((t.st||8)*1)),ce=Math.floor((t.ce||0)*1);var win=(t.win||20)+v3EnemyWinBonus();return{l:t.name,w:8,c:t.c||'#d84',d:t.eff||'',_tech:{st:st,ce:ce,win:win,id:t.id,tier:t.tier||'atk'}}}).filter(function(t){if(c.enemyBlocked&&t._tech.tier&&t._tech.tier.indexOf('atk_ce')>=0)return false;if(t._tech.st>c.enemyStamina)return false;if(t._tech.ce>c.enemyCe)return false;return true})
   }
 }
 
@@ -77,71 +78,73 @@ function roundStamina(){
   updateCombatUI()
 }
 
-// ========================================================= V3 SPIN/STOP OVERRIDE =========================================================
-var _origSpin=spin,_origStop=stop,_origGoNext=goNext;
+// ========================================================= V3 ROUND-BASED DISPATCH =========================================================
+var _origSpin=spin,_origStop=stop,_origGoNext=goNext,_origSelectStance=selectStance;
+selectStance=function(s){state.combat.stance=s;state.combat.phase='player_tech';document.querySelectorAll('.sp-card').forEach(function(cx){cx.classList.toggle('sel',cx.dataset.stance===s)});document.getElementById('stancePick').style.display='none';var nxt=activeRounds().findIndex(function(rx){return rx.id==='p4_ptech'});if(nxt>=0)goRound(nxt);else refreshAll();saveState()}
 
-goNext=function(){
-  var c=state.combat;
-  if(c&&c.active&&(c.phase==='player_tech'||c.phase==='enemy_tech')){
-    if(c.phase==='player_tech'){
-      var items=v3BuildCombatItems(false);if(!items||items.length===0){c.phase=c.stamina<=0?'enemy_stamina':'player_tech';if(c.stamina<=0){showToast('体力耗尽→敌人阶段');_v3AutoBuildEnemyStamina();return}else{showToast('无可出招');return}}
-      wheel=buildWheel(items);wheel.angle=0;state.targetAngle=0;initParticles();wheel.draw();document.getElementById('btnSpin').style.display='block';document.getElementById('btnSpin').textContent='⚔ 出招';document.getElementById('btnNext').style.display='none'
-    }else{_v3AutoBuildEnemyTech();document.getElementById('btnSpin').style.display='block';document.getElementById('btnNext').style.display='none'}return}
-  _origGoNext()}
+// 构建函数
+function v3BuildStaminaWheel(){var p=v3DrawStamina(),n=Math.min(7,Math.max(5,Math.floor(p/6)+3)),items=[];for(var i=0;i<n;i++){var v=p-Math.floor(n/2)+i;items.push({l:''+v,w:(i===Math.floor(n/2)?2:1),c:'#aaa'})}return items}
+function v3BuildCeSectors(){var mx=v3CeMax(),lo=v3CeDrawLower(),min=Math.floor(mx*lo/100),step=Math.max(1,Math.floor((mx-min)/5)),items=[];for(var i=0;i<6;i++){var v=Math.min(mx,min+i*step);items.push({l:''+v,w:Math.abs(3-i)+1,c:'#a0f'})}return items}
+function v3BuildEstaminaSectors(){var p=v3EnemyDrawStamina(),n=Math.min(7,Math.max(5,Math.floor(p/6)+3)),items=[];for(var i=0;i<n;i++){var v=p-Math.floor(n/2)+i;items.push({l:''+v,w:(i===Math.floor(n/2)?2:1),c:'#d84'})}return items}
+function v3BuildClashSectors(){var c=state.combat,pW=c.win,eW=c.enemyWin;c.win=Math.min(200,c.win);c.enemyWin=Math.min(200,c.enemyWin);var bias=(c.enemyDangerZone-c.dangerZone)/100,names=['完全压制','有效打击','互伤','招架吃力','被压制','致命互击'];var wts=[Math.max(1,Math.floor(3+pW/30)*(1+bias)),Math.max(1,Math.floor(4+pW/20)*(1+bias*0.7)),6,Math.max(1,Math.floor(4+eW/20)*(1-bias*0.5)),Math.max(1,Math.floor(3+eW/30)*(1-bias*0.7)),(c.dangerZone>=50||c.enemyDangerZone>=50)?1:0];var items=[];for(var i=0;i<6;i++){if(wts[i]>0)items.push({l:names[i],w:wts[i],c:['#0f0','#4c8','#888','#c84','#f44','#f80'][i]})}return items}
+function v3BuildResultSectors(){var out=getResultOutcome();if(out.complete!==undefined)return [{l:'完胜',w:out.complete,c:'#ff0'},{l:'苦战险胜',w:out.bitter,c:'#c94'},{l:'惨胜',w:out.heavy,c:'#c84'}];return [{l:'败退',w:out.retreat,c:'#c66'},{l:'惨败',w:out.heavy,c:'#c44'},{l:'殒命',w:out.death,c:'#600'},{l:'敌人放你一马',w:out.mercy,c:'#876'}]}
 
-function showStancePanel(){document.getElementById('btnSpin').style.display='none';document.getElementById('btnNext').style.display='none';document.getElementById('stancePick').style.display='block'}
-var _origSelectStance=selectStance;selectStance=function(s){state.combat.stance=s;state.combat.phase='player_tech';document.querySelectorAll('.sp-card').forEach(function(cx){cx.classList.toggle('sel',cx.dataset.stance===s)});document.getElementById('stancePick').style.display='none';document.getElementById('btnSpin').style.display='block';document.getElementById('btnSpin').textContent='⚔ 出招';refreshAll();saveState()}
-
-function v3BuildPhaseWheel(){
-  var c=state.combat,ph=c.phase,items=[];
-  if(ph==='player_stamina'){var p=v3DrawStamina(),n=Math.min(7,Math.max(5,Math.floor(p/6)+3));var items=[];for(var i=0;i<n;i++){var v=p-Math.floor(n/2)+i;items.push({l:''+v,w:(i===Math.floor(n/2)?2:1),c:'#aaa'})}return items}
-  else if(ph==='player_tech'||ph==='enemy_tech'){var items=v3BuildCombatItems(ph==='enemy_tech');if(!items||items.length===0){showToast(ph==='enemy_tech'?'敌人无可用技法':'无可用技法');return null}return items}
-  else if(ph==='enemy_stamina'){var p=v3EnemyDrawStamina(),n=Math.min(7,Math.max(5,Math.floor(p/6)+3));var items=[];for(var i=0;i<n;i++){var v=p-Math.floor(n/2)+i;items.push({l:''+v,w:(i===Math.floor(n/2)?2:1),c:'#d84'})}return items}
-  else   if(ph==='clash'){var pW=c.win,eW=c.enemyWin;var names=['完全压制','有效打击','互伤','招架吃力','被压制','致命互击'];var bias=(c.enemyDangerZone-c.dangerZone)/100;var wts=[Math.max(1,Math.floor(3+pW/30)*(1+bias)),Math.max(1,Math.floor(4+pW/20)*(1+bias*0.7)),6,Math.max(1,Math.floor(4+eW/20)*(1-bias*0.5)),Math.max(1,Math.floor(3+eW/30)*(1-bias*0.7)),(c.dangerZone>=50||c.enemyDangerZone>=50)?1:0];var items=[];for(var i=0;i<6;i++){if(wts[i]>0)items.push({l:names[i],w:wts[i],c:['#0f0','#4c8','#888','#c84','#f44','#f80'][i]})}return items}
-  else if(ph==='domain_clash'){
-    var prec=v3TechWinBonus()+v3WinBonus();
-    if(c.domainType==='开放式')prec+=8;else if(c.domainType==='半成品')prec-=6;
-    var gap=Math.max(-20,Math.min(20,prec-50)),wUp=5+Math.floor(gap/4),wDown=5-Math.floor(gap/4);
-    return [{l:'你的领域占上风',w:Math.max(1,wUp),c:'#0f0'},{l:'对方领域占上风',w:Math.max(1,wDown),c:'#f44'},{l:'领域对消灭',w:3,c:'#80f'},{l:'精密度僵持',w:2,c:'#888'}]}
-  else if(ph==='result'){var out=getResultOutcome();if(out.complete!==undefined)return [{l:'完胜',w:out.complete,c:'#ff0'},{l:'苦战险胜',w:out.bitter,c:'#c94'},{l:'惨胜',w:out.heavy,c:'#c84'}];else return [{l:'败退',w:out.retreat,c:'#c66'},{l:'惨败',w:out.heavy,c:'#c44'},{l:'殒命',w:out.death,c:'#600'},{l:'敌人放你一马',w:out.mercy,c:'#876'}]}
-  showToast('未知phase:'+ph);return null
+function v3BuildRoundWheel(rid){
+  var c=state.combat;if(!c||!c.active)return null;
+  if(rid==='p4_stamina')return v3BuildStaminaWheel();
+  if(rid==='p4_ptech')return v3BuildCombatItems(false);
+  if(rid==='p4_estamina')return v3BuildEstaminaSectors();
+  if(rid==='p4_etech')return v3BuildCombatItems(true);
+  if(rid==='p4_clash')return v3BuildClashSectors();
+  if(rid==='p4_result')return v3BuildResultSectors();
+  return null
 }
 
 function _startSpin(){var items=wheel.sectors,tw=items.reduce(function(s,se){return s+(se.w||1)},0),rv=Math.random()*tw,ti=0;for(var j=0;j<items.length;j++){rv-=items[j].w||1;if(rv<=0){ti=j;break}}var ca=0;for(var k=0;k<ti;k++)ca+=items[k].arc;state.targetAngle=wheel.angle+(6+Math.floor(Math.random()*4))*Math.PI*2-ca-items[ti].arc/2;state.startAngle=wheel.angle;state.startTime=performance.now();state.duration=4000+Math.random()*1500}
-function _spinExisting(){state.spinning=true;document.getElementById('btnSpin').disabled=true;document.getElementById('btnSpin').textContent='⏳ 旋转中…';_startSpin()}
 
-spin=function(){if(state.spinning||isRoundDone(rd()))return;var r=rd();if(!r||r.id!=='p4_action')return _origSpin();var c=state.combat;if(!c||!c.active)return;if(state._rctPhase||state._escapePhase){_spinExisting();return}var items=v3BuildPhaseWheel();if(!items){showToast('无可用选项');if(c.phase!=='player_stamina'&&c.phase!=='player_stance'&&c.phase!=='player_tech'&&c.phase!=='enemy_stamina'&&c.phase!=='enemy_tech'&&c.phase!=='clash'){c.phase='player_stamina';items=v3BuildPhaseWheel()}if(!items)return}wheel=buildWheel(items);wheel.angle=0;state.targetAngle=0;initParticles();wheel.draw();state.spinning=true;document.getElementById('btnSpin').disabled=true;document.getElementById('btnSpin').textContent='⏳ 旋转中…';document.getElementById('resultPanel').style.display='none';document.getElementById('btnNext').style.display='none';_startSpin()}
+spin=function(){if(state.spinning)return;var r=rd();if(!r)return _origSpin();var rt=r.type||'';
+if(rt==='combat_ce'||rt==='combat_stamina'||rt==='combat_repeatable'||rt==='combat_result'){
+  if(state._rctPhase||state._escapePhase||rt==='combat_repeatable'){state.spinning=true;document.getElementById('btnSpin').disabled=true;document.getElementById('btnSpin').textContent='⏳ 旋转中…';document.getElementById('resultPanel').style.display='none';document.getElementById('btnNext').style.display='none';_startSpin();return}
+  var items=rt==='combat_repeatable'?v3BuildRoundWheel(r.id):null;if(!items){state.spinning=true;document.getElementById('btnSpin').disabled=true;document.getElementById('btnSpin').textContent='⏳ 旋转中…';document.getElementById('resultPanel').style.display='none';document.getElementById('btnNext').style.display='none';_startSpin();return}
+  wheel=buildWheel(items);wheel.angle=0;state.targetAngle=0;initParticles();wheel.draw();
+  state.spinning=true;document.getElementById('btnSpin').disabled=true;document.getElementById('btnSpin').textContent='⏳ 旋转中…';document.getElementById('resultPanel').style.display='none';document.getElementById('btnNext').style.display='none';_startSpin();return}
+return _origSpin()}
+
+goNext=function(){var c=state.combat;var r=rd();if(r&&r.type==='combat_repeatable'&&c&&c.active){var rid=r.id;
+  if(rid==='p4_ptech'){var items=v3BuildCombatItems(false);if(!items||items.length===0){showToast('体力耗尽→敌');var nxt=activeRounds().findIndex(function(rx){return rx.id==='p4_estamina'});if(nxt>=0)goRound(nxt);return}wheel=buildWheel(items);wheel.angle=0;state.targetAngle=0;initParticles();wheel.draw();document.getElementById('btnSpin').style.display='block';document.getElementById('btnSpin').textContent='⚔ 出招';document.getElementById('btnNext').style.display='none';return}
+  if(rid==='p4_etech'){var items=v3BuildCombatItems(true);if(!items||items.length===0){showToast('敌招尽→对拼');var nxt=activeRounds().findIndex(function(rx){return rx.id==='p4_clash'});if(nxt>=0)goRound(nxt);return}wheel=buildWheel(items);wheel.angle=0;state.targetAngle=0;initParticles();wheel.draw();document.getElementById('btnSpin').style.display='block';document.getElementById('btnSpin').textContent='🌀 敌出招';document.getElementById('btnNext').style.display='none';return}
+  return}
+_origGoNext()}
 
 stop=function(){
-  var r=rd();if(!r){_origStop();return}
-  if(r.type==='combat_prep'){_v3HandlePrepStop(r);return}
-  if(r.id!=='p4_action'){_origStop();return}state.spinning=false;document.getElementById('btnSpin').disabled=false;document.getElementById('btnSpin').textContent='🌀 旋转';
+  var r=rd();if(!r)return _origStop();var rt=r.type||'',rid=r.id||'';
+  if(rt==='combat_ce'){_v3HandlePrepStop(r);return}
+  if(state._rctPhase){state._rctPhase=false;v3RCTResult(wheel.sectors[0].l);refreshAll();saveState();return}
+  if(state._escapePhase){state._escapePhase=false;v3EscapeResult(wheel.sectors[0].l);refreshAll();saveState();return}
+  if(rt!=='combat_stamina'&&rt!=='combat_stance'&&rt!=='combat_repeatable'&&rt!=='combat_result')return _origStop();
+  state.spinning=false;document.getElementById('btnSpin').disabled=false;document.getElementById('btnSpin').textContent='🌀 旋转';
   var norm=(-wheel.angle)%(Math.PI*2);if(norm<0)norm+=Math.PI*2;var cum=0,idx=0;for(var i=0;i<wheel.sectors.length;i++){cum+=wheel.sectors[i].arc;if(norm<cum){idx=i;break}}
-  var item=wheel.sectors[idx],c=state.combat,ph=c.phase,val=parseInt(item.l);
-  if(state._rctPhase){state._rctPhase=false;v3RCTResult(item.l);refreshAll();saveState();return}
-  if(state._escapePhase){state._escapePhase=false;v3EscapeResult(item.l);refreshAll();saveState();return}
-  if(ph==='player_stamina'&&!isNaN(val)){c.stamina=val;c.phase='player_stance';var sw=v3BuildPhaseWheel();if(sw){wheel=buildWheel(sw);wheel.angle=0;state.targetAngle=0;initParticles();wheel.draw()}showStancePanel();refreshAll();saveState();return}
-  if(ph==='enemy_stamina'&&!isNaN(val)){c.enemyStamina=val;c.phase='enemy_tech';showToast('敌体力:'+val);_v3AutoBuildEnemyTech();return}
-   if(ph==='player_tech'){
-    var tech=item._tech;if(!tech){showToast('无效技法');return}
-    // 黑闪扇区
-    if(tech.id==='__bf__'){var bfWin=Math.floor(v3BfRate()*2.5);c.stamina+=5;c.ce+=12;c.win+=Math.max(1,bfWin);c.bfZone=true;c.bfCombo=Math.min(3,c.bfCombo+1);
-      var rp=document.getElementById('resultPanel');rp.style.display='block';rp.innerHTML='<div class="rp-cat">⚔ 交锋</div><div class="rp-val" style="color:#ff0">⚡黑闪!</div><div class="rp-desc">胜率×2.5 体力+5 咒力+12 | 剩体力:'+c.stamina+'</div>';
-      c.log.push('[T'+c.round+'] ⚡黑闪: BFZone');refreshAll();saveState();return}
-    c.stamina-=tech.st;if(tech.ce>0){c.ce-=tech.ce;c.shield=Math.floor(c.ce*0.5)}c.win+=tech.win;if(c.bfZone){c.win+=10}
-    if(tech.id==='ao')c.comboFlags.ao=true;if(tech.id==='aka')c.comboFlags.aka=true;
-    if(tech.id==='rct_self')state.traits=state.traits.filter(function(t){return t.indexOf('bt_wnd_')!==0});if(tech.id==='domain_amp'){c.selfBlocked=true;c.enemyBlocked=true}if(tech.id==='barrier')c.barrierActive=true;
-    var rp=document.getElementById('resultPanel');rp.style.display='block';rp.innerHTML='<div class="rp-cat">⚔ 交锋</div><div class="rp-val" style="color:'+(item.c||'#888')+'">'+item.l+'</div><div class="rp-desc">-'+tech.st+'体 -'+tech.ce+'咒 +'+tech.win+'胜'+(' | 剩体力:'+c.stamina)+'</div>';
-    c.log.push('[T'+c.round+'] '+item.l+': -'+tech.st+'体 +'+tech.win+'胜');
-    if(c.stamina<=0){c.phase='enemy_stamina';showToast('体力耗尽→敌人阶段');var ws=v3BuildPhaseWheel();if(ws){wheel=buildWheel(ws);wheel.angle=0;state.targetAngle=0;initParticles();wheel.draw()}_v3AutoBuildEnemyStamina();refreshAll();saveState();return}document.getElementById('btnSpin').style.display='none';document.getElementById('btnNext').style.display='block';document.getElementById('btnNext').textContent='→ 下一招';refreshAll();saveState();return}
-  if(ph==='enemy_tech'){var tech=item._tech;if(!tech){showToast('无效技法');return}c.enemyStamina-=tech.st;if(tech.ce>0)c.enemyCe-=tech.ce;c.enemyWin+=tech.win;showToast('敌:'+item.l+' (-'+tech.st+'体)');if(c.enemyStamina<=0){c.phase='clash';showToast('敌人招尽→对拼轮');var ws=v3BuildPhaseWheel();if(ws){wheel=buildWheel(ws);wheel.angle=0;state.targetAngle=0;initParticles();wheel.draw()}refreshAll();saveState();return}document.getElementById('btnSpin').style.display='none';document.getElementById('btnNext').style.display='block';document.getElementById('btnNext').textContent='→ 下一招';refreshAll();saveState();return}
-  if(ph==='clash'){v3ClashResult(idx);var ended=checkCombatEnd();if(ended){c.phase='result';refreshAll();saveState();return}c.phase='player_stamina';roundStamina();c.phase='player_stamina';var sw=v3BuildPhaseWheel();if(sw){wheel=buildWheel(sw);wheel.angle=0;state.targetAngle=0;initParticles();wheel.draw()}refreshAll();saveState();return}
-  if(ph==='domain_clash'){v3DomainClashResult(idx);refreshAll();saveState();return}
-  if(ph==='result'){v3HandleResult(item.l);refreshAll();saveState();return}
+  var item=wheel.sectors[idx],c=state.combat,val=parseInt(item.l);
+  if(rt==='combat_stamina'&&!isNaN(val)){c.stamina=val;c.phase='player_tech';refreshAll();saveState();showToast('体力:'+val);var nxt=activeRounds().findIndex(function(rx){return rx.id==='p4_stance'});if(nxt>=0)goRound(nxt);return}
+  if(rt==='combat_repeatable'){
+    if(rid==='p4_ptech'){var tech=item._tech;if(!tech){showToast('无效技法');return}
+      if(tech.id==='__bf__'){var bfWin=Math.floor(v3BfRate()*2.5);c.stamina+=5;c.ce+=12;c.win+=Math.max(1,bfWin);c.bfZone=true;c.bfCombo=Math.min(3,c.bfCombo+1);showToast('⚡黑闪!');c.log.push('[T'+c.round+'] ⚡黑闪');refreshAll();saveState();return}
+      c.stamina-=tech.st;if(tech.ce>0){c.ce-=tech.ce;c.shield=Math.floor(c.ce*0.5)}c.win+=tech.win;if(c.bfZone){c.win+=10}
+      if(tech.id==='ao')c.comboFlags.ao=true;if(tech.id==='aka')c.comboFlags.aka=true;
+      if(tech.id==='rct_self')state.traits=state.traits.filter(function(t){return t.indexOf('bt_wnd_')!==0});if(tech.id==='domain_amp'){c.selfBlocked=true;c.enemyBlocked=true}if(tech.id==='barrier')c.barrierActive=true;
+      var rp=document.getElementById('resultPanel');rp.style.display='block';rp.innerHTML='<div class="rp-cat">⚔ 出招</div><div class="rp-val" style="color:'+(item.c||'#888')+'">'+item.l+'</div><div class="rp-desc">-'+tech.st+'体 -'+tech.ce+'咒 +'+tech.win+'胜 | 剩体力:'+c.stamina+'</div>';
+      c.log.push('[T'+c.round+'] '+item.l+': -'+tech.st+'体 +'+tech.win+'胜');
+      if(c.stamina<=0){document.getElementById('btnSpin').style.display='none';document.getElementById('btnNext').style.display='block';document.getElementById('btnNext').textContent='→ 敌体力';refreshAll();saveState();return}
+      document.getElementById('btnSpin').style.display='none';document.getElementById('btnNext').style.display='block';document.getElementById('btnNext').textContent='→ 下一招';refreshAll();saveState();return}
+    if(rid==='p4_estamina'&&!isNaN(val)){c.enemyStamina=val;showToast('敌体力:'+val);refreshAll();saveState();var nxt=activeRounds().findIndex(function(rx){return rx.id==='p4_etech'});if(nxt>=0)goRound(nxt);return}
+    if(rid==='p4_etech'){var tech=item._tech;if(!tech){showToast('无效技法');return}c.enemyStamina-=tech.st;if(tech.ce>0)c.enemyCe-=tech.ce;c.enemyWin+=tech.win;showToast('敌:'+item.l+' (-'+tech.st+'体)');if(c.enemyStamina<=0){document.getElementById('btnNext').style.display='block';document.getElementById('btnNext').textContent='→ 对拼';refreshAll();saveState();return}document.getElementById('btnSpin').style.display='none';document.getElementById('btnNext').style.display='block';document.getElementById('btnNext').textContent='→ 下一招';refreshAll();saveState();return}
+    if(rid==='p4_clash'){v3ClashResult(idx);var ended=checkCombatEnd();if(ended){document.getElementById('btnNext').style.display='block';document.getElementById('btnNext').textContent='→ 胜负';refreshAll();saveState();return}// 清理round results→回到p4_stamina
+      state.results=state.results.filter(function(rr){return['p4_stamina','p4_stance','p4_ptech','p4_estamina','p4_etech','p4_clash'].indexOf(rr.roundId)<0});
+      roundStamina();var nxt=activeRounds().findIndex(function(rx){return rx.id==='p4_stamina'});if(nxt>=0)goRound(nxt);refreshAll();saveState();return}
+    return}
+  if(rt==='combat_result'){v3HandleResult(item.l);refreshAll();saveState();return}
+  _origStop()
 }
-
-function _v3AutoBuildEnemyStamina(){var c=state.combat,p=v3EnemyDrawStamina(),items=[];for(var i=0;i<6;i++){var v=p-3+i;items.push({l:''+v,w:Math.abs(3-i)+1,c:'#d84'})}wheel=buildWheel(items);wheel.angle=0;state.targetAngle=0;initParticles();wheel.draw();document.getElementById('btnSpin').style.display='block';document.getElementById('btnSpin').textContent='🌀 敌人体力轮';document.getElementById('btnSpin').disabled=false;document.getElementById('resultPanel').style.display='none';document.getElementById('btnNext').style.display='none';updateCombatUI()}
-function _v3HandlePrepStop(r){
   state.spinning=false;var norm=(-wheel.angle)%(Math.PI*2);if(norm<0)norm+=Math.PI*2;var cum=0,idx=0;
   for(var i=0;i<wheel.sectors.length;i++){cum+=wheel.sectors[i].arc;if(norm<cum){idx=i;break}}
   var ceVal=parseInt(wheel.sectors[idx].l)||v3DrawCe();state.combat.ce=ceVal;state.combat.shield=Math.floor(ceVal*0.5);state.combat.prepped=true;
@@ -232,10 +235,10 @@ function updateCombatUI(){
   var edzEl=document.getElementById('cbEDZVal');if(edzEl){edzEl.textContent=Math.floor(c.enemyDangerZone)+'%';var edzBar=document.getElementById('cbEDZBar');if(edzBar)edzBar.style.width=c.enemyDangerZone+'%'}
   var ehPct=Math.max(0,Math.min(100,c.enemyHp/Math.max(1,e.hp)*100));document.getElementById('cbEhBar').style.width=ehPct+'%';document.getElementById('cbEhVal').textContent=c.enemyHp;
   if(c.burnout){document.getElementById('cbBurnout').style.display='block'}else{document.getElementById('cbBurnout').style.display='none'}
-  // 敌人资源写进敌人卡
-  var ecBody=document.querySelector('#enemyCard .ec-body');if(ecBody){var ex=ecBody.querySelector('.ec-xres');if(!ex){ex=document.createElement('div');ex.className='ec-xres';ex.style.cssText='display:flex;gap:8px;font-size:10px;padding:2px 0';ecBody.appendChild(ex)}ex.innerHTML='<span>体力:<b>'+c.enemyStamina+'</b></span><span>咒力:<b>'+c.enemyCe+'</b></span><span>胜率:<b>'+c.enemyWin+'</b></span><span style="color:#e88">势恶:<b>'+Math.floor(c.enemyDangerZone)+'%</b></span>'}
+  // 战斗日志
+  var logSec=document.getElementById('rpCombatLogSec'),logEl=document.getElementById('rpCombatLog');if(logSec&&logEl){logSec.style.display='block';logEl.innerHTML=c.log.slice(-12).map(function(l){return'<div class="rh">'+l+'</div>'}).join('')}
   updateBtnRow()
 }
 
 // ========================================================= V3 SECTOR LABELS =========================================================
-(function patchBuildWheel(){if(typeof buildWheel!=='function')return;var _orig=buildWheel;buildWheel=function(items){var w=_orig(items),orig=w.draw;w.draw=function(){orig.call(this);var ctx=this.ctx,a=this.angle-Math.PI/2;for(var i=0;i<this.sectors.length;i++){var s=this.sectors[i],sa=a,ea=a+s.arc;if(!s._tech)continue;ctx.save();ctx.translate(this.cx,this.cy);ctx.rotate(sa+s.arc/2);ctx.textAlign='right';ctx.fillStyle='#999';var fs2=Math.max(7,this.radius*.06);ctx.font=fs2+'px sans-serif';ctx.fillText('-'+s._tech.st+'体 -'+s._tech.ce+'咒 +'+s._tech.win,this.radius-8,-fs2*.5);ctx.restore();a=ea}};return w}})();
+(function patchBuildWheel(){if(typeof buildWheel!=='function')return;var _orig=buildWheel;buildWheel=function(items){var w=_orig(items),orig=w.draw;w.draw=function(){orig.call(this);var ctx=this.ctx,a=this.angle-Math.PI/2;for(var i=0;i<this.sectors.length;i++){var s=this.sectors[i],sa=a,ea=a+s.arc;if(!s._tech)continue;ctx.save();ctx.translate(this.cx,this.cy);ctx.rotate(sa+s.arc/2);ctx.textAlign='right';ctx.fillStyle='#fff';ctx.shadowColor='rgba(0,0,0,0.8)';ctx.shadowBlur=3;var fs2=Math.max(10,this.radius*.065);ctx.font='bold '+fs2+'px sans-serif';var txt='-'+s._tech.st+'体 -'+s._tech.ce+'咒 +'+s._tech.win;ctx.fillText(txt,this.radius-12,fs2*.35);ctx.shadowBlur=0;ctx.restore();a=ea}};return w}})();

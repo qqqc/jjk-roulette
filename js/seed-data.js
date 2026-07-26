@@ -676,17 +676,21 @@ const SEED_DATA={phases:[
   {id:"p3_shibu",name:"涩谷事变",icon:"🎃",cond:"era_涩谷事变",rounds:[]},
   {id:"p3_shime",name:"死灭回游",icon:"⚰️",cond:"era_死灭回游",rounds:[]},
   {id:"p3_shin",name:"新宿决战",icon:"💥",cond:"era_新宿决战",rounds:[]},
-   {id:"p4",name:"战斗模拟",icon:"⚔",rounds:[
+    {id:"p4",name:"战斗模拟",icon:"⚔",rounds:[
      {id:"p4_enemy",title:"索敌·遭遇判定",icon:"👁",order:1,prop:"敌人",items:[
        {l:"伏黑甚尔·天与暴君",w:12,c:"#ffcc00",d:"天与咒缚的极致——零咒力换来了超越人类的肉体。",tags:["enemy_fushiguro_toji_kai"]}
      ]},
-     {id:"p4_prep",title:"开战·咒力抽取",icon:"🟣",order:2,cond:"enemy_fushiguro_toji_kai",prop:"",type:"combat_prep",items:[]},
-      // p4_stance 已删除——姿态选择集成在每回合体力轮后(§1.1②)
-      {id:"p4_action",title:"交锋",icon:"🎯",order:3,cond:"enemy_fushiguro_toji_kai",prop:"",type:"combat_action",items:[]},
-      {id:"p4_result",title:"终结",icon:"⌛",order:4,cond:"enemy_fushiguro_toji_kai",prop:"",type:"combat_result",items:[]},
-      {id:"p4_rest",title:"战后休整",icon:"💤",order:5,cond:"enemy_fushiguro_toji_kai",prop:"",items:[
-       {l:"充分休整",w:3,c:"#4c8",d:"体力与咒力完全恢复。伤势有所好转。",dimMod:{体质:1},tags:["rest_full"],wMods:[{cond:"意志|>=|A",w:2.5},{cond:"意志|>=|S",w:1.5}]},
-       {l:"短暂休整",w:5,c:"#888",d:"体力恢复大半,但咒力只回复了一半。",tags:["rest_short"]},
+     {id:"p4_prep",title:"开战·咒力抽取",icon:"🟣",order:2,cond:"enemy_fushiguro_toji_kai",type:"combat_ce",items:[]},
+     {id:"p4_stamina",title:"备战·体力抽取",icon:"💪",order:3,cond:"enemy_fushiguro_toji_kai",type:"combat_stamina",items:[]},
+     {id:"p4_stance",title:"战术·姿态选择",icon:"⚖",order:4,cond:"enemy_fushiguro_toji_kai",type:"combat_stance",items:[]},
+     {id:"p4_ptech",title:"交锋·出招",icon:"⚔",order:5,cond:"enemy_fushiguro_toji_kai",type:"combat_repeatable",items:[]},
+     {id:"p4_estamina",title:"敌·体力抽取",icon:"👤",order:6,cond:"enemy_fushiguro_toji_kai",type:"combat_repeatable",items:[]},
+     {id:"p4_etech",title:"敌·出招",icon:"🗡",order:7,cond:"enemy_fushiguro_toji_kai",type:"combat_repeatable",items:[]},
+     {id:"p4_clash",title:"对拼·决战",icon:"⚡",order:8,cond:"enemy_fushiguro_toji_kai",type:"combat_repeatable",items:[]},
+     {id:"p4_result",title:"终结",icon:"⌛",order:9,cond:"enemy_fushiguro_toji_kai",type:"combat_result",items:[]},
+     {id:"p4_rest",title:"战后休整",icon:"💤",order:10,cond:"enemy_fushiguro_toji_kai",prop:"",items:[
+       {l:"充分休整",w:3,c:"#4c8",d:"体力与咒力完全恢复。",tags:["rest_full"]},
+       {l:"短暂休整",w:5,c:"#888",d:"体力恢复大半,咒力回复一半。",tags:["rest_short"]},
        {l:"勉强支撑",w:4,c:"#a64",d:"带伤进入下场战斗。",dimMod:{体质:-1},tags:["bt_wounded"]},
        {l:"伤势恶化",w:2,c:"#c22",d:"战斗造成的伤势正在扩散。",dimMod:{体质:-2},tags:["bt_wounded","重伤"]}
      ]}

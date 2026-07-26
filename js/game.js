@@ -201,32 +201,25 @@ function refreshRound(){
   if(ec){if(state.combat.active&&r.id&&!r.id.startsWith('p4_enemy')){ec.style.display='block';if(cb)cb.style.display='block';updateCombatUI()}else{ec.style.display='none';if(cb)cb.style.display='none'}}
   if(sp){if(r.type==='stance'){sp.style.display='block';document.getElementById('btnSpin').style.display='none';document.getElementById('btnNext').style.display='none';document.getElementById('resultPanel').style.display='none'}else if(state.combat&&state.combat.phase==='player_stance'){}else{sp.style.display='none'}}
   document.getElementById('roundTitle').innerHTML=`<span style="font-size:18px">${r.icon}</span> 第${getCurrentRoundIndex()+1}转：${r.title}`;
-  if(r.type==='combat_prep'){
-    if(!state.combat.prepped){
-      var lo=v3CeDrawLower(),mx=v3CeMax(),min=Math.floor(mx*lo/100),step=Math.max(1,Math.floor((mx-min)/5)),items=[];
-      for(var i=0;i<6;i++){var v=Math.min(mx,min+i*step);items.push({l:''+v,w:Math.abs(3-i)+1,c:'#a0f'})}
-      wheel=buildWheel(items);wheel.angle=0;state.targetAngle=0;initParticles();wheel.draw();
-      document.getElementById('wheelWrap').style.display='block';document.getElementById('btnSpin').style.display='block';document.getElementById('btnSpin').textContent='🟣 抽取咒力';document.getElementById('btnSpin').disabled=false;
-    }else{
-      document.getElementById('wheelWrap').style.display='none';document.getElementById('btnSpin').style.display='none';
-      document.getElementById('resultPanel').style.display='block';
-      document.getElementById('resultPanel').innerHTML='<div class="rp-cat">'+r.icon+' '+r.title+'</div><div class="rp-val" style="color:#a0f">初始咒力: '+state.combat.ce+'</div><div class="rp-desc">体力上限: '+state.combat.hp+'</div>';
-      document.getElementById('btnNext').style.display='block';document.getElementById('btnNext').textContent='→ 进入战斗';
-    }
-    document.getElementById('moralPick').style.display='none';document.getElementById('inputRound').style.display='none';
-    document.getElementById('btnReroll').style.display='none';
-    return;
+  if(r.type==='combat_ce'){
+    document.getElementById('wheelWrap').style.display='block';document.getElementById('btnSpin').style.display='block';document.getElementById('btnSpin').textContent='🟣 抽取咒力';document.getElementById('btnSpin').disabled=false;
+    if(typeof v3BuildCeSectors==='function'){var ceS=v3BuildCeSectors();if(ceS){wheel=buildWheel(ceS);wheel.angle=0;state.targetAngle=0;initParticles();wheel.draw()}}
+    document.getElementById('moralPick').style.display='none';document.getElementById('inputRound').style.display='none';document.getElementById('btnReroll').style.display='none';document.getElementById('stancePick').style.display='none';return;
   }
-  if(r.type==='stance'){
-    document.getElementById('wheelWrap').style.display='none';return;
+  if(r.type==='combat_stamina'){
+    if(typeof roundStamina==='function'&&(!state.combat.round||state.combat.stamina<=0))roundStamina();
+    document.getElementById('wheelWrap').style.display='block';document.getElementById('btnSpin').style.display='block';document.getElementById('btnSpin').textContent='💪 抽取体力';document.getElementById('btnSpin').disabled=false;
+    document.getElementById('resultPanel').style.display='none';document.getElementById('btnNext').style.display='none';document.getElementById('stancePick').style.display='none';
+    if(typeof v3BuildStaminaWheel==='function'){var sw=v3BuildStaminaWheel();if(sw){wheel=buildWheel(sw);wheel.angle=0;state.targetAngle=0;initParticles();wheel.draw()}}return;
   }
-  if(r.type==='combat_action'){
-    var firstEntry=(!state.combat.round||state.combat.round===0);
-    if(firstEntry){roundStamina();state.combat.phase='player_stamina'}
-    document.getElementById('wheelWrap').style.display='block';
-    if(firstEntry&&typeof v3BuildPhaseWheel==='function'&&(!wheel||!wheel.sectors||wheel.sectors.length===0)){var w=v3BuildPhaseWheel();if(w){wheel=buildWheel(w);wheel.angle=0;state.targetAngle=0;initParticles();wheel.draw()}}
-    // 按钮由 combat.js 管控，refreshRound 不覆盖
-    return;
+  if(r.type==='combat_stance'){
+    document.getElementById('wheelWrap').style.display='block';document.getElementById('btnSpin').style.display='none';document.getElementById('btnNext').style.display='none';
+    document.getElementById('stancePick').style.display='block';document.getElementById('resultPanel').style.display='none';document.getElementById('btnReroll').style.display='none';return;
+  }
+  if(r.type==='combat_repeatable'){
+    document.getElementById('wheelWrap').style.display='block';document.getElementById('btnSpin').style.display='block';document.getElementById('btnSpin').textContent='🌀 旋转';document.getElementById('btnSpin').disabled=false;
+    document.getElementById('resultPanel').style.display='none';document.getElementById('btnNext').style.display='none';document.getElementById('stancePick').style.display='none';
+    if(typeof v3BuildRoundWheel==='function'){var rw=v3BuildRoundWheel(r.id);if(rw){wheel=buildWheel(rw);wheel.angle=0;state.targetAngle=0;initParticles();wheel.draw()}}return;
   }
   if(r.type==='combat_result'){
     const outcome=getResultOutcome();let items=[];const enemy=ENEMY_TEMPLATES[state.combat.enemyId];const eName=enemy?enemy.name:'敌人';
