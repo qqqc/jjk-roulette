@@ -70,7 +70,16 @@ function roundStamina(){
 }
 
 // ========================================================= V3 SPIN/STOP OVERRIDE =========================================================
-var _origSpin=spin,_origStop=stop;
+var _origSpin=spin,_origStop=stop,_origGoNext=goNext;
+
+goNext=function(){
+  var c=state.combat;
+  if(c&&c.active&&(c.phase==='player_tech'||c.phase==='enemy_tech')){
+    if(c.phase==='player_tech'){
+      var items=v3BuildCombatItems(false);if(!items||items.length===0){c.phase=c.stamina<=0?'enemy_stamina':'player_tech';if(c.stamina<=0){showToast('体力耗尽→敌人阶段');_v3AutoBuildEnemyStamina();return}else{showToast('无可出招');return}}
+      wheel=buildWheel(items);wheel.angle=0;state.targetAngle=0;initParticles();wheel.draw();document.getElementById('btnSpin').style.display='block';document.getElementById('btnSpin').textContent='⚔ 出招';document.getElementById('btnNext').style.display='none'
+    }else{_v3AutoBuildEnemyTech();document.getElementById('btnSpin').style.display='block';document.getElementById('btnNext').style.display='none'}return}
+  _origGoNext()
 
 function showStancePanel(){document.getElementById('btnSpin').style.display='none';document.getElementById('btnNext').style.display='none';document.getElementById('stancePick').style.display='block'}
 var _origSelectStance=selectStance;selectStance=function(s){state.combat.stance=s;state.combat.phase='player_tech';document.querySelectorAll('.sp-card').forEach(function(cx){cx.classList.toggle('sel',cx.dataset.stance===s)});document.getElementById('stancePick').style.display='none';document.getElementById('btnSpin').style.display='block';document.getElementById('btnSpin').textContent='⚔ 出招';refreshAll();saveState()}
@@ -102,7 +111,7 @@ stop=function(){
   if(ph==='player_stamina'&&!isNaN(val)){c.stamina=val;c.phase='player_stance';showStancePanel();refreshAll();saveState();return}
   if(ph==='enemy_stamina'&&!isNaN(val)){c.enemyStamina=val;c.phase='enemy_tech';showToast('敌体力:'+val);_v3AutoBuildEnemyTech();return}
   if(ph==='player_tech'){var tech=item._tech;if(!tech){showToast('无效技法');return}var bf=v3BfCheck(tech);c.stamina-=tech.st;if(tech.ce>0)c.ce-=tech.ce;c.win+=tech.win;if(bf){c.win=Math.floor(c.win*2.5)}if(c.bfZone){c.win+=10}if(tech.id==='ao')c.comboFlags.ao=true;if(tech.id==='aka')c.comboFlags.aka=true;if(tech.id==='rct_self')state.traits=state.traits.filter(function(t){return t.indexOf('bt_wnd_')!==0});if(tech.id==='domain_amp'){c.selfBlocked=true;c.enemyBlocked=true}if(tech.id==='barrier')c.barrierActive=true;var rp=document.getElementById('resultPanel');rp.style.display='block';rp.innerHTML='<div class="rp-cat">'+r.icon+' '+r.title+'</div><div class="rp-val" style="color:'+(item.c||'#888')+'">'+item.l+(bf?' ⚡黑闪!':'')+'</div><div class="rp-desc">-'+tech.st+'体 | +'+tech.win+'胜'+(bf?'×2.5':'')+' | 剩体力:'+c.stamina+'</div>';if(c.stamina<=0){c.phase='enemy_stamina';showToast('体力耗尽→敌人阶段');_v3AutoBuildEnemyStamina();refreshAll();saveState();return}refreshAll();saveState();return}
-  if(ph==='enemy_tech'){var tech=item._tech;if(!tech){showToast('无效技法');return}c.enemyStamina-=tech.st;if(tech.ce>0)c.enemyCe-=tech.ce;c.enemyWin+=tech.win;showToast('敌:'+item.l+' (-'+tech.st+'体)');if(c.enemyStamina<=0){c.phase='clash';showToast('敌人招尽→对拼轮');refreshAll();saveState();return}_v3AutoBuildEnemyTech();refreshAll();saveState();return}
+  if(ph==='enemy_tech'){var tech=item._tech;if(!tech){showToast('无效技法');return}c.enemyStamina-=tech.st;if(tech.ce>0)c.enemyCe-=tech.ce;c.enemyWin+=tech.win;showToast('敌:'+item.l+' (-'+tech.st+'体)');if(c.enemyStamina<=0){c.phase='clash';showToast('敌人招尽→对拼轮');refreshAll();saveState();return}document.getElementById('btnSpin').style.display='none';document.getElementById('btnNext').style.display='block';document.getElementById('btnNext').textContent='→ 下一招';refreshAll();saveState();return}
   if(ph==='clash'){v3ClashResult(idx);var ended=checkCombatEnd();if(ended){c.phase='result';refreshAll();saveState();return}c.phase='player_stamina';roundStamina();c.phase='player_stamina';refreshAll();saveState();return}
   if(ph==='domain_clash'){v3DomainClashResult(idx);refreshAll();saveState();return}
   if(ph==='result'){v3HandleResult(item.l);refreshAll();saveState();return}
@@ -117,7 +126,9 @@ function _v3HandlePrepStop(r){
   document.getElementById('wheelWrap').style.display='none';document.getElementById('btnSpin').style.display='none';
   document.getElementById('resultPanel').style.display='block';
   document.getElementById('resultPanel').innerHTML='<div class="rp-cat">'+r.icon+' '+r.title+'</div><div class="rp-val" style="color:#a0f">初始咒力: '+ceVal+'</div><div class="rp-desc">体力上限: '+state.combat.hp+'</div>';
-  document.getElementById('btnNext').style.display='block';document.getElementById('btnNext').textContent='→ 进入战斗';saveState()
+  document.getElementById('btnNext').style.display='block';document.getElementById('btnNext').textContent='→ 进入战斗';saveState();
+  // 标记p4_prep完成以便goNext跳跃
+  var already=state.results.filter(function(rr){return rr.roundId===r.id});if(already.length===0)state.results.push({roundId:r.id,rname:r.icon+' '+r.title,prop:'',label:'咒力:'+ceVal,desc:'',c:'#a0f',_item:{tags:[],dim:{},dimMod:{}}});
 }
 function _v3AutoBuildEnemyTech(){var items=v3BuildCombatItems(true);if(!items||items.length===0){state.combat.phase='clash';showToast('敌人无可出招→对拼');refreshAll();return}wheel=buildWheel(items);wheel.angle=0;state.targetAngle=0;initParticles();wheel.draw();document.getElementById('btnSpin').style.display='block';document.getElementById('btnSpin').textContent='🌀 敌人出招';document.getElementById('btnSpin').disabled=false;document.getElementById('resultPanel').style.display='none';document.getElementById('btnNext').style.display='none'}
 function v3BfCheck(tech){var c=state.combat,rate=Math.min(35,v3BfRate()+c.bfCombo*v3BfRate()*0.5);if(Math.random()*100<rate){c.bfCombo=Math.min(3,c.bfCombo+1);c.stamina+=5;c.ce+=12;c.bfZone=true;return true}return false}
@@ -125,7 +136,31 @@ function checkCombatEnd(){var c=state.combat;if(c.clockBK>=6)return'victory';if(
 function getResultOutcome(){
   var c=state.combat;if(c.clockBK>=6||c.enemyHp<=0){var w={complete:25,bitter:50,heavy:25};if(c.shield>0){w.complete+=25;w.bitter-=10;w.heavy-=15}if(c.hp>v3StaminaMax()*0.9)w.complete+=20;if(c.hp>v3StaminaMax()*0.7)w.complete+=10;if(c.hp<v3StaminaMax()*0.25){w.complete-=25;w.heavy+=15}if(c.clockLB===0){w.complete+=20;w.bitter-=10}if(c.clockLB>=5){w.complete-=35;w.bitter+=18}if(c.round<=3){w.complete+=15;w.bitter-=8}if(c.round>12){w.complete-=15;w.bitter+=8}if(c.burnout){w.complete-=12;w.bitter+=5}w.complete=Math.max(5,w.complete);w.bitter=Math.max(5,w.bitter);w.heavy=Math.max(5,w.heavy);return w}
   var w={retreat:30,heavy:25,death:30,mercy:5};if(c.clockBK<=1){w.retreat-=15;w.death+=10}if(c.clockBK>=5){w.retreat+=30;w.death-=10}if(c.hp>v3StaminaMax()*0.5){w.retreat+=15;w.death-=10;w.mercy+=3}if(c.ce>v3CeMax()*0.5){w.retreat+=8;w.death-=5;w.mercy+=2}  var charm=dimVal(state.dimensions['魅力']);if(charm>=4)w.mercy+=1;if(charm>=5)w.mercy+=2;if(charm>=6)w.mercy+=4;if(charm>=7)w.mercy+=6;if(charm>=8)w.mercy+=8;if(charm>=6)w.mercy+=4;if(charm>=7)w.mercy+=6;if(charm>=8)w.mercy+=8;return w}
-function v3ClashResult(idx){var c=state.combat,enemy=ENEMY_TEMPLATES[c.enemyId],mult=[1.3,1.1,1.0,0.9,0.7,2.0][idx],eMult=[0.7,0.9,1.0,1.1,1.3,2.0][idx];var pBase=Math.floor(c.win*0.8)+v3ClashBonus()+Math.floor(Math.random()*6);var eBase=Math.floor(c.enemyWin*0.8)+enemy.baseDmg+Math.floor(Math.random()*6);if(c.yourDomainActive)pBase=Math.floor(pBase*1.2);if(c.enemyDomainActive)eBase=Math.floor(eBase*1.2);if(isHeavenlyRestricted()&&c.enemyDomainActive)pBase=pBase;if(mult===2.0&&eMult===2.0){}if(c.stance==='猛攻'){pBase=Math.floor(pBase*1.3);eBase=Math.floor(eBase*1.3)}if(c.stance==='坚牢'){pBase=Math.floor(pBase*0.7);eBase=Math.floor(eBase*0.7)}if(c.barrierActive)eBase=Math.floor(eBase*0.8);if(c.burnout)pBase=Math.floor(pBase*0.7);if(c._escapeFail){eBase=Math.floor(eBase*1.3);c._escapeFail=false}var pDmg=Math.floor(pBase*mult),eDmg=Math.floor(eBase*eMult);if(c.shield>0){var abs=Math.min(c.shield,eDmg);c.shield-=abs;eDmg-=abs}c.hp=Math.max(0,c.hp-Math.max(0,eDmg));c.enemyHp=Math.max(0,c.enemyHp-Math.max(0,pDmg));c.clockBK=Math.min(6,c.clockBK+Math.floor(pDmg/(enemy.hp/6)));c.clockLB=Math.min(6,c.clockLB+Math.floor(eDmg/(v3StaminaMax()/6)*v3WillClockMul()));c.shield=Math.floor(c.ce*0.5);updateCombatUI();var rp=document.getElementById('resultPanel');rp.style.display='block';rp.innerHTML='<div class="rp-cat">⚔ 对拼结果</div><div class="rp-val">你:'+pDmg+'伤害 | 敌:'+eDmg+'伤害</div><div class="rp-desc">击破:'+c.clockBK+'/6 败势:'+c.clockLB+'/6</div>'}
+function v3ClashResult(idx){var c=state.combat,enemy=ENEMY_TEMPLATES[c.enemyId],mult=[1.3,1.1,1.0,0.9,0.7,2.0][idx],eMult=[0.7,0.9,1.0,1.1,1.3,2.0][idx];
+  var pBase=Math.floor(c.win*0.8)+v3ClashBonus()+Math.floor(Math.random()*6);
+  var eBase=Math.floor(c.enemyWin*0.8)+enemy.baseDmg+Math.floor(Math.random()*6);
+  // 领域必中效果
+  if(c.yourDomainActive)pBase=Math.floor(pBase*(1.0+0.2));if(c.enemyDomainActive)eBase=Math.floor(eBase*(1.0+0.2));
+  // 天与咒缚·领域特例: 零咒力→敌必中失效
+  if(isHeavenlyRestricted()&&c.enemyDomainActive)pBase=Math.floor(c.win*0.8)+v3ClashBonus()+Math.floor(Math.random()*6);
+  // 天逆鉾
+  var hasToge=false;if(isHeavenlyRestricted()){if(state.results.some(function(rr){return rr.label==='术式无效(天逆鉾)'}))hasToge=true}if(hasToge)pBase+=15;
+  // 领域效果: 打击灵魂 +8
+  if(c.yourDomainActive&&c.domainEffect==='打击灵魂')pBase+=8;
+  // 姿态修正
+  if(c.stance==='猛攻'){pBase=Math.floor(pBase*1.3);eBase=Math.floor(eBase*1.3)}if(c.stance==='坚牢'){pBase=Math.floor(pBase*0.7);eBase=Math.floor(eBase*0.7)}
+  // 结界术
+  if(c.barrierActive)eBase=Math.floor(eBase*0.8);if(c.burnout)pBase=Math.floor(pBase*0.7);
+  // 逃跑失败惩罚
+  if(c._escapeFail){eBase=Math.floor(eBase*1.3);c._escapeFail=false}
+  // 咒灵易伤(RCT克制)
+  var isCurse=enemy.type==='curse';if(isCurse){var curseMul=1;if(c.win>0)curseMul=1.5;eBase=Math.floor(eBase*curseMul)}
+  var pDmg=Math.floor(pBase*mult),eDmg=Math.floor(eBase*eMult);
+  if(c.shield>0){var abs=Math.min(c.shield,eDmg);c.shield-=abs;eDmg-=abs}
+  c.hp=Math.max(0,c.hp-Math.max(0,eDmg));c.enemyHp=Math.max(0,c.enemyHp-Math.max(0,pDmg));
+  c.clockBK=Math.min(6,c.clockBK+Math.floor(pDmg/(enemy.hp/6)));c.clockLB=Math.min(6,c.clockLB+Math.floor(eDmg/(v3StaminaMax()/6)*v3WillClockMul()));
+  c.shield=Math.floor(c.ce*0.5);updateCombatUI();var rp=document.getElementById('resultPanel');rp.style.display='block';rp.innerHTML='<div class="rp-cat">⚔ 对拼结果</div><div class="rp-val">你:'+pDmg+'伤害 | 敌:'+eDmg+'伤害</div><div class="rp-desc">击破:'+c.clockBK+'/6 败势:'+c.clockLB+'/6</div>';c.log.push('[T'+c.round+' CLASH] 你:'+pDmg+' 敌:'+eDmg+' BK:'+c.clockBK+' LB:'+c.clockLB)
+}
 function v3DomainClashResult(idx){var c=state.combat;if(idx===0){c.yourDomainActive=true;c.enemyDomainActive=false;c.burnout=true;showToast('领域占上风!')}else if(idx===1){c.enemyDomainActive=true;c.yourDomainActive=false;c.burnout=true;showToast('对方领域占优')}else if(idx===2){c.burnout=true;c.yourDomainActive=false;c.enemyDomainActive=false;showToast('领域对消灭!')}else{showToast('僵持，下回合再拼')}c.phase='player_tech';updateCombatUI()}
 function v3RCTResult(label){var c=state.combat;if(label.indexOf('完美')>=0){c.burnout=false;c.domainUsed=false;showToast('完美修复!')}else if(label.indexOf('标准')>=0){c.burnout=false;c.domainUsed=false;c.ce=Math.max(0,c.ce-15);showToast('标准修复，CE-15')}else if(label.indexOf('代价')>=0){c.burnout=false;c.domainUsed=false;c.ce=Math.max(0,c.ce-25);showToast('代价修复')}else if(label.indexOf('失败')>=0){c.hp=Math.floor(c.hp*0.7);showToast('修复失败')}else if(label.indexOf('反噬')>=0){state.traits=state.traits.filter(function(t){return normalizeTag(t)!=='领域展开'});c.hp=Math.floor(c.hp*0.5);showToast('反噬!')}c.phase='player_tech';updateCombatUI()}
 function v3EscapeResult(label){var c=state.combat;if(label.indexOf('成功')>=0){endCombat();showToast('成功脱出!');goNext()}else if(label.indexOf('险中')>=0){var cur=dimVal(state.dimensions['体质']);state.dimensions['体质']=dimLv(cur-1);endCombat();showToast('险脱，体质-1');goNext()}else{c._escapeFail=true;c.phase='player_tech';showToast('脱出失败!')}}

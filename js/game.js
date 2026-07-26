@@ -105,7 +105,7 @@ function checkCond(cond){
   return true;
 }
 const ph=()=>DATA.phases[curPhase];
-const rd=()=>{var ar=ph().rounds.filter(r=>checkCond(r.cond)).sort((a,b)=>a.order-b.order);return ar[Math.min(curRound,ar.length-1)]};
+const rd=()=>{var ar=ph().rounds.filter(r=>checkCond(r.cond)).sort((a,b)=>a.order-b.order);return ar.length>0?ar[Math.min(curRound,ar.length-1)]:null};
 const activeRounds=()=>ph().rounds.filter(r=>checkCond(r.cond)).sort((a,b)=>a.order-b.order);
 const isRoundDone=(r)=>{if(!r)return false;return state.results.some(rr=>rr.roundId===r.id)};
 const isPhaseDone=()=>activeRounds().every(r=>isRoundDone(r));

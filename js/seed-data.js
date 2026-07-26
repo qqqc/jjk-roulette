@@ -678,8 +678,7 @@ const SEED_DATA={phases:[
   {id:"p3_shin",name:"新宿决战",icon:"💥",cond:"era_新宿决战",rounds:[]},
    {id:"p4",name:"战斗模拟",icon:"⚔",rounds:[
      {id:"p4_enemy",title:"索敌·遭遇判定",icon:"👁",order:1,prop:"敌人",items:[
-       {l:"伏黑甚尔·天与暴君",w:12,c:"#ffcc00",d:"天与咒缚的极致——零咒力换来了超越人类的肉体。",tags:["enemy_fushiguro_toji_kai"]},
-       {l:"避而不战",w:3,c:"#666",d:"你感受到了危险的气息,选择了绕道而行。",tags:["battle_avoided"]}
+       {l:"伏黑甚尔·天与暴君",w:12,c:"#ffcc00",d:"天与咒缚的极致——零咒力换来了超越人类的肉体。",tags:["enemy_fushiguro_toji_kai"]}
      ]},
      {id:"p4_prep",title:"开战·咒力抽取",icon:"🟣",order:2,cond:"enemy_fushiguro_toji_kai",prop:"",type:"combat_prep",items:[]},
       // p4_stance 已删除——姿态选择集成在每回合体力轮后(§1.1②)
