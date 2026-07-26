@@ -202,23 +202,29 @@ function refreshRound(){
   if(sp){if(r.type==='stance'){sp.style.display='block';document.getElementById('btnSpin').style.display='none';document.getElementById('btnNext').style.display='none';document.getElementById('resultPanel').style.display='none'}else{sp.style.display='none'}}
   document.getElementById('roundTitle').innerHTML=`<span style="font-size:18px">${r.icon}</span> 第${getCurrentRoundIndex()+1}转：${r.title}`;
   if(r.type==='combat_prep'){
-    document.getElementById('wheelWrap').style.display='none';document.getElementById('btnSpin').style.display='none';document.getElementById('moralPick').style.display='none';document.getElementById('inputRound').style.display='none';
-    document.getElementById('resultPanel').style.display='block';
-    const ceVal=drawCe();state.combat.ce=ceVal;state.combat.hp=staminaMax();state.combat.shield=Math.floor(ceVal*0.5);state.combat.prepped=true;
-    updateCombatUI();combatShieldUpdate();updateCombatUI();
-    document.getElementById('resultPanel').innerHTML='<div class="rp-cat">'+r.icon+' '+r.title+'</div><div class="rp-val" style="color:#a0f">初始咒力: '+ceVal+'</div><div class="rp-desc">体力上限: '+state.combat.hp+' | 咒力上限: '+(ceMax()===Infinity?'∞':ceMax())+'</div>';
-    document.getElementById('btnNext').style.display='block';document.getElementById('btnNext').textContent='→ 进入战斗';
+    if(!state.combat.prepped){
+      var lo=v3CeDrawLower(),mx=v3CeMax(),min=Math.floor(mx*lo/100),step=Math.max(1,Math.floor((mx-min)/5)),items=[];
+      for(var i=0;i<6;i++){var v=Math.min(mx,min+i*step);items.push({l:''+v,w:Math.abs(3-i)+1,c:'#a0f'})}
+      wheel=buildWheel(items);wheel.angle=0;state.targetAngle=0;initParticles();wheel.draw();
+      document.getElementById('wheelWrap').style.display='block';document.getElementById('btnSpin').style.display='block';document.getElementById('btnSpin').textContent='🟣 抽取咒力';document.getElementById('btnSpin').disabled=false;
+    }else{
+      document.getElementById('wheelWrap').style.display='none';document.getElementById('btnSpin').style.display='none';
+      document.getElementById('resultPanel').style.display='block';
+      document.getElementById('resultPanel').innerHTML='<div class="rp-cat">'+r.icon+' '+r.title+'</div><div class="rp-val" style="color:#a0f">初始咒力: '+state.combat.ce+'</div><div class="rp-desc">体力上限: '+state.combat.hp+'</div>';
+      document.getElementById('btnNext').style.display='block';document.getElementById('btnNext').textContent='→ 进入战斗';
+    }
+    document.getElementById('moralPick').style.display='none';document.getElementById('inputRound').style.display='none';
     document.getElementById('btnReroll').style.display='none';
-    state.results.push({roundId:r.id,rname:r.icon+' '+r.title,prop:'',label:'咒力:'+ceVal,desc:'体力:'+state.combat.hp+' 咒力上限:'+(ceMax()===Infinity?'∞':ceMax()),c:'#a0f',_item:{tags:[],dim:{},dimMod:{}}});
     return;
   }
   if(r.type==='stance'){
     document.getElementById('wheelWrap').style.display='none';return;
   }
   if(r.type==='combat_action'){
-    if(!state.combat.round||state.combat.stamina<=0||state.combat.round===0){roundStamina()}
-    const items=buildCombatItems(false);if(items.length===0){showToast('无可用技法，体力或咒力不足');return}
-    wheel=buildWheel(items);wheel.angle=0;state.targetAngle=0;initParticles();wheel.draw();document.getElementById('btnSpin').style.display='block';document.getElementById('btnSpin').textContent='⚔ 出招';document.getElementById('btnSpin').disabled=false;document.getElementById('resultPanel').style.display='none';document.getElementById('btnNext').style.display='none';return;
+    if(!state.combat.round||state.combat.stamina<=0||state.combat.round===0){roundStamina();state.combat.phase='player_stamina'}
+    document.getElementById('wheelWrap').style.display='block';
+    document.getElementById('btnSpin').style.display='block';document.getElementById('btnSpin').textContent='🌀 旋转';document.getElementById('btnSpin').disabled=false;
+    document.getElementById('resultPanel').style.display='none';document.getElementById('btnNext').style.display='none';return;
   }
   if(r.type==='combat_result'){
     const outcome=getResultOutcome();let items=[];const enemy=ENEMY_TEMPLATES[state.combat.enemyId];const eName=enemy?enemy.name:'敌人';
