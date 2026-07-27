@@ -7,34 +7,6 @@
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<div class="intro-overlay" id="introOverlay">
-  <div class="intro-bg-seal">呪</div>
-  <div class="intro-content">
-    <div class="intro-jp">呪 術 廻 戦</div>
-    <div class="intro-title">命运的选择</div>
-    <div class="intro-subtitle">—— 你的咒术师之路由此开启 ——</div>
-    <div class="intro-choices">
-      <div class="intro-choice locked" onclick="introToast('原住民')">
-        <div class="ic-lock">🔒</div>
-        <div class="ic-icon">🏚️</div>
-        <div class="ic-label">原 住 民</div>
-        <div class="ic-hint">暂未开放</div>
-      </div>
-      <div class="intro-choice active" onclick="selectOrigin('穿越者')">
-        <div class="ic-glow"></div>
-        <div class="ic-icon">🌀</div>
-        <div class="ic-label">穿 越 者</div>
-        <div class="ic-hint">穿越进入咒术世界</div>
-      </div>
-      <div class="intro-choice locked" onclick="introToast('重生者')">
-        <div class="ic-lock">🔒</div>
-        <div class="ic-icon">🔄</div>
-        <div class="ic-label">重 生 者</div>
-        <div class="ic-hint">暂未开放</div>
-      </div>
-    </div>
-  </div>
-</div>
 <div class="dots-bg" id="dotsBg"></div>
 <div class="c-seal a">呪</div><div class="c-seal b">術</div><div class="c-seal c">封</div><div class="c-seal d">解</div>
 
@@ -56,6 +28,16 @@
     <div class="sb-footer"><div class="sb-edit" onclick="toggleEditor()">⚙️ 编辑数据</div></div>
   </div>
   <div class="center-area" id="centerArea">
+    <div class="origin-pick" id="originPick" style="display:none">
+      <div class="op-jp">呪 術 廻 戦</div>
+      <div class="op-title">命运的选择</div>
+      <div class="op-sub">—— 你的咒术师之路由此开启 ——</div>
+      <div class="op-cards">
+        <div class="op-card locked" onclick="introToast('原住民')"><div class="opc-lock">🔒</div><div class="opc-icon">🏚️</div><div class="opc-label">原住民</div><div class="opc-hint">暂未开放</div></div>
+        <div class="op-card active" onclick="selectOrigin('穿越者')"><div class="opc-glow"></div><div class="opc-icon">🌀</div><div class="opc-label">穿越者</div><div class="opc-hint">穿越进入咒术世界</div></div>
+        <div class="op-card locked" onclick="introToast('重生者')"><div class="opc-lock">🔒</div><div class="opc-icon">🔄</div><div class="opc-label">重生者</div><div class="opc-hint">暂未开放</div></div>
+      </div>
+    </div>
     <div class="round-title" id="roundTitle"></div>
     <div class="enemy-card" id="enemyCard" style="display:none"></div>
     <div class="combat-bars" id="combatBars" style="display:none"></div>

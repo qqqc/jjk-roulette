@@ -7,7 +7,7 @@ function dimColor(idx){if(idx>=9)return'#ffffff';if(idx>=8)return'#ffcc00';if(id
 function visibleTraits(){const hidden=['moral_LG','moral_LN','moral_LE','人','咒灵','pers_1','pers_2','pers_3','skill_1','skill_2','skill_3','skill_4','skill_5','skill_6','skill_7','skill_8','skill_9','dom_eff_1','dom_eff_2','dom_eff_3','dom_eff_4','dom_eff_5','dom_eff_6','ctool_1','ctool_2','ctool_3','ctool_4','ctool_5','corp_1','corp_2','corp_3','corp_4','corp_5','corp_6','领域展开','自定义术式','有术式','单类型','双类型','三类型','无术式'];return state.traits.filter(t=>!hidden.includes(t)&&!t.startsWith('era_')&&!t.startsWith('pers_')&&!t.startsWith('skill_')&&!t.startsWith('dom_eff_')&&!t.startsWith('ctool_')&&!t.startsWith('corp_'))}
 function initDimensions(){const d={};DIM_NAMES.forEach(k=>d[k]=null);return d}
 const state={spinning:false,results:[],traits:[],dimensions:initDimensions(),skills:[],persDrawn:[],drawnSkills:[],targetAngle:0,startAngle:0,startTime:0,duration:0,lastAngle:0,curTab:'wheel',editorOpen:false,introDone:false,combat:{active:false,enemyId:null,stance:null,stamina:0,ce:0,win:0,shield:0,hp:0,enemyStamina:0,enemyCe:0,enemyWin:0,enemyHp:0,clockBK:0,clockLB:0,dangerZone:0,burnout:false,bfCombo:0,domainUsed:false,maxUsed:false,round:0,enemyWnd:0}};
-const SKILL_CHAINS={'领域展开':['p2_dt','p2_dn','p2_de1','p2_de2','p2_de3','p2_de4','p2_de5','p2_de6','p2_dname'],'极之番':['p2_max','p2_mname'],'反转术式':['p2_rev'],'咒骸制作':['p2_corpQ','p2_corpP1','p2_corpP2','p2_corpP3','p2_corpP4','p2_corpP5','p2_corpP6']};
+const SKILL_CHAINS={'领域展开':['p2_dt','p2_dn','p2_de1','p2_de2','p2_de3','p2_de4','p2_de5','p2_de6','p2_dname'],'极之番':['p2_max','p2_mname'],'咒骸制作':['p2_corpQ','p2_corpP1','p2_corpP2','p2_corpP3','p2_corpP4','p2_corpP5','p2_corpP6']};
 let wheel,particles;
 
 // ========================================================= RENDER =========================================================
@@ -499,7 +499,15 @@ function _doRender(){
         prop:<input value="${r.prop||''}" onchange="DATA.phases[${pi}].rounds[${ri}].prop=this.value" style="width:50px;font-size:9px" />
         type:<input value="${r.type||''}" onchange="DATA.phases[${pi}].rounds[${ri}].type=this.value||null" style="width:40px;font-size:9px" placeholder="input" />
       </div>`;
-      if(r.type==='input'){
+  if(r.type==='origin'){
+    document.getElementById('wheelWrap').style.display='none';
+    document.getElementById('btnSpin').style.display='none';document.getElementById('btnNext').style.display='none';document.getElementById('btnReroll').style.display='none';document.getElementById('btnPhase').style.display='none';
+    document.getElementById('moralPick').style.display='none';document.getElementById('inputRound').style.display='none';
+    const op=document.getElementById('originPick');op.style.display='block';
+    if(done){op.querySelectorAll('.op-card').forEach(c=>{c.style.pointerEvents='none';c.style.opacity='.5'});op.querySelector('.op-card.active').style.opacity='1';op.querySelector('.opc-hint').textContent='✅ 已选择'}
+    document.getElementById('resultPanel').style.display='none';document.getElementById('btnChar').style.display='none';return;
+  }
+  if(r.type==='input'){
         h+=`<div class="ep-item" style="font-size:10px;color:var(--dim)">输入模式: min=<input class="w" type="number" min="1" max="50" value="${r.inputMin||2}" onchange="DATA.phases[${pi}].rounds[${ri}].inputMin=parseInt(this.value)||2" /> max=<input class="w" type="number" min="1" max="50" value="${r.inputMax||8}" onchange="DATA.phases[${pi}].rounds[${ri}].inputMax=parseInt(this.value)||8" /></div>`;
       }else{
       r.items.forEach((it,ii)=>{
@@ -582,13 +590,14 @@ const pl=document.getElementById('ptrLabel');if(pl){const s=ss[idx];pl.textConte
 
 // ========================================================= INIT =========================================================
 function selectOrigin(type){
-  if(type==='穿越者'){
-    state.introDone=true;
-    document.getElementById('introOverlay').style.display='none';
-    document.getElementById('dotsBg').style.display='block';
-    saveState();
-    setTimeout(()=>{refreshAll();requestAnimationFrame(loop)},100);
-  }
+  if(type!=='穿越者'){showToast(type+'暂未开放');return}
+  state.introDone=true;
+  const r=rd();if(!r)return;
+  state.results.push({roundId:r.id,rname:`${r.icon} ${r.title}`,prop:r.prop,label:'穿越者',desc:'',c:'#c9a84c',_item:{tags:[],dim:{},dimMod:{}}});
+  document.getElementById('originPick').style.display='none';
+  saveState();
+  refreshAfterSpin();
+  goNext();
 }
 function introToast(type){showToast(type+'暂未开放')}
 (function init(){
@@ -596,10 +605,7 @@ function introToast(type){showToast(type+'暂未开放')}
   document.querySelectorAll('.btm-tabs .bt').forEach(b=>b.addEventListener('click',()=>setTab(b.dataset.t)));
   // load saved state
   try{const s=JSON.parse(localStorage.getItem('jjk_state'));if(s){curPhase=s.curPhase||0;curRound=s.curRound||0;if(curPhase>=DATA.phases.length){curPhase=0;curRound=0}state.results=s.results||[];state.traits=s.traits||[];state.dimensions=s.dimensions||initDimensions();  state.introDone=s.introDone||false}}catch(e){}
-  const startGame=()=>{
-    if(!state.introDone){document.getElementById('introOverlay').style.display='flex';return}
-    setTimeout(()=>{if(DATA.phases[curPhase]&&DATA.phases[curPhase].id==='p4'){const etg=state.traits.find(t=>t.startsWith('enemy_'));if(etg&&typeof initCombat==='function')initCombat(etg.replace('enemy_',''))}refreshAll();requestAnimationFrame(loop)},100);
-  };
-  startGame();
+  if(state.introDone&&curPhase===0){curPhase=1;curRound=0}
+  setTimeout(()=>{if(DATA.phases[curPhase]&&DATA.phases[curPhase].id==='p4'){const etg=state.traits.find(t=>t.startsWith('enemy_'));if(etg&&typeof initCombat==='function')initCombat(etg.replace('enemy_',''))}refreshAll();requestAnimationFrame(loop)},100);
   window.addEventListener('resize',()=>{if(!rd())return;if(wheel){wheel=buildWheel(getFilteredRoundItems(rd()));initParticles();wheel.draw()}refreshSidebar();refreshRight()});
 })();

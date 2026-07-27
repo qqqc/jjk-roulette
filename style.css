@@ -306,26 +306,24 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
 .btn-combat.escape:hover{color:#fff;border-color:rgba(255,255,255,.3)}
 .btn-combat.bind{background:rgba(200,160,40,.1);border-color:var(--gold);color:var(--gold)}
 
-/* ============ 开场选择页 ============ */
-.intro-overlay{position:fixed;inset:0;z-index:999;background:linear-gradient(180deg,rgba(6,6,8,.98)0%,rgba(12,8,24,.96)50%,rgba(6,6,8,.98)100%);display:flex;align-items:center;justify-content:center;overflow:hidden}
-.intro-bg-seal{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:serif;font-size:50vw;color:rgba(201,168,76,.025);pointer-events:none;animation:lsPulse 8s ease-in-out infinite}
-.intro-content{position:relative;z-index:1;text-align:center;padding:20px;max-width:480px;width:100%}
-.intro-jp{font-family:serif;font-size:26px;letter-spacing:8px;color:var(--gold);text-shadow:0 0 24px rgba(201,168,76,.4);margin-bottom:6px}
-.intro-title{font-size:20px;font-weight:700;letter-spacing:6px;color:var(--text);margin-bottom:4px}
-.intro-subtitle{font-size:11px;color:var(--dim);letter-spacing:2px;margin-bottom:32px}
-.intro-choices{display:flex;gap:16px;justify-content:center;flex-wrap:wrap}
-.intro-choice{position:relative;width:130px;padding:24px 14px 16px;border-radius:var(--r);text-align:center;cursor:pointer;transition:transform .3s,box-shadow .3s;background:rgba(20,16,30,.8);border:1px solid rgba(255,255,255,.06);overflow:hidden}
-.intro-choice:hover{transform:translateY(-3px)}
-.intro-choice.active{border:2px solid var(--gold);box-shadow:0 0 18px rgba(201,168,76,.25),inset 0 0 20px rgba(201,168,76,.04);animation:icGlow 2.2s ease-in-out infinite}
-.intro-choice.active:hover{transform:translateY(-4px);box-shadow:0 0 32px rgba(201,168,76,.45),inset 0 0 30px rgba(201,168,76,.06)}
-@keyframes icGlow{0%,100%{box-shadow:0 0 18px rgba(201,168,76,.25),inset 0 0 20px rgba(201,168,76,.04)}50%{box-shadow:0 0 32px rgba(201,168,76,.45),inset 0 0 30px rgba(201,168,76,.08)}}
-.ic-glow{position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(201,168,76,.08)0%,transparent 70%);pointer-events:none}
-.intro-choice.locked{cursor:not-allowed;opacity:.4;border:1px solid rgba(255,255,255,.04);pointer-events:none}
-.intro-choice.locked:hover{transform:none}
-.ic-lock{font-size:16px;margin-bottom:4px}
-.ic-icon{font-size:30px;margin-bottom:8px}
-.ic-label{font-size:12px;font-weight:700;letter-spacing:4px;color:var(--text);margin-bottom:4px}
-.intro-choice.locked .ic-label{color:var(--dim)}
-.ic-hint{font-size:10px;color:var(--dim);letter-spacing:1px}
-.intro-choice.active .ic-hint{color:var(--gold)}
+/* ============ 开场选择 ============ */
+.origin-pick{text-align:center;padding:32px 12px 16px;width:100%;max-width:480px;margin:0 auto}
+.op-jp{font-family:serif;font-size:22px;letter-spacing:8px;color:var(--gold);text-shadow:0 0 20px rgba(201,168,76,.35);margin-bottom:4px}
+.op-title{font-size:18px;font-weight:700;letter-spacing:6px;color:var(--text);margin-bottom:2px}
+.op-sub{font-size:10px;color:var(--dim);letter-spacing:2px;margin-bottom:24px}
+.op-cards{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+.op-card{position:relative;width:120px;padding:22px 12px 14px;border-radius:var(--r);text-align:center;cursor:pointer;transition:transform .3s,box-shadow .3s;background:rgba(20,16,30,.8);border:1px solid rgba(255,255,255,.06);overflow:hidden}
+.op-card:hover{transform:translateY(-3px)}
+.op-card.active{border:2px solid var(--gold);box-shadow:0 0 16px rgba(201,168,76,.2),inset 0 0 18px rgba(201,168,76,.03);animation:icGlow 2.2s ease-in-out infinite}
+.op-card.active:hover{transform:translateY(-4px);box-shadow:0 0 28px rgba(201,168,76,.4)}
+@keyframes icGlow{0%,100%{box-shadow:0 0 16px rgba(201,168,76,.2)}50%{box-shadow:0 0 28px rgba(201,168,76,.4)}}
+.opc-glow{position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(201,168,76,.06)0%,transparent 70%);pointer-events:none}
+.op-card.locked{cursor:not-allowed;opacity:.35;pointer-events:none}
+.op-card.locked:hover{transform:none}
+.opc-lock{font-size:15px;margin-bottom:3px}
+.opc-icon{font-size:28px;margin-bottom:6px}
+.opc-label{font-size:12px;font-weight:700;letter-spacing:4px;color:var(--text);margin-bottom:3px}
+.op-card.locked .opc-label{color:var(--dim)}
+.opc-hint{font-size:10px;color:var(--dim);letter-spacing:1px}
+.op-card.active .opc-hint{color:var(--gold)}
 .btn-combat.bind:hover{background:var(--gold);color:#1a1a1a}
