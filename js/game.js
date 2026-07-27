@@ -160,6 +160,14 @@ function refreshRound(){
     wheel=buildWheel(items);wheel.angle=0;state.targetAngle=0;initParticles();wheel.draw();document.getElementById('btnSpin').style.display='block';document.getElementById('btnSpin').textContent='🎯 终结';document.getElementById('btnNext').style.display='none';return;
   }
   const done=isRoundDone(r);
+  if(r.type==='origin'){
+    document.getElementById('wheelWrap').style.display='none';
+    document.getElementById('btnSpin').style.display='none';document.getElementById('btnNext').style.display='none';document.getElementById('btnReroll').style.display='none';document.getElementById('btnPhase').style.display='none';
+    document.getElementById('moralPick').style.display='none';document.getElementById('inputRound').style.display='none';
+    const op=document.getElementById('originPick');op.style.display='block';
+    if(done){op.querySelectorAll('.op-card').forEach(c=>{c.style.pointerEvents='none';c.style.opacity='.5'});const ac=op.querySelector('.op-card.active');if(ac){ac.style.opacity='1';const h=ac.querySelector('.opc-hint');if(h)h.textContent='✅ 已选择'}}
+    document.getElementById('resultPanel').style.display='none';document.getElementById('btnChar').style.display='none';return;
+  }
   if(r.type==='input'){
     document.getElementById('wheelWrap').style.display='none';
     document.getElementById('btnSpin').style.display='none';document.getElementById('btnNext').style.display='none';document.getElementById('btnReroll').style.display='none';document.getElementById('btnPhase').style.display='none';
@@ -498,15 +506,7 @@ function _doRender(){
         cond:<input value="${r.cond||''}" onchange="DATA.phases[${pi}].rounds[${ri}].cond=this.value||null" style="width:60px" />
         prop:<input value="${r.prop||''}" onchange="DATA.phases[${pi}].rounds[${ri}].prop=this.value" style="width:50px;font-size:9px" />
         type:<input value="${r.type||''}" onchange="DATA.phases[${pi}].rounds[${ri}].type=this.value||null" style="width:40px;font-size:9px" placeholder="input" />
-      </div>`;
-  if(r.type==='origin'){
-    document.getElementById('wheelWrap').style.display='none';
-    document.getElementById('btnSpin').style.display='none';document.getElementById('btnNext').style.display='none';document.getElementById('btnReroll').style.display='none';document.getElementById('btnPhase').style.display='none';
-    document.getElementById('moralPick').style.display='none';document.getElementById('inputRound').style.display='none';
-    const op=document.getElementById('originPick');op.style.display='block';
-    if(done){op.querySelectorAll('.op-card').forEach(c=>{c.style.pointerEvents='none';c.style.opacity='.5'});op.querySelector('.op-card.active').style.opacity='1';op.querySelector('.opc-hint').textContent='✅ 已选择'}
-    document.getElementById('resultPanel').style.display='none';document.getElementById('btnChar').style.display='none';return;
-  }
+       </div>`;
   if(r.type==='input'){
         h+=`<div class="ep-item" style="font-size:10px;color:var(--dim)">输入模式: min=<input class="w" type="number" min="1" max="50" value="${r.inputMin||2}" onchange="DATA.phases[${pi}].rounds[${ri}].inputMin=parseInt(this.value)||2" /> max=<input class="w" type="number" min="1" max="50" value="${r.inputMax||8}" onchange="DATA.phases[${pi}].rounds[${ri}].inputMax=parseInt(this.value)||8" /></div>`;
       }else{
