@@ -412,7 +412,7 @@ function resetGame(){
   document.getElementById('btnNext').style.display='none';document.getElementById('btnReroll').style.display='none';showToast('↺ 已重置');
 }
 function spin(){
-  if(state.spinning||isRoundDone(rd()))return;state.spinning=true;
+  if(state.spinning||isRoundDone(rd())||!wheel)return;state.spinning=true;
   document.getElementById('btnSpin').disabled=true;document.getElementById('btnSpin').textContent='⏳ 旋转中…';
   document.getElementById('resultPanel').style.display='none';document.getElementById('btnNext').style.display='none';
   if(particles)particles.clear();
@@ -423,7 +423,7 @@ function spin(){
   state.startAngle=wheel.angle;state.startTime=performance.now();state.duration=5000+Math.random()*2000;
 }
 function stop(){
-  state.spinning=false;document.getElementById('btnSpin').disabled=false;document.getElementById('btnSpin').textContent='✅ 已抽取';
+  if(!wheel)return;state.spinning=false;document.getElementById('btnSpin').disabled=false;document.getElementById('btnSpin').textContent='✅ 已抽取';
   let norm=(-wheel.angle)%(Math.PI*2);if(norm<0)norm+=Math.PI*2;let cum=0,idx=0;
   for(let i=0;i<wheel.sectors.length;i++){cum+=wheel.sectors[i].arc;if(norm<cum){idx=i;break}}
   const item=wheel.sectors[idx];

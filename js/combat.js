@@ -99,7 +99,7 @@ function v3BuildRoundWheel(rid){
   return null
 }
 
-function _startSpin(){var items=wheel.sectors,tw=items.reduce(function(s,se){return s+(se.w||1)},0),rv=Math.random()*tw,ti=0;for(var j=0;j<items.length;j++){rv-=items[j].w||1;if(rv<=0){ti=j;break}}var ca=0;for(var k=0;k<ti;k++)ca+=items[k].arc;state.targetAngle=wheel.angle+(6+Math.floor(Math.random()*4))*Math.PI*2-ca-items[ti].arc/2;state.startAngle=wheel.angle;state.startTime=performance.now();state.duration=4000+Math.random()*1500}
+function _startSpin(){if(!wheel)return;var items=wheel.sectors,tw=items.reduce(function(s,se){return s+(se.w||1)},0),rv=Math.random()*tw,ti=0;for(var j=0;j<items.length;j++){rv-=items[j].w||1;if(rv<=0){ti=j;break}}var ca=0;for(var k=0;k<ti;k++)ca+=items[k].arc;state.targetAngle=wheel.angle+(6+Math.floor(Math.random()*4))*Math.PI*2-ca-items[ti].arc/2;state.startAngle=wheel.angle;state.startTime=performance.now();state.duration=4000+Math.random()*1500}
 
 spin=function(){if(state.spinning)return;var r=rd();if(!r)return _origSpin();var rt=r.type||'';
 if(rt==='combat_ce'||rt==='combat_stamina'||rt==='combat_repeatable'||rt==='combat_result'){
