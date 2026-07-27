@@ -415,7 +415,7 @@ function spin(){
   if(state.spinning||isRoundDone(rd()))return;state.spinning=true;
   document.getElementById('btnSpin').disabled=true;document.getElementById('btnSpin').textContent='⏳ 旋转中…';
   document.getElementById('resultPanel').style.display='none';document.getElementById('btnNext').style.display='none';
-  particles.clear();
+  if(particles)particles.clear();
   const ss=wheel.sectors,tw=ss.reduce((s,se)=>s+(se.w||1),0);let r=Math.random()*tw,ti=0;
   for(let i=0;i<ss.length;i++){r-=ss[i].w||1;if(r<=0){ti=i;break}}
   const arc=ss[ti].arc,j=(Math.random()-.5)*arc*.6;let ca=0;for(let i=0;i<ti;i++)ca+=ss[i].arc;
@@ -580,7 +580,7 @@ function charCard(){
 let lft=performance.now();
 function loop(t){
   const dt=Math.min((t-lft)/1000,.1);lft=t;
-  if(state.spinning){const p=Math.min((t-state.startTime)/state.duration,1),e=1-Math.pow(1-p,3);wheel.angle=state.startAngle+(state.targetAngle-state.startAngle)*e;if(p>=1){wheel.angle=state.targetAngle;wheel.draw();stop()}}
+  if(state.spinning){if(!wheel)return;const p=Math.min((t-state.startTime)/state.duration,1),e=1-Math.pow(1-p,3);wheel.angle=state.startAngle+(state.targetAngle-state.startAngle)*e;if(p>=1){wheel.angle=state.targetAngle;wheel.draw();stop()}}
   if(particles){particles.update(dt);if(wheel){const pc=document.getElementById('pCanvas'),pctx=particles.ctx,sw=wheel.size;pc.width=wheel.canvas.width;pc.height=wheel.canvas.height;pctx.setTransform(wheel.dpr,0,0,wheel.dpr,0,0);pctx.clearRect(0,0,sw,sw);for(let p of particles.parts){pctx.save();pctx.globalAlpha=p.a;pctx.fillStyle=p.c;pctx.shadowBlur=p.s*4;pctx.shadowColor=p.c;pctx.beginPath();pctx.arc(p.x,p.y,p.s,0,Math.PI*2);pctx.fill();pctx.restore()}}}
   if(wheel)wheel.draw();
   if(wheel&&wheel.sectors&&wheel.sectors.length){const ctx=wheel.ctx,dpr=wheel.dpr;ctx.setTransform(dpr,0,0,dpr,0,0);const ss=wheel.sectors;let norm=(-wheel.angle)%(Math.PI*2);if(norm<0)norm+=Math.PI*2;let cum=0,idx=0;for(let i=0;i<ss.length;i++){cum+=ss[i].arc;if(norm<cum){idx=i;break}}let sa=wheel.angle-Math.PI/2;for(let i=0;i<idx;i++)sa+=ss[i].arc;ctx.beginPath();ctx.moveTo(wheel.cx,wheel.cy);ctx.arc(wheel.cx,wheel.cy,wheel.radius+3,sa,sa+ss[idx].arc);ctx.closePath();ctx.strokeStyle='rgba(255,48,80,.45)';ctx.lineWidth=3;ctx.stroke();

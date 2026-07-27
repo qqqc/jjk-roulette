@@ -715,7 +715,7 @@ const ENEMY_TEMPLATES={
     flair:{intro:'\u300c术师？那种东西我杀过不少了。\u300d',taunt:'\u300c你的极限，我已经看穿了。\u300d',fall:'\u300c到头来……还是没能超越你啊……\u300d'},
     techniques:["体术·瞬击","体术·连破","五感·先读","天与暴君·极","游云·三段打","天逆鉾·术式破断","万里锁链·束缚","重击"],
     uniqueTechniques:{"体术·瞬击":{st:5,ce:0,win:22},"体术·连破":{st:7,ce:0,win:30},"五感·先读":{st:4,ce:0,win:28},"天与暴君·极":{st:9,ce:0,win:45},"游云·三段打":{st:8,ce:0,win:38},"天逆鉾·术式破断":{st:6,ce:0,win:32,eff:"对有术式目标胜率×1.8"},"万里锁链·束缚":{st:5,ce:0,win:25,eff:"下回敌体力-3"},"重击":{st:7,ce:0,win:28}},
-    hasDomain:false,stanceAI:{default:"猛攻",switches:[{when:"hp<20%",to:"逃跑"},{when:"winGap<-40",to:"流转"},{when:"enemyBurnout",to:"猛攻"}]},baseDmg:35,dmgRange:[25,50],weakTo:["领域展开"],resistTo:[]
+    hasDomain:false,stanceAI:{default:"猛攻",switches:[{when:"hp<20%",to:"逃跑"},{when:"winGap<-40",to:"流转"},{when:"enemyBurnout",to:"猛攻"}]},baseDmg:45,dmgRange:[25,50],weakTo:["领域展开"],resistTo:[]
   }
 };
 
