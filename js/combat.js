@@ -73,7 +73,7 @@ function v3BuildCombatItems(forEnemy){
 function roundStamina(){
   var c=state.combat;if(!c||!c.active)return;c.phase='player_stamina';c.win=0;c.enemyWin=0;
   c.stamina=v3DrawStamina();c.enemyStamina=v3EnemyDrawStamina();c.dangerZone+=v3DangerGrowth();c.enemyDangerZone+=v3EnemyDangerGrowth();c.round++;
-  c.bfCombo=0;c.bfZone=false;c.selfBlocked=false;c.enemyBlocked=false;c.barrierActive=false;c.comboFlags={ao:false,aka:false,kai:false,hachi:false};c.bindLoanUsed=false;
+  c.bfCombo=0;c.bfZone=false;c.selfBlocked=false;c.enemyBlocked=false;c.barrierActive=false;c.comboFlags={ao:false,aka:false,kai:false,hachi:false};c.bindLoanUsed=false;c.maxUsed=false;
   if(c.domainRemaining>0){c.domainRemaining--;if(c.domainRemaining<=0){c.yourDomainActive=false;c.enemyDomainActive=false;c.burnout=true}}
   if(c.maxPenalty){c.maxPenalty=false}
   if(c.enemyId){var e=ENEMY_TEMPLATES[c.enemyId];if(e&&e.stanceAI){var ai=e.stanceAI,sw=ai.switches||[],ns=ai.default;for(var i=0;i<sw.length;i++){var s=sw[i],match=false;if(s.when==='hp<20%'&&c.enemyHp<e.hp*0.2)match=true;if(s.when==='winGap<-40'&&(c.win-c.enemyWin)>40)match=true;if(s.when==='enemyBurnout'&&c.burnout)match=true;if(match){ns=s.to;break}}c.enemyStance=ns}}
@@ -199,7 +199,7 @@ function v3ClashResult(idx){var c=state.combat,enemy=ENEMY_TEMPLATES[c.enemyId],
   if(c.shield>0){var abs=Math.min(c.shield,eDmg);c.shield-=abs;eDmg-=abs;shAbs=abs}
   c.hp=Math.max(0,c.hp-Math.max(0,eDmg));c.enemyHp=Math.max(0,c.enemyHp-Math.max(0,pDmg));
   c.clockBK=Math.min(6,c.clockBK+Math.floor(pDmg/(enemy.hp/6)));c.clockLB=Math.min(6,c.clockLB+Math.floor(eDmg/(v3StaminaMax()/6)*v3WillClockMul()));
-  c.shield=Math.floor(c.ce*0.5);updateCombatUI();var clashClass=idx===0?'bfx-crushing':idx===1?'bfx-hitting':idx===4?'bfx-defeated':idx===5?'bfx-deadly':'';if(clashClass)document.body.classList.add(clashClass);setTimeout(function(){document.body.classList.remove('bfx-crushing','bfx-hitting','bfx-defeated','bfx-deadly')},800);
+  c.shield=Math.floor(c.ce*0.5);updateCombatUI();var clashClass=idx===0?'bfx-crushing':idx===1?'bfx-hitting':idx===4?'bfx-defeated':idx===5?'bfx-deadly':'';var vsEl=document.getElementById('combatVS');if(clashClass&&vsEl)vsEl.classList.add(clashClass);setTimeout(function(){var vs=document.getElementById('combatVS');if(vs)vs.classList.remove('bfx-crushing','bfx-hitting','bfx-defeated','bfx-deadly')},800);
   var rp=document.getElementById('resultPanel');rp.style.display='block';rp.className='result-panel';if(idx===0)rp.classList.add('bfx-crushing');if(idx===5)rp.classList.add('bfx-deadly');
   rp.innerHTML='<div class="rp-cat">⚔ 对拼结果</div><div class="rp-val">你:'+pDmg+'伤害 | 敌:'+eDmg+'伤害'+(shAbs>0?' (🛡护盾吸收:'+shAbs+')':'')+'</div><div class="rp-desc">击破:'+c.clockBK+'/6 败势:'+c.clockLB+'/6</div>';  c.log.push('[T'+c.round+' CLASH] 你:'+pDmg+' 敌:'+eDmg+' BK:'+c.clockBK+' LB:'+c.clockLB);if(c.burnout)c.log.push('[T'+c.round+'] ⚠ 熔断')
 }
@@ -271,7 +271,7 @@ function updateCombatUI(){
   // 时钟
   document.getElementById('cvBK').textContent=c.clockBK;document.getElementById('cvLB').textContent=c.clockLB;
   // 卡片特殊 state
-  var pc=document.getElementById('cvPlayer'),ecEl=document.getElementById('cvEnemy');pc.classList.toggle('exhausted',c.stamina<=0);pc.classList.toggle('burnout',c.burnout);ecEl.classList.toggle('exhausted',c.enemyStamina<=0);pc.classList.toggle('lethal',c.clockBK>=5);ecEl.classList.toggle('lethal',c.clockLB>=5);document.body.classList.toggle('edge-danger',c.clockLB>=5);document.body.classList.toggle('edge-advantage',c.clockBK>=5);
+  var pc=document.getElementById('cvPlayer'),ecEl=document.getElementById('cvEnemy');pc.classList.toggle('exhausted',c.stamina<=0);pc.classList.toggle('burnout',c.burnout);ecEl.classList.toggle('exhausted',c.enemyStamina<=0);pc.classList.toggle('lethal',c.clockBK>=5);ecEl.classList.toggle('lethal',c.clockLB>=5);var vsEl=document.getElementById('combatVS');if(vsEl){vsEl.classList.toggle('edge-danger',c.clockLB>=5);vsEl.classList.toggle('edge-advantage',c.clockBK>=5)}
   // 辉光
   document.querySelectorAll('.cv-card-glow').forEach(function(gl){gl.classList.toggle('on',true)});
   updateBtnRow();
