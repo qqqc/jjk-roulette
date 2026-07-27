@@ -290,6 +290,28 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
 /* 隐藏旧元素 */
 .enemy-card{display:none!important}
 .combat-bars{display:none!important}
+/* 对拼 & 招式视觉 */
+.result-panel.bfx-crushing{border-left:4px solid #ff0;box-shadow:0 0 30px rgba(255,204,0,.3);animation:bfxPulse .4s ease}
+.result-panel.bfx-deadly{border-left:4px solid #f22;box-shadow:0 0 24px rgba(255,0,0,.3);animation:shakeBar .3s ease}
+.result-panel.bfx-ult{border-left:4px solid #80f;box-shadow:0 0 18px rgba(128,0,255,.25);animation:bfxPulse .4s ease}
+.result-panel.bfx-atk-ce{border-left:3px solid #48f}
+.result-panel.enemy-result{border-left-color:#d84!important;background:rgba(40,4,4,.12)}
+body.bfx-crushing::after,body.bfx-defeated::after,body.bfx-deadly::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:998}
+body.bfx-crushing::after{animation:edgeGold .8s ease}
+body.bfx-defeated::after{animation:edgeRed 1s ease}
+body.bfx-deadly::after{animation:edgeDeadly .6s ease}
+@keyframes edgeGold{0%,100%{box-shadow:inset 0 0 0 transparent}50%{box-shadow:inset 0 0 80px rgba(255,204,0,.25)}}
+@keyframes edgeRed{0%,100%{box-shadow:inset 0 0 0 transparent}50%{box-shadow:inset 0 0 50px rgba(255,0,0,.2)}}
+@keyframes edgeDeadly{0%{box-shadow:inset 0 0 60px rgba(255,0,0,.3)}50%{box-shadow:inset 0 0 100px rgba(255,0,0,.5)}100%{box-shadow:inset 0 0 60px rgba(255,0,0,.3)}}
+/* 时钟预警 */
+.cv-card.lethal{animation:lethalPulse .7s ease infinite}
+.cv-player.lethal{border-left-color:#ff0!important;box-shadow:0 0 20px rgba(255,204,0,.3)!important}
+.cv-enemy.lethal{border-right-color:#f22!important;box-shadow:0 0 20px rgba(255,0,0,.3)!important}
+body.edge-danger::after{content:'';position:fixed;inset:0;pointer-events:none;border:3px solid transparent;animation:steamEdge 1.2s ease infinite;z-index:997}
+body.edge-advantage::after{content:'';position:fixed;inset:0;pointer-events:none;border:3px solid transparent;animation:steamGold 1.2s ease infinite;z-index:997}
+@keyframes lethalPulse{0%,100%{box-shadow:0 0 10px rgba(255,204,0,.1)}50%{box-shadow:0 0 30px rgba(255,204,0,.4)}}
+@keyframes steamEdge{0%,100%{border-color:rgba(255,0,0,0)}50%{border-color:rgba(255,0,0,.2)}}
+@keyframes steamGold{0%,100%{border-color:rgba(255,204,0,0)}50%{border-color:rgba(255,204,0,.2)}}
 /* 姿态选择 */
 .stance-pick{width:100%;max-width:480px;margin:4px 0;animation:bfxIn .3s ease}
 .sp-header{font-size:13px;font-weight:700;color:var(--gold);letter-spacing:2px;text-align:center;margin-bottom:6px}
