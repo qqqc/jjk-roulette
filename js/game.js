@@ -165,9 +165,11 @@ function refreshRound(){
     document.getElementById('btnSpin').style.display='none';document.getElementById('btnNext').style.display='none';document.getElementById('btnReroll').style.display='none';document.getElementById('btnPhase').style.display='none';
     document.getElementById('moralPick').style.display='none';document.getElementById('inputRound').style.display='none';
     document.getElementById('btnReset').style.display='none';document.getElementById('btnCombatRow').style.display='none';
-    document.querySelector('.ptr-label').style.visibility='hidden';
+    document.querySelector('.ptr-label').style.visibility='hidden';document.querySelector('.ptr-label').textContent='';
+    wheel=null;
     const op=document.getElementById('originPick');op.style.display='block';
-    if(done){op.querySelectorAll('.op-card').forEach(c=>{c.style.pointerEvents='none';c.style.opacity='.5'});const ac=op.querySelector('.op-card.active');if(ac){ac.style.opacity='1';const h=ac.querySelector('.opc-hint');if(h)h.textContent='✅ 已选择'}}
+    if(done){op.querySelectorAll('.op-card').forEach(c=>{c.style.pointerEvents='none';c.style.opacity='.5'});const ac=op.querySelector('.op-card.active');if(ac){ac.style.opacity='1';const h=ac.querySelector('.opc-hint');if(h)h.textContent='✅ 已选择'};document.getElementById('btnReroll').style.display='block'}
+    else{op.querySelectorAll('.op-card').forEach(c=>{c.style.pointerEvents='';c.style.opacity=''});document.getElementById('btnReroll').style.display='none'}
     document.getElementById('resultPanel').style.display='none';document.getElementById('btnChar').style.display='none';return;
   }
   if(r.type==='input'){
@@ -266,7 +268,7 @@ function switchPhase(i){
   if(i>curPhase&&!isPhaseDone()){showToast('当前阶段未完成，无法进入下一阶段');return}
   i=skipToNextAvailablePhase(i);
   if(DATA.phases[curPhase]&&DATA.phases[curPhase].id==='p4')endCombat();
-  curPhase=i;curRound=0;refreshAll();document.getElementById('originPick').style.display='none';
+  curPhase=i;curRound=0;document.getElementById('originPick').style.display='none';refreshAll();
   wheel.angle=0;state.targetAngle=0;wheel.draw();document.getElementById('resultPanel').style.display='none';
   document.getElementById('phaseMenu').style.display='none';
 }
