@@ -175,7 +175,8 @@ function refreshRound(){
   if(r.type==='input'){
     document.getElementById('wheelWrap').style.display='none';
     document.getElementById('btnSpin').style.display='none';document.getElementById('btnNext').style.display='none';document.getElementById('btnReroll').style.display='none';document.getElementById('btnPhase').style.display='none';
-    document.getElementById('moralPick').style.display='none';document.querySelector('.ptr-label').style.visibility='hidden';
+    document.getElementById('moralPick').style.display='none';document.querySelector('.ptr-label').style.visibility='hidden';document.querySelector('.ptr-label').textContent='';
+    wheel=null;
     const ir=document.getElementById('inputRound');ir.style.display='block';
     const inp=document.getElementById('inputName');inp.value='';inp.className='name-input';inp.disabled=false;
     document.getElementById('nameHint').textContent=r.id==='p2_mname'?'记下极之番的真名':'赋予领域真名';
@@ -220,7 +221,6 @@ function refreshRight(){
   vt.forEach(t=>{if(t.startsWith('价值观·'))tg.价值观.push(t);else if(persRe.test(t))tg.其他特质.push(t);else if(t.startsWith('等级·'))tg.基本.push(t);else if(/^(半人|特殊|希姆利亚|星浆体|双生子|六眼|双面|天与)/.test(t))tg.体质.push(t);else if(/^(正义|温柔|守护|苦行|导师|殉道|邻家|医者|理想|摆渡|捐助|侠客|叛逆|独行|揭发|民间|戒律|官僚|执行|保守|契约|旁观|实用|游荡|交易|均衡|享乐|捣蛋|浪人|即兴|破坏|独裁|幕后|审判|征税|血统|佣兵|投毒|敲诈|叛徒|操纵|疯子|破坏狂|猎杀|纵火|施虐)/.test(t))tg.性格.push(t);else tg.基本.push(t)});
   let th='';
   Object.entries(tg).forEach(([gn,gts])=>{if(gts.length){th+=`<div style="font-size:9px;color:var(--dim);padding:4px 12px 0;letter-spacing:1px">${gn==='基本'?'📋 基本':gn==='价值观'?'⚖️ 价值观':gn==='性格'?'🎭 性格':gn==='其他特质'?'🏷️ 其他特质':'🧬 体质'}</div><div class="rp-traits" style="padding:2px 12px 4px">${gts.map(t=>`<span class="tag">${t}</span>`).join('')}</div>`}});
-  if(tg.价值观.length&&tg.性格.length){const vn=tg.价值观.map(t=>t.replace('价值观·','')).join(' / ');th+=`<div style="font-size:9px;color:var(--dim);padding:4px 12px 0;letter-spacing:1px">🔗 价值观→性格</div><div class="rp-traits" style="padding:2px 12px 4px"><span style="font-size:10px;color:var(--gold)">${vn}</span><span style="color:var(--dim)"> → </span>${tg.性格.map(t=>`<span class="tag">${t}</span>`).join(' ')}</div>`}
   document.getElementById('rpTraits').innerHTML=th||'<span class="empty">✨ 旋转转盘以生成角色特质</span>';
   let dh='';const groups={体能:['体质','体术'],咒力:['咒力总量','咒力效率','咒力操纵'],战斗:['术式性能','天赋'],属性:['意志','运势','魅力','声望','信用']};
   Object.entries(groups).forEach(([gn,gks])=>{dh+=`<div style="font-size:9px;color:var(--dim);padding:6px 8px 0;letter-spacing:1px">${gn}</div>`;gks.forEach(k=>{const v=state.dimensions[k];const lv=v||'——';const idx=dimVal(v);const pct=idx<0?0:Math.min(100,(idx+1)/DIM_LEVELS.length*100);const clr=dimColor(idx);dh+=`<div style="display:flex;align-items:center;gap:6px;font-size:10px;padding:2px 8px"><span style="width:34px;color:var(--dim)">${k}</span><span style="width:24px;text-align:right;font-weight:700;color:${clr};font-size:10px">${lv}</span><span style="flex:1;height:4px;border-radius:2px;background:rgba(255,255,255,.06)"><span style="display:block;height:100%;border-radius:2px;background:${clr};width:${pct}%"></span></span></div>`})});
@@ -236,7 +236,6 @@ function refreshTabs(){
   vt.forEach(t=>{if(t.startsWith('价值观·'))tg.价值观.push(t);else if(/^(乐观|沉默寡言|冲动|理性至上|老好人|固执|佛系|好胜|慵懒|勤奋|多疑|豁达|病娇|讨好型人格|强迫症|毒舌|健忘|中二病|社恐|工作狂|洁癖|自来熟|悲观|完美主义|路痴|话痨|腹黑|傲娇|吐槽)$/.test(t))tg.其他特质.push(t);else if(t.startsWith('等级·'))tg.基本.push(t);else if(/^(半人|特殊|希姆利亚|星浆体|双生子|六眼|双面|天与)/.test(t))tg.体质.push(t);else if(/^(正义|温柔|守护|苦行|导师|殉道|邻家|医者|理想|摆渡|捐助|侠客|叛逆|独行|揭发|民间|戒律|官僚|执行|保守|契约|旁观|实用|游荡|交易|均衡|享乐|捣蛋|浪人|即兴|破坏|独裁|幕后|审判|征税|血统|佣兵|投毒|敲诈|叛徒|操纵|疯子|破坏狂|猎杀|纵火|施虐)/.test(t))tg.性格.push(t);else tg.基本.push(t)});
   let hasAny=false;
   Object.entries(tg).forEach(([gn,gts])=>{if(gts.length){hasAny=true;ph+=`<div style="font-size:9px;color:var(--dim);padding:4px 0 0;letter-spacing:1px">${gn==='基本'?'📋 基本':gn==='价值观'?'⚖️ 价值观':gn==='性格'?'🎭 性格':gn==='其他特质'?'🏷️ 其他特质':'🧬 体质'}</div><div class="tags">${gts.map(t=>`<span class="tag">${t}</span>`).join('')}</div>`}});
-  if(tg.价值观.length&&tg.性格.length){const vn=tg.价值观.map(t=>t.replace('价值观·','')).join(' / ');hasAny=true;ph+=`<div style="font-size:9px;color:var(--dim);padding:4px 0 0;letter-spacing:1px">🔗 价值观→性格</div><div class="tags"><span style="font-size:10px;color:var(--gold)">${vn}</span><span style="color:var(--dim)"> → </span>${tg.性格.map(t=>`<span class="tag">${t}</span>`).join(' ')}</div>`}
   if(!hasAny)ph+='暂无特质';
   ph+='<h4 style="margin-top:10px">📊 维度表</h4><div class="dim-mob">';
   const groups={体能:['体质','体术'],咒力:['咒力总量','咒力效率','咒力操纵'],战斗:['术式性能','天赋'],属性:['意志','运势','魅力','声望','信用']};
@@ -269,7 +268,7 @@ function switchPhase(i){
   i=skipToNextAvailablePhase(i);
   if(DATA.phases[curPhase]&&DATA.phases[curPhase].id==='p4')endCombat();
   curPhase=i;curRound=0;document.getElementById('originPick').style.display='none';refreshAll();
-  wheel.angle=0;state.targetAngle=0;wheel.draw();document.getElementById('resultPanel').style.display='none';
+  if(wheel){wheel.angle=0;state.targetAngle=0;wheel.draw()}document.getElementById('resultPanel').style.display='none';
   document.getElementById('phaseMenu').style.display='none';
 }
 function togglePhaseMenu(){

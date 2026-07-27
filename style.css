@@ -339,4 +339,5 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
 .op-card.active .opc-hint{color:var(--gold)}
 .opc-desc{font-size:10px;color:#9a8a6a;line-height:1.5;margin-top:10px;padding:0 2px}
 .opc-status{font-size:9px;color:rgba(255,255,255,.2);margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,.04);letter-spacing:1px}
+#btnInputSkip{margin-top:6px;max-width:260px}
 .btn-combat.bind:hover{background:var(--gold);color:#1a1a1a}
