@@ -165,7 +165,7 @@ function refreshRound(){
     document.getElementById('btnSpin').style.display='none';document.getElementById('btnNext').style.display='none';document.getElementById('btnReroll').style.display='none';document.getElementById('btnPhase').style.display='none';
     document.getElementById('moralPick').style.display='none';document.querySelector('.ptr-label').style.visibility='hidden';
     const ir=document.getElementById('inputRound');ir.style.display='block';
-    const inp=document.getElementById('inputName');inp.value='';inp.className='name-input';
+    const inp=document.getElementById('inputName');inp.value='';inp.className='name-input';inp.disabled=false;
     document.getElementById('nameHint').textContent=r.id==='p2_mname'?'记下极之番的真名':'赋予领域真名';
     if(done){const itm=state.results.find(rr=>rr.roundId===r.id);if(itm){inp.value=itm.label||'';inp.disabled=true}document.getElementById('btnInputSubmit').textContent='✅ 已刻印';document.getElementById('btnInputSubmit').disabled=true;document.getElementById('btnInputSkip').style.display='none'}
     else{document.getElementById('btnInputSubmit').textContent='刻 印';document.getElementById('btnInputSubmit').disabled=false;document.getElementById('btnInputSkip').style.display='block'}
@@ -293,7 +293,43 @@ function goRound(i){
 }
 function rebuildSkills(){state.skills=[];state.results.forEach(rr=>{if(rr.roundId&&(/(_skill|_eff|_de)\d+$/.test(rr.roundId)||rr.roundId.endsWith('_tech_h')||rr.roundId.endsWith('_tech_c'))&&rr.label)state.skills.push(rr.label)})}
 function rebuildPers(){state.persDrawn=[];state.results.forEach(rr=>{if(rr.roundId&&/_pers\d+$/.test(rr.roundId)&&rr.label)state.persDrawn.push(rr.label)})}
-function displaySkills(){const names=state.results.filter(r=>/_dname$|_mname$/.test(r.roundId)).map(r=>r.label);return[...state.skills,...names]}
+function displaySkills(){
+  const result=[],added=new Set();
+  const chainKeys=Object.keys(SKILL_CHAINS);
+  const allSkillRe=/(_skill\d+$|_tech_[hc]$|_eff\d+$)/;
+  const nameRe=/(_dname$|_mname$)/;
+  const corpRe=/(_corpQ$|_corpP\d+$)/;
+  // Grouped chain skills
+  for(const[main,ids]of Object.entries(SKILL_CHAINS)){
+    const mainRR=state.results.find(r=>r.label===main);if(!mainRR)continue;
+    const subs=[];
+    ids.forEach(cid=>{
+      const sr=state.results.find(r=>r.roundId===cid);if(sr&&sr.label&&sr.label!=='(跳过)')subs.push(sr.label);
+    });
+    result.push({main,subs});
+    added.add(main);subs.forEach(s=>added.add(s));
+  }
+  // Standalone skills
+  state.results.forEach(r=>{
+    if(!r.label||r.label==='(跳过)')return;
+    if(added.has(r.label))return;
+    if(r.roundId==='p2_corpQ'||r.roundId==='p2_skn')return;
+    if(allSkillRe.test(r.roundId)&&!added.has(r.label)&&!chainKeys.includes(r.label)){
+      result.push(r.label);added.add(r.label);
+    }
+  });
+  // Names not already in chains
+  state.results.forEach(r=>{
+    if(nameRe.test(r.roundId)&&r.label&&r.label!=='(跳过)'&&!added.has(r.label)){
+      result.push(r.label);added.add(r.label);
+    }
+  });
+  return result.flatMap(g=>{
+    if(typeof g==='string')return g;
+    if(g.subs&&g.subs.length)return `▸ ${g.main}：${g.subs.join('、')}`;
+    return g.main;
+  });
+}
 function submitInput(){
   const r=rd();if(!r||r.type!=='input')return;
   const inp=document.getElementById('inputName');const v=inp.value.trim();
