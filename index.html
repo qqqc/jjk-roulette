@@ -29,13 +29,25 @@
   </div>
   <div class="center-area" id="centerArea">
     <div class="origin-pick" id="originPick" style="display:none">
+      <div class="op-seal">運</div>
+      <div class="op-deco dl">呪</div><div class="op-deco dr">術</div>
       <div class="op-jp">呪 術 廻 戦</div>
       <div class="op-title">命运的选择</div>
       <div class="op-sub">—— 你的咒术师之路由此开启 ——</div>
       <div class="op-cards">
-        <div class="op-card locked" onclick="introToast('原住民')"><div class="opc-lock">🔒</div><div class="opc-icon">🏚️</div><div class="opc-label">原住民</div><div class="opc-hint">暂未开放</div></div>
-        <div class="op-card active" onclick="selectOrigin('穿越者')"><div class="opc-glow"></div><div class="opc-icon">🌀</div><div class="opc-label">穿越者</div><div class="opc-hint">穿越进入咒术世界</div></div>
-        <div class="op-card locked" onclick="introToast('重生者')"><div class="opc-lock">🔒</div><div class="opc-icon">🔄</div><div class="opc-label">重生者</div><div class="opc-hint">暂未开放</div></div>
+        <div class="op-card locked" onclick="introToast('原住民')">
+          <div class="opc-frame"></div><div class="opc-lock">🔒</div><div class="opc-icon">🏚️</div>
+          <div class="opc-label">原 住 民</div><div class="opc-hint">生于咒术世界</div><div class="opc-status">暂未开放</div>
+        </div>
+        <div class="op-card active" onclick="selectOrigin('穿越者')">
+          <div class="opc-frame"></div><div class="opc-glow"></div><div class="opc-icon">🌀</div>
+          <div class="opc-label">穿 越 者</div><div class="opc-hint">从异世界降临</div>
+          <div class="opc-desc">以现代人的灵魂降生于咒术世界——拥有的不只是力量，更是另一个世界的视角与可能性。</div>
+        </div>
+        <div class="op-card locked" onclick="introToast('重生者')">
+          <div class="opc-frame"></div><div class="opc-lock">🔒</div><div class="opc-icon">🔄</div>
+          <div class="opc-label">重 生 者</div><div class="opc-hint">带着记忆重来</div><div class="opc-status">暂未开放</div>
+        </div>
       </div>
     </div>
     <div class="round-title" id="roundTitle"></div>

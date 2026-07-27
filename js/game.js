@@ -161,9 +161,11 @@ function refreshRound(){
   }
   const done=isRoundDone(r);
   if(r.type==='origin'){
-    document.getElementById('wheelWrap').style.display='none';
+    document.getElementById('wheelWrap').style.display='none';document.getElementById('roundTitle').style.display='none';
     document.getElementById('btnSpin').style.display='none';document.getElementById('btnNext').style.display='none';document.getElementById('btnReroll').style.display='none';document.getElementById('btnPhase').style.display='none';
     document.getElementById('moralPick').style.display='none';document.getElementById('inputRound').style.display='none';
+    document.getElementById('btnReset').style.display='none';document.getElementById('btnCombatRow').style.display='none';
+    document.querySelector('.ptr-label').style.visibility='hidden';
     const op=document.getElementById('originPick');op.style.display='block';
     if(done){op.querySelectorAll('.op-card').forEach(c=>{c.style.pointerEvents='none';c.style.opacity='.5'});const ac=op.querySelector('.op-card.active');if(ac){ac.style.opacity='1';const h=ac.querySelector('.opc-hint');if(h)h.textContent='✅ 已选择'}}
     document.getElementById('resultPanel').style.display='none';document.getElementById('btnChar').style.display='none';return;
@@ -191,6 +193,7 @@ function refreshRound(){
     document.getElementById('btnNext').style.display='none';document.getElementById('btnPhase').style.display='none';document.getElementById('btnChar').style.display=isPhaseDone()&&ph().rounds.length>0?'block':'none';return;
   }
   document.getElementById('wheelWrap').style.display='block';document.getElementById('inputRound').style.display='none';document.getElementById('moralPick').style.display='none';
+  document.getElementById('originPick').style.display='none';document.getElementById('roundTitle').style.display='block';
   document.getElementById('btnSpin').style.display='block';
   wheel=buildWheel(getFilteredRoundItems(r));wheel.angle=0;state.targetAngle=0;initParticles();wheel.draw();
   document.getElementById('resultPanel').style.display='none';
@@ -263,7 +266,8 @@ function switchPhase(i){
   if(i>curPhase&&!isPhaseDone()){showToast('当前阶段未完成，无法进入下一阶段');return}
   i=skipToNextAvailablePhase(i);
   if(DATA.phases[curPhase]&&DATA.phases[curPhase].id==='p4')endCombat();
-  curPhase=i;curRound=0;refreshAll();wheel.angle=0;state.targetAngle=0;wheel.draw();document.getElementById('resultPanel').style.display='none';
+  curPhase=i;curRound=0;refreshAll();document.getElementById('originPick').style.display='none';
+  wheel.angle=0;state.targetAngle=0;wheel.draw();document.getElementById('resultPanel').style.display='none';
   document.getElementById('phaseMenu').style.display='none';
 }
 function togglePhaseMenu(){
@@ -598,6 +602,7 @@ function selectOrigin(type){
   saveState();
   refreshAfterSpin();
   goNext();
+  if(isPhaseDone()&&curPhase<DATA.phases.length-1)document.getElementById('btnPhase').style.display='block';
 }
 function introToast(type){showToast(type+'暂未开放')}
 (function init(){
