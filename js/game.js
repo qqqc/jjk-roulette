@@ -68,9 +68,9 @@ function buildWheel(items){
         ctx.fillStyle=s.c||'#5a5a5a';ctx.fill();
         ctx.beginPath();ctx.moveTo(this.cx,this.cy);ctx.arc(this.cx,this.cy,this.radius,sa,ea);ctx.lineTo(this.cx,this.cy);
         ctx.strokeStyle='rgba(201,168,76,0.5)';ctx.lineWidth=.8;ctx.stroke();
-        ctx.save();ctx.translate(this.cx,this.cy);ctx.rotate(sa+s.arc/2);ctx.textAlign='right';ctx.fillStyle='#fff';
+        if(!s._tech){ctx.save();ctx.translate(this.cx,this.cy);ctx.rotate(sa+s.arc/2);ctx.textAlign='right';ctx.fillStyle='#fff';
         const fs=Math.max(9,this.radius*.09);ctx.font=`bold ${fs}px "PingFang SC","Microsoft YaHei",sans-serif`;
-        ctx.shadowColor='rgba(0,0,0,0.7)';ctx.shadowBlur=2;ctx.fillText(s.l,this.radius-8,fs*.35);ctx.shadowBlur=0;ctx.restore();a=ea;}
+        ctx.shadowColor='rgba(0,0,0,0.7)';ctx.shadowBlur=2;ctx.fillText(s.l,this.radius-8,fs*.35);ctx.shadowBlur=0;ctx.restore();}a=ea;}
       const grad=ctx.createRadialGradient(this.cx,this.cy,0,this.cx,this.cy,this.radius*.18);
       grad.addColorStop(0,'#1a1a2e');grad.addColorStop(.7,'#0a0a0c');grad.addColorStop(1,'rgba(0,0,0,0.8)');
       ctx.beginPath();ctx.arc(this.cx,this.cy,this.radius*.16,0,Math.PI*2);ctx.fillStyle=grad;ctx.fill();
