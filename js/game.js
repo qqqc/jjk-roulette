@@ -6,7 +6,7 @@ function dimLv(n){if(n<0)return'E-';if(n>=DIM_LEVELS.length-1)return'EX+';return
 function dimColor(idx){if(idx>=9)return'#ffffff';if(idx>=8)return'#ffcc00';if(idx>=7)return'#ff2200';if(idx>=6)return'#ff5500';if(idx>=5)return'#cc8844';if(idx>=3)return'#4488aa';if(idx>=2)return'#888888';return'#884444'}
 function visibleTraits(){const hidden=['moral_LG','moral_LN','moral_LE','人','咒灵','pers_1','pers_2','pers_3','skill_1','skill_2','skill_3','skill_4','skill_5','skill_6','skill_7','skill_8','skill_9','dom_eff_1','dom_eff_2','dom_eff_3','dom_eff_4','dom_eff_5','dom_eff_6','ctool_1','ctool_2','ctool_3','ctool_4','ctool_5','corp_1','corp_2','corp_3','corp_4','corp_5','corp_6','领域展开','自定义术式','有术式','单类型','双类型','三类型','无术式'];return state.traits.filter(t=>!hidden.includes(t)&&!t.startsWith('era_')&&!t.startsWith('pers_')&&!t.startsWith('skill_')&&!t.startsWith('dom_eff_')&&!t.startsWith('ctool_')&&!t.startsWith('corp_'))}
 function initDimensions(){const d={};DIM_NAMES.forEach(k=>d[k]=null);return d}
-const state={spinning:false,results:[],traits:[],dimensions:initDimensions(),skills:[],persDrawn:[],drawnSkills:[],targetAngle:0,startAngle:0,startTime:0,duration:0,lastAngle:0,curTab:'wheel',editorOpen:false,combat:{active:false,enemyId:null,stance:null,stamina:0,ce:0,win:0,shield:0,hp:0,enemyStamina:0,enemyCe:0,enemyWin:0,enemyHp:0,clockBK:0,clockLB:0,dangerZone:0,burnout:false,bfCombo:0,domainUsed:false,maxUsed:false,round:0,enemyWnd:0}};
+const state={spinning:false,results:[],traits:[],dimensions:initDimensions(),skills:[],persDrawn:[],drawnSkills:[],targetAngle:0,startAngle:0,startTime:0,duration:0,lastAngle:0,curTab:'wheel',editorOpen:false,introDone:false,combat:{active:false,enemyId:null,stance:null,stamina:0,ce:0,win:0,shield:0,hp:0,enemyStamina:0,enemyCe:0,enemyWin:0,enemyHp:0,clockBK:0,clockLB:0,dangerZone:0,burnout:false,bfCombo:0,domainUsed:false,maxUsed:false,round:0,enemyWnd:0}};
 const SKILL_CHAINS={'领域展开':['p2_dt','p2_dn','p2_de1','p2_de2','p2_de3','p2_de4','p2_de5','p2_de6','p2_dname'],'极之番':['p2_max','p2_mname'],'反转术式':['p2_rev'],'咒骸制作':['p2_corpQ','p2_corpP1','p2_corpP2','p2_corpP3','p2_corpP4','p2_corpP5','p2_corpP6']};
 let wheel,particles;
 
@@ -363,7 +363,7 @@ function reroll(){
   document.getElementById('btnNext').style.display='none';document.getElementById('btnReroll').style.display='none';showToast('🔄 已重抽');
 }
 function saveState(){
-  try{localStorage.setItem('jjk_state',JSON.stringify({curPhase,curRound,results:state.results,traits:state.traits,dimensions:state.dimensions}))}catch(e){}
+  try{localStorage.setItem('jjk_state',JSON.stringify({curPhase,curRound,results:state.results,traits:state.traits,dimensions:state.dimensions,introDone:state.introDone}))}catch(e){}
 }
 function resetGame(){
   if(state.spinning)return;
@@ -545,11 +545,30 @@ const pl=document.getElementById('ptrLabel');if(pl){const s=ss[idx];pl.textConte
 }
 
 // ========================================================= INIT =========================================================
+function selectOrigin(type){
+  if(type==='穿越者'){
+    state.introDone=true;
+    document.getElementById('introOverlay').style.display='none';
+    document.getElementById('dotsBg').style.display='block';
+    saveState();
+    setTimeout(()=>{refreshAll();requestAnimationFrame(loop)},100);
+  }
+}
+function introToast(type){showToast(type+'暂未开放')}
 (function init(){
   const db=document.getElementById('dotsBg');for(let i=0;i<20;i++){const d=document.createElement('div');d.className='dot';d.style.left=Math.random()*100+'%';d.style.width=d.style.height=(1.5+Math.random()*3)+'px';d.style.animationDuration=(10+Math.random()*20)+'s';d.style.animationDelay=Math.random()*20+'s';d.style.background=Math.random()<.5?'var(--glow)':'var(--gold)';db.appendChild(d)}
   document.querySelectorAll('.btm-tabs .bt').forEach(b=>b.addEventListener('click',()=>setTab(b.dataset.t)));
   // load saved state
-  try{const s=JSON.parse(localStorage.getItem('jjk_state'));if(s){curPhase=s.curPhase||0;curRound=s.curRound||0;if(curPhase>=DATA.phases.length){curPhase=0;curRound=0}state.results=s.results||[];state.traits=s.traits||[];state.dimensions=s.dimensions||initDimensions()}}catch(e){}
-  setTimeout(()=>{if(DATA.phases[curPhase]&&DATA.phases[curPhase].id==='p4'){const etg=state.traits.find(t=>t.startsWith('enemy_'));if(etg&&typeof initCombat==='function')initCombat(etg.replace('enemy_',''))}refreshAll();requestAnimationFrame(loop)},100);
+  try{const s=JSON.parse(localStorage.getItem('jjk_state'));if(s){curPhase=s.curPhase||0;curRound=s.curRound||0;if(curPhase>=DATA.phases.length){curPhase=0;curRound=0}state.results=s.results||[];state.traits=s.traits||[];state.dimensions=s.dimensions||initDimensions();state.introDone=s.introDone||false}}catch(e){}
+  // loading screen
+  const ls=document.getElementById('loadingScreen');
+  const startGame=()=>{
+    if(!state.introDone){document.getElementById('introOverlay').style.display='flex';return}
+    setTimeout(()=>{if(DATA.phases[curPhase]&&DATA.phases[curPhase].id==='p4'){const etg=state.traits.find(t=>t.startsWith('enemy_'));if(etg&&typeof initCombat==='function')initCombat(etg.replace('enemy_',''))}refreshAll();requestAnimationFrame(loop)},100);
+  };
+  // loading screen dots
+  const lsd=document.getElementById('lsDots');if(lsd){for(let i=0;i<3;i++){const s=document.createElement('span');lsd.appendChild(s)}}
+  setTimeout(()=>{ls.classList.add('hide');setTimeout(()=>{ls.style.display='none';startGame()},600)},2500);
+  // state-loaded (skip loading if introDone was saved)
   window.addEventListener('resize',()=>{if(!rd())return;if(wheel){wheel=buildWheel(getFilteredRoundItems(rd()));initParticles();wheel.draw()}refreshSidebar();refreshRight()});
 })();
