@@ -595,16 +595,11 @@ function introToast(type){showToast(type+'暂未开放')}
   const db=document.getElementById('dotsBg');for(let i=0;i<20;i++){const d=document.createElement('div');d.className='dot';d.style.left=Math.random()*100+'%';d.style.width=d.style.height=(1.5+Math.random()*3)+'px';d.style.animationDuration=(10+Math.random()*20)+'s';d.style.animationDelay=Math.random()*20+'s';d.style.background=Math.random()<.5?'var(--glow)':'var(--gold)';db.appendChild(d)}
   document.querySelectorAll('.btm-tabs .bt').forEach(b=>b.addEventListener('click',()=>setTab(b.dataset.t)));
   // load saved state
-  try{const s=JSON.parse(localStorage.getItem('jjk_state'));if(s){curPhase=s.curPhase||0;curRound=s.curRound||0;if(curPhase>=DATA.phases.length){curPhase=0;curRound=0}state.results=s.results||[];state.traits=s.traits||[];state.dimensions=s.dimensions||initDimensions();state.introDone=s.introDone||false}}catch(e){}
-  // loading screen
-  const ls=document.getElementById('loadingScreen');
+  try{const s=JSON.parse(localStorage.getItem('jjk_state'));if(s){curPhase=s.curPhase||0;curRound=s.curRound||0;if(curPhase>=DATA.phases.length){curPhase=0;curRound=0}state.results=s.results||[];state.traits=s.traits||[];state.dimensions=s.dimensions||initDimensions();  state.introDone=s.introDone||false}}catch(e){}
   const startGame=()=>{
     if(!state.introDone){document.getElementById('introOverlay').style.display='flex';return}
     setTimeout(()=>{if(DATA.phases[curPhase]&&DATA.phases[curPhase].id==='p4'){const etg=state.traits.find(t=>t.startsWith('enemy_'));if(etg&&typeof initCombat==='function')initCombat(etg.replace('enemy_',''))}refreshAll();requestAnimationFrame(loop)},100);
   };
-  // loading screen dots
-  const lsd=document.getElementById('lsDots');if(lsd){for(let i=0;i<3;i++){const s=document.createElement('span');lsd.appendChild(s)}}
-  setTimeout(()=>{ls.classList.add('hide');setTimeout(()=>{ls.style.display='none';startGame()},600)},2500);
-  // state-loaded (skip loading if introDone was saved)
+  startGame();
   window.addEventListener('resize',()=>{if(!rd())return;if(wheel){wheel=buildWheel(getFilteredRoundItems(rd()));initParticles();wheel.draw()}refreshSidebar();refreshRight()});
 })();
