@@ -100,10 +100,10 @@ function v3BuildRoundWheel(rid){
 
 function _startSpin(){var items=wheel.sectors,tw=items.reduce(function(s,se){return s+(se.w||1)},0),rv=Math.random()*tw,ti=0;for(var j=0;j<items.length;j++){rv-=items[j].w||1;if(rv<=0){ti=j;break}}var ca=0;for(var k=0;k<ti;k++)ca+=items[k].arc;state.targetAngle=wheel.angle+(6+Math.floor(Math.random()*4))*Math.PI*2-ca-items[ti].arc/2;state.startAngle=wheel.angle;state.startTime=performance.now();state.duration=4000+Math.random()*1500}
 
-spin=function(){if(state.spinning)return;var r=rd();if(!r)return _origSpin();var rt=r.type||'',c=state.combat;
+spin=function(){if(state.spinning)return;var r=rd();if(!r)return _origSpin();var rt=r.type||'';
 if(rt==='combat_ce'||rt==='combat_stamina'||rt==='combat_repeatable'||rt==='combat_result'){
   if(state._rctPhase||state._escapePhase){state.spinning=true;document.getElementById('btnSpin').disabled=true;document.getElementById('btnSpin').textContent='⏳ 旋转中…';document.getElementById('resultPanel').style.display='none';document.getElementById('btnNext').style.display='none';_startSpin();return}
-  if(rt==='combat_repeatable'){if(c&&c.phase&&(c.phase.indexOf('enemy')>=0||c.phase==='clash')){showToast('现在是'+(c.phase==='clash'?'对拼':(c.phase.indexOf('stamina')>=0?'敌人':'对抗'))+'阶段，按→继续');return}var items=v3BuildRoundWheel(r.id);if(!items||items.length===0){showToast('无可用技法');return}wheel=buildWheel(items);wheel.angle=0;state.targetAngle=0;initParticles();wheel.draw();}
+  if(rt==='combat_repeatable'){var items=v3BuildRoundWheel(r.id);if(!items||items.length===0){showToast('无可用技法');return}wheel=buildWheel(items);wheel.angle=0;state.targetAngle=0;initParticles();wheel.draw();}
   if(rt!=='combat_repeatable'){var items=v3BuildRoundWheel(r.id);if(!items){state.spinning=true;document.getElementById('btnSpin').disabled=true;document.getElementById('btnSpin').textContent='⏳ 旋转中…';document.getElementById('resultPanel').style.display='none';document.getElementById('btnNext').style.display='none';_startSpin();return}wheel=buildWheel(items);wheel.angle=0;state.targetAngle=0;initParticles();wheel.draw();}
   state.spinning=true;document.getElementById('btnSpin').disabled=true;document.getElementById('btnSpin').textContent='⏳ 旋转中…';document.getElementById('resultPanel').style.display='none';document.getElementById('btnNext').style.display='none';_startSpin();return}
 return _origSpin()}
