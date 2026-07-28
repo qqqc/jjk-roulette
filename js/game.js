@@ -6,7 +6,7 @@ function dimLv(n){if(n<0)return'E-';if(n>=DIM_LEVELS.length-1)return'EX+';return
 function dimColor(idx){if(idx>=9)return'#ffffff';if(idx>=8)return'#ffcc00';if(idx>=7)return'#ff2200';if(idx>=6)return'#ff5500';if(idx>=5)return'#cc8844';if(idx>=3)return'#4488aa';if(idx>=2)return'#888888';return'#884444'}
 function visibleTraits(){const hidden=['moral_LG','moral_LN','moral_LE','人','咒灵','pers_1','pers_2','pers_3','skill_1','skill_2','skill_3','skill_4','skill_5','skill_6','skill_7','skill_8','skill_9','dom_eff_1','dom_eff_2','dom_eff_3','dom_eff_4','dom_eff_5','dom_eff_6','ctool_1','ctool_2','ctool_3','ctool_4','ctool_5','corp_1','corp_2','corp_3','corp_4','corp_5','corp_6','领域展开','自定义术式','有术式','单类型','双类型','三类型','无术式'];return state.traits.filter(t=>!hidden.includes(t)&&!t.startsWith('era_')&&!t.startsWith('pers_')&&!t.startsWith('skill_')&&!t.startsWith('dom_eff_')&&!t.startsWith('ctool_')&&!t.startsWith('corp_'))}
 function initDimensions(){const d={};DIM_NAMES.forEach(k=>d[k]=null);return d}
-const state={spinning:false,results:[],traits:[],dimensions:initDimensions(),skills:[],persDrawn:[],drawnSkills:[],targetAngle:0,startAngle:0,startTime:0,duration:0,lastAngle:0,curTab:'wheel',editorOpen:false,introDone:false,combat:{active:false,enemyId:null,stance:null,stamina:0,ce:0,win:0,shield:0,hp:0,enemyStamina:0,enemyCe:0,enemyWin:0,enemyHp:0,clockBK:0,clockLB:0,dangerZone:0,burnout:false,bfCombo:0,domainUsed:false,maxUsed:false,round:0,enemyWnd:0}};
+const state={spinning:false,results:[],traits:[],dimensions:initDimensions(),skills:[],persDrawn:[],drawnSkills:[],targetAngle:0,startAngle:0,startTime:0,duration:0,lastAngle:0,curTab:'wheel',editorOpen:false,introDone:false,npcStates:{},combat:{active:false,enemyId:null,stance:null,stamina:0,ce:0,win:0,shield:0,hp:0,enemyStamina:0,enemyCe:0,enemyWin:0,enemyHp:0,clockBK:0,clockLB:0,dangerZone:0,burnout:false,bfCombo:0,domainUsed:false,maxUsed:false,round:0,enemyWnd:0}};
 const SKILL_CHAINS={'领域展开':['p2_dt','p2_dn','p2_de1','p2_de2','p2_de3','p2_de4','p2_de5','p2_de6','p2_dname'],'极之番':['p2_max','p2_mname'],'咒骸制作':['p2_corpQ','p2_corpP1','p2_corpP2','p2_corpP3','p2_corpP4','p2_corpP5','p2_corpP6']};
 let wheel,particles;
 
@@ -24,8 +24,11 @@ function checkCond(cond){
     if(cond.includes('|')){const[p,op,lv]=cond.split('|');const v=dimVal(state.dimensions[p]);const t=dimVal(lv);if(v<0)return false;if(op==='>=')return v>=t;if(op==='<=')return v<=t;if(op==='>')return v>t;if(op==='<')return v<t;if(op==='==')return v===t;return false}
     return state.traits.includes(cond);
   }
-  // Array: all conditions must be met (AND logic)
-  if(Array.isArray(cond))return cond.every(c=>checkCond(c));
+  // Array: nested=OR, flat=AND. [["A","B"],"C"] = (A OR B) AND C
+  if(Array.isArray(cond))return cond.every(c=>{
+    if(Array.isArray(c))return c.some(sc=>checkCond(sc));
+    return checkCond(c);
+  });
   return true;
 }
 const ph=()=>DATA.phases[curPhase];
@@ -49,7 +52,7 @@ function getFilteredItems(items,rid){
     return{...it,w:Math.max(0.1,w)};
   });
 }
-function getFilteredRoundItems(r){if(!r)return[];return getFilteredItems(r.items,r.id)}
+function getFilteredRoundItems(r){if(!r)return[];if(r.id==='p4_enemy'&&state.npcStates&&Object.keys(state.npcStates).length>0){var items=[];for(var k in state.npcStates){var ns=state.npcStates[k];if(!ns.alive||ns.stance!=='hostile')continue;var ch=STORY_CHARACTERS[k];if(!ch)continue;var et=ENEMY_TEMPLATES[ns.combatRef];items.push({l:ch.name+'·'+ch.title,w:12,c:et?et.tierColor:'#f44',d:ch.desc||'',tags:['enemy_'+ns.combatRef]});}if(items.length>0)return items}return getFilteredItems(r.items,r.id)}
 
 function buildWheel(items){
   if(!items||items.length===0){items=[{l:'——',w:1,c:'#333',d:''}]}
@@ -253,11 +256,45 @@ function updateBadges(){
 
 // ========================================================= ACTIONS =========================================================
 function showToast(msg){const c=document.getElementById('toastContainer'),d=document.createElement('div');d.className='toast';d.textContent=msg;c.appendChild(d);setTimeout(()=>d.remove(),2000)}
+// ========================================================= NPC STATE =========================================================
+function initNpcStates(era){
+  if(typeof STORY_CHARACTERS==='undefined')return;
+  state.npcStates={};
+  var pid=state.traits.includes('咒术师')?'咒术师':state.traits.includes('诅咒师')?'诅咒师':state.traits.includes('咒灵')?'咒灵':state.traits.includes('凡人')?'凡人':null;
+  if(!pid)return;
+  for(var k in STORY_CHARACTERS){
+    var ch=STORY_CHARACTERS[k];if(!ch.eraPresence||ch.eraPresence.indexOf(era)<0)continue;
+    var existing=state.npcStates[k];
+    state.npcStates[k]={
+      id:ch.id,alive:true,
+      stance:ch.defaultStance?ch.defaultStance[pid]||'neutral':'neutral',
+      relation:existing?existing.relation:(ch.defaultRelation?ch.defaultRelation[pid]||0:0),
+      combatRef:ch.combatRef
+    };
+  }
+}
+function updateNpcStances(tags){
+  if(!tags||!tags.length)return;
+  for(var k in state.npcStates){
+    var ns=state.npcStates[k];if(!ns.alive)continue;
+    var ch=STORY_CHARACTERS[k];if(!ch||!ch.stanceTriggers)continue;
+    ch.stanceTriggers.forEach(function(tr){
+      if(tags.indexOf(tr.event)<0)return;
+      ns.stance=tr.to;
+      if(tr.rel)ns.relation=Math.max(-100,Math.min(100,ns.relation+tr.rel));
+      if(tr.combatRef)ns.combatRef=tr.combatRef;
+      if(tr.to==='dead')ns.alive=false;
+    });
+  }
+}
+function relationMultiplier(rel){if(rel<0)return 1+rel/100;return 1+rel/100}
+
 function applyEffects(item){
   if(item.tags){item.tags.forEach(t=>{if(!state.traits.includes(t))state.traits.push(t)})}
   if(item.dim){for(const[k,v]of Object.entries(item.dim)){const idx=dimVal(v);if(idx>=0)state.dimensions[k]=v}}
   if(item.dimMod){for(const[k,v]of Object.entries(item.dimMod)){const cur=dimVal(state.dimensions[k]);const nv=cur+v;state.dimensions[k]=dimLv(nv)}}
   if(item.addDims){item.addDims.forEach(k=>{if(!DIM_NAMES.includes(k)){DIM_NAMES.push(k);state.dimensions[k]=null}})}
+  updateNpcStances(item.tags);
 }
 function phaseAvailable(i){const p=DATA.phases[i];if(!p||!p.cond)return true;return checkCond(p.cond)}
 function drawnEraIndex(){for(let i=0;i<DATA.phases.length;i++){if(DATA.phases[i].cond&&DATA.phases[i].cond.startsWith('era_')&&checkCond(DATA.phases[i].cond))return i}return -1}
@@ -267,7 +304,7 @@ function switchPhase(i){
   if(i>curPhase&&!isPhaseDone()){showToast('当前阶段未完成，无法进入下一阶段');return}
   i=skipToNextAvailablePhase(i);
   if(DATA.phases[curPhase]&&DATA.phases[curPhase].id==='p4')endCombat();
-  curPhase=i;curRound=0;document.getElementById('originPick').style.display='none';refreshAll();
+  curPhase=i;curRound=0;var eraTag=state.traits.find(function(t){return t.indexOf('era_')===0});if(eraTag){var era=eraTag.replace('era_','')+'时期';if(era.indexOf('高专')>=0)era='高专时期';if(era.indexOf('0卷')>=0)era='0卷时期';if(era.indexOf('新宿')>=0)era='新宿决战';initNpcStates(era)}document.getElementById('originPick').style.display='none';refreshAll();
   if(wheel){wheel.angle=0;state.targetAngle=0;wheel.draw()}document.getElementById('resultPanel').style.display='none';
   document.getElementById('phaseMenu').style.display='none';
 }

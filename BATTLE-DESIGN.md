@@ -1129,6 +1129,58 @@ state.combat = {
 
 ---
 
+## 13b. NPC 状态运行时缓存
+
+### 13b.1 数据流
+
+```
+STORY_CHARACTERS (静态)              state.npcStates (动态)
+    初始 stance/relation                     ↓
+     ↓                          p3 标签 → updateNpcStances()
+switchPhase 触发 initNpcStates           │
+     ↓                           ┌───────▼────────┐
+  拷贝到 npcStates               │ p4 动态敌人选择  │
+                                 │ p4 盟友增益计算  │
+                                 │ p5 结局判定      │
+                                 └────────────────┘
+```
+
+### 13b.2 state.npcStates 结构
+
+```javascript
+state.npcStates = {
+  fushiguro_toji_kai: {
+    id: "fushiguro_toji_kai",
+    alive: true,           // false → 排除
+    stance: "hostile",     // hostile | neutral | ally | dead
+    relation: -30,         // −100 ~ +100
+    combatRef: "fushiguro_toji_kai"  // 可被 stanceTriggers 改写
+  }
+}
+```
+
+### 13b.3 消费点
+
+| 阶段 | 消费 |
+|------|------|
+| p4_enemy | 遍历 `npcStates` 找 `stance==='hostile' && alive` → 动态生成转盘选项 |
+| p4 盟友增益 | `stance==='ally'` → `supportEffects[]` × `relationMultiplier(rel)` |
+| p5 结局 | 根据终态 stance/relation 判定结局 |
+
+### 13b.4 stanceTriggers 示例
+
+```javascript
+// 甚尔:
+[{event:"怀玉_五条_完整觉醒", to:"dead"},     // 五条觉醒 → 甚尔死
+ {event:"怀玉_甚尔_败退",     to:"neutral"} ]  // 被击退 → 中立
+
+// 五条:
+[{event:"怀玉_五条_完整觉醒", to:"ally", rel:50,
+       combatRef:"gojo_satoru_awakened"}]      // 觉醒 → 切换模板
+```
+
+---
+
 ## 14. 轮盘扇区规格
 
 | 轮盘类型 | 扇区数 | 扇区内容 | 生成方式 |
