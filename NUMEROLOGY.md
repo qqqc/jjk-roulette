@@ -1,7 +1,9 @@
 # 战斗数值手册
 
 > 本文件为 p4 战斗系统的唯一数值来源。所有常量、查表、公式以此为准。
-> 代码在 js/combat.js 的 V3 NUMERICAL 区块。
+> 代码在 `js/combat.js` 的 V3 NUMERICAL 区块。
+> 
+> **关联文档**: 角色生成权重见 [`WEIGHTS.md`](WEIGHTS.md)，系统设计见 [`BATTLE-DESIGN.md`](BATTLE-DESIGN.md)。
 
 ---
 
@@ -238,3 +240,16 @@ HP:520  baseDmg:55
 | Combo前置 | 茈(未用蒼/赫) / 開(无领域) |
 | 极之番已用 | 按钮隐藏 (每回合重置) |
 | 领域已用 | 按钮隐藏 (RCT修复后重置) |
+
+---
+
+## 6. 关联文档
+
+| 文档 | 内容 |
+|------|------|
+| [BATTLE-DESIGN.md](BATTLE-DESIGN.md) | 战斗系统完整设计（流程、结算、UI） |
+| [WEIGHTS.md](WEIGHTS.md) | p1/p2 角色生成权重、wMods/addMods 模板、cond 参考 |
+| [jjk-lore/](jjk-lore/) | JJK 原著设定库（角色/术式/时间线/评级） |
+| `js/combat.js` | 战斗实现源码（数值数组在顶部 V3 NUMERICAL 区块） |
+| `js/seed-data.js` | 游戏全部数据定义（phases/rounds/items/ENEMY_TEMPLATES） |
+
