@@ -854,6 +854,70 @@ const ENEMY_TEMPLATES={
   }
 };
 
+// ========================================================= STORY CHARACTERS (P0: 怀玉时期5角色) =========================================================
+const STORY_CHARACTERS={
+  fushiguro_toji_kai:{id:"fushiguro_toji_kai",name:"伏黑甚尔",title:"术师杀手",faction:"佣兵",era:"怀玉时期",combatRef:"fushiguro_toji_kai",
+    defaultStance:{咒术师:"hostile",诅咒师:"neutral",咒灵:"hostile",凡人:"neutral"},
+    defaultRelation:{咒术师:-30,诅咒师:10,咒灵:-40,凡人:0},
+    stanceTemplates:{
+      hostile:{combatId:"fushiguro_toji_kai",combatMods:{},battleDesc:"术师杀手站在你面前。游云在手中转了三圈——然后静止。"},
+      neutral:{combatId:null,combatMods:{},battleDesc:"甚尔看了你一眼——没有敌意，但有兴趣。"},
+      ally:{combatId:null,combatMods:{},supportEffects:[{type:"dimBuff",dim:"体术",base:1,icon:"👊"},{type:"dmgBoost",base:15,icon:"🗡"},{type:"sharedTech",tech:"体术·连破",icon:"⚡"}],battleDesc:"甚尔走到你旁边——没有看你。但你知道，他的方向就是你战斗的方向。"},
+      dead:{combatId:null,combatMods:{},supportEffects:[],battleDesc:null}
+    },
+    stanceTriggers:[{event:"protect_riko",to:"hostile",rel:-60},{event:"assassinate_riko",to:"ally",rel:70},{event:"toji_defeated",to:"dead",rel:0},{event:"toji_retreated",to:"neutral",rel:-20},{event:"awaken_gojo_kai",to:"dead",rel:0}],
+    eraPresence:["怀玉时期"]
+  },
+  gojo_satoru_kai:{id:"gojo_satoru_kai",name:"五条悟",title:"最强·高二",faction:"咒术高专",era:"怀玉时期",combatRef:"gojo_satoru_kai",
+    defaultStance:{咒术师:"ally",诅咒师:"hostile",咒灵:"hostile",凡人:"neutral"},
+    defaultRelation:{咒术师:20,诅咒师:-40,咒灵:-60,凡人:0},
+    stanceTemplates:{
+      hostile:{combatId:"gojo_satoru_kai",combatMods:{},battleDesc:"五条悟摘下了墨镜。六眼锁定了你。'我是最强的——但是你知道这一点，不是吗？'"},
+      neutral:{combatId:null,combatMods:{},battleDesc:"五条看了你一眼——他的六眼在你身上停了一秒，然后移开了。"},
+      ally:{combatId:null,combatMods:{},supportEffects:[{type:"dimBuff",dim:"咒力效率",base:1,icon:"🔮"},{type:"dmgBoost",base:25,icon:"💣"},{type:"sharedTech",tech:"苍",icon:"🌀"}],battleDesc:"五条站在你身边。'别拖我后腿。'——他说这话的时候在笑。"},
+      dead:{combatId:null,combatMods:{},supportEffects:[],battleDesc:null}
+    },
+    stanceTriggers:[{event:"protect_riko",to:"ally",rel:30},{event:"assassinate_riko",to:"hostile",rel:-70},{event:"awaken_gojo_kai",to:"ally",rel:0},{event:"gojo_fatally_wounded",to:"dead",rel:0}],
+    eraPresence:["怀玉时期"]
+  },
+  geto_suguru_kai:{id:"geto_suguru_kai",name:"夏油杰",title:"咒灵操术师·高二",faction:"咒术高专",era:"怀玉时期",combatRef:"geto_suguru_kai",
+    defaultStance:{咒术师:"ally",诅咒师:"hostile",咒灵:"hostile",凡人:"neutral"},
+    defaultRelation:{咒术师:20,诅咒师:-30,咒灵:-80,凡人:5},
+    stanceTemplates:{
+      hostile:{combatId:"geto_suguru_kai",combatMods:{},battleDesc:"夏油站在那里——数十只咒灵环绕着他。'保护谁？——有资格的人。'"},
+      neutral:{combatId:null,combatMods:{},battleDesc:"夏油在远处看着。他的表情很平静——也许在思考什么。"},
+      ally:{combatId:null,combatMods:{},supportEffects:[{type:"dimBuff",dim:"咒力操纵",base:1,icon:"🔧"},{type:"dmgReduce",base:15,icon:"🛡"},{type:"sharedTech",tech:"结界术",icon:"🧱"}],battleDesc:"夏油向你点了点头。咒灵群在他的身后展开——你的阵地不需要担心了。"},
+      dead:{combatId:null,combatMods:{},supportEffects:[],battleDesc:null}
+    },
+    stanceTriggers:[{event:"protect_riko",to:"ally",rel:25},{event:"assassinate_riko",to:"hostile",rel:-60},{event:"geto_shaken",to:"neutral",rel:-40},{event:"geto_fallen",to:"hostile",rel:-100},{event:"geto_stopped",to:"ally",rel:15}],
+    eraPresence:["怀玉时期"]
+  },
+  amanai_riko:{id:"amanai_riko",name:"天内理子",title:"星浆体",faction:"星浆体",era:"怀玉时期",combatRef:null,
+    defaultStance:{咒术师:"neutral",诅咒师:"neutral",咒灵:"neutral",凡人:"neutral"},
+    defaultRelation:{咒术师:10,诅咒师:-10,咒灵:-30,凡人:20},
+    stanceTemplates:{
+      hostile:{combatId:null,combatMods:{},battleDesc:null},
+      neutral:{combatId:null,combatMods:{},battleDesc:null},
+      ally:{combatId:null,combatMods:{},supportEffects:[{type:"dimBuff",dim:"意志",base:1,icon:"💫"},{type:"healRate",base:10,icon:"💚"}],battleDesc:"理子在你身后——你能感觉到她的视线。她相信你。"},
+      dead:{combatId:null,combatMods:{},supportEffects:[],battleDesc:null}
+    },
+    stanceTriggers:[{event:"protect_riko",to:"ally",rel:40},{event:"assassinate_riko",to:"dead",rel:-100},{event:"riko_saved",to:"ally",rel:80},{event:"riko_accepts_fate",to:"neutral",rel:0},{event:"riko_refused",to:"ally",rel:60},{event:"you_became_star",to:"ally",rel:100},{event:"riko_flees",to:"ally",rel:70}],
+    eraPresence:["怀玉时期"]
+  },
+  kuroi_misato:{id:"kuroi_misato",name:"黑井美里",title:"星浆体随从",faction:"星浆体",era:"怀玉时期",combatRef:"kuroi_misato",
+    defaultStance:{咒术师:"neutral",诅咒师:"hostile",咒灵:"hostile",凡人:"neutral"},
+    defaultRelation:{咒术师:5,诅咒师:-20,咒灵:-40,凡人:5},
+    stanceTemplates:{
+      hostile:{combatId:"kuroi_misato",combatMods:{},battleDesc:"黑井挡在你面前。她的眼神告诉你——她不会让。"},
+      neutral:{combatId:null,combatMods:{},battleDesc:"黑井站在理子身边。她打量着你——在判断你是敌人还是朋友。"},
+      ally:{combatId:null,combatMods:{},supportEffects:[{type:"dimBuff",dim:"体质",base:1,icon:"🏋️"},{type:"shield",base:20,icon:"🛡"}],battleDesc:"黑井护在你和理子之间。她的防御姿态不需要咒力——只需要决心。"},
+      dead:{combatId:null,combatMods:{},supportEffects:[],battleDesc:null}
+    },
+    stanceTriggers:[{event:"protect_riko",to:"ally",rel:40},{event:"assassinate_riko",to:"hostile",rel:-100},{event:"save_kuroi",to:"ally",rel:80},{event:"riko_dead",to:"dead",rel:0}],
+    eraPresence:["怀玉时期"]
+  }
+};
+
 // ========================================================= TECHNIQUE LIBRARY (v3已重写, 保留供combat.js引用) =========================================================
 const TECHNIQUE_LIBRARY={
   universal:[
