@@ -417,7 +417,7 @@ function saveState(){
 function resetGame(){
   if(state.spinning)return;
   if(state.results.length>0&&!confirm('确定重置本轮？所有已抽取结果和角色特质将清除。'))return;
-  state.results=[];state.traits=[];state.dimensions=initDimensions();state.skills=[];state.persDrawn=[];
+  state.results=[];state.traits=[];state.dimensions=initDimensions();state.skills=[];state.persDrawn=[];state.introDone=false;
   endCombat();
   curPhase=0;curRound=0;state.targetAngle=0;if(wheel)wheel.angle=0;
   localStorage.removeItem('jjk_state');
@@ -611,7 +611,7 @@ function introToast(type){showToast(type+'暂未开放')}
   // debug: ?era=kai → auto-pick怀玉时期
   try{const usp=new URLSearchParams(window.location.search);if(usp.get('era')==='kai'){const tr=DATA.phases.find(p=>p.id==='p1').rounds.find(r=>r.id==='p1_time');if(tr){const ki=tr.items.find(i=>i.l==='怀玉时期');if(ki)ki.w=999}}if(usp.get('debug')){window._debug=true}}catch(e){}
   // load saved state
-  try{const s=JSON.parse(localStorage.getItem('jjk_state'));if(s){curPhase=s.curPhase||0;curRound=s.curRound||0;if(curPhase>=DATA.phases.length){curPhase=0;curRound=0}state.results=s.results||[];state.traits=s.traits||[];state.dimensions=s.dimensions||initDimensions();  state.introDone=s.introDone||false}}catch(e){}
+  try{const s=JSON.parse(localStorage.getItem('jjk_state'));if(s){curPhase=s.curPhase||0;curRound=s.curRound||0;if(curPhase>=DATA.phases.length){curPhase=0;curRound=0}state.results=s.results||[];state.traits=s.traits||[];state.dimensions=s.dimensions||initDimensions();  state.introDone=s.introDone||false;if(state.introDone&&!state.results.some(rr=>rr.roundId==='p0_origin'))state.introDone=false}}catch(e){}
   if(state.introDone&&curPhase===0){curPhase=1;curRound=0}
   setTimeout(()=>{if(DATA.phases[curPhase]&&DATA.phases[curPhase].id==='p4'){const etg=state.traits.find(t=>t.startsWith('enemy_'));if(etg&&typeof initCombat==='function')initCombat(etg.replace('enemy_',''))}refreshAll();requestAnimationFrame(loop)},100);
   window.addEventListener('resize',()=>{if(!rd())return;if(wheel){wheel=buildWheel(getFilteredRoundItems(rd()));initParticles();wheel.draw()}refreshSidebar();refreshRight()});
