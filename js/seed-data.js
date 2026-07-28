@@ -885,6 +885,23 @@ const ENEMY_TEMPLATES={
     uniqueTechniques:{"防御姿态":{st:5,ce:0,win:0,eff:"护盾×2本回合",tier:"def"},"舍身守护":{st:8,ce:0,win:30,eff:"若理子在场+10胜率",tier:"atk"},"普通攻击":{st:4,ce:0,win:12,tier:"atk"}},
     hasDomain:false,stanceAI:{default:"坚牢",switches:[{when:"hp<30%",to:"猛攻"}]},baseDmg:25,dmgRange:[15,30],weakTo:[],resistTo:[],
     tools:[]
+  },
+  gojo_satoru_awakened:{
+    id:"gojo_satoru_awakened",name:"五条悟",title:"觉醒·最强",type:"human",
+    dim:{体质:"S",体术:"S",咒力总量:"SSS",咒力效率:"EX",咒力操纵:"SS",术式性能:"SSS",意志:"S",运势:"S",天赋:"EX"},
+    hp:800,tier:"EX",tierColor:"#8800ff",
+    desc:"天上天下·唯我独尊。被甚尔「杀死」后以反转术式复活——六眼与无下限术式的真正力量在此觉醒。苍、赫、茈——三色光芒在指尖绽放。",
+    flair:{intro:'\u300c天上天下——唯我独尊。\u300d',taunt:'\u300c你太慢了——什么都看不见吗？\u300d',fall:'\u300c哼——能让我用出茈，你值得骄傲了。\u300d'},
+    techniques:["术式顺转·苍","术式反转·赫","虚式·茈","无限防御"],
+    uniqueTechniques:{
+      "术式顺转·苍":{st:4,ce:25,win:65,eff:"敌闪避不可",tier:"atk_ce"},
+      "术式反转·赫":{st:5,ce:35,win:95,eff:"对拼值+8",tier:"atk_ce"},
+      "虚式·茈":{st:8,ce:100,win:180,eff:"消灭一击·全胜率锁定",tier:"ult"},
+      "无限防御":{st:6,ce:50,win:0,eff:"本回合受击-90%",tier:"def"}
+    },
+    hasDomain:true,domain:{name:"无量空处",effect:"强控",type:"封闭式"},
+    stanceAI:{default:"猛攻",switches:[{when:"hp<30%",to:"流转"},{when:"winGap>50",to:"猛攻"}]},baseDmg:90,dmgRange:[50,90],weakTo:[],resistTo:["天与咒缚"],
+    tools:[]
   }
 };
 
@@ -928,6 +945,19 @@ const STORY_CHARACTERS={
     },
     stanceTriggers:[{event:"protect_riko",to:"ally",rel:30},{event:"assassinate_riko",to:"hostile",rel:-70},{event:"awaken_gojo_kai",to:"ally",rel:0},{event:"gojo_fatally_wounded",to:"dead",rel:0}],
     eraPresence:["怀玉时期","0卷时期","高专时期","涩谷事变","死灭回游","新宿决战"]
+  },
+  gojo_satoru_awakened:{id:"gojo_satoru_awakened",name:"五条悟",title:"觉醒·最强",faction:"咒术高专",era:"怀玉时期",combatRef:"gojo_satoru_awakened",
+    desc:"被甚尔杀死后以反转术式复活——六眼与无下限术式的真正力量觉醒。苍、赫、茈——三色光芒在指尖绽放。天上天下·唯我独尊。",
+    defaultStance:{咒术师:"ally",诅咒师:"hostile",咒灵:"hostile",凡人:"neutral"},
+    defaultRelation:{咒术师:25,诅咒师:-50,咒灵:-70,凡人:0},
+    stanceTemplates:{
+      hostile:{combatId:"gojo_satoru_awakened",combatMods:{},battleDesc:"五条悟飘在半空。苍、赫、茈——三色光芒在指尖绽放。'天上天下——唯我独尊。'"},
+      neutral:{combatId:null,combatMods:{},battleDesc:"五条看了你一眼——他的六眼在你身上停了一秒，然后移开了。他不需要墨镜了。"},
+      ally:{combatId:null,combatMods:{},supportEffects:[{type:"dimBuff",dim:"咒力效率",base:2,icon:"🔮"},{type:"dmgBoost",base:40,icon:"💣"},{type:"sharedTech",tech:"苍",icon:"🌀"},{type:"shield",base:30,icon:"🛡"}],battleDesc:"五条站在你身边。'站在我身后。'——他说这话的时候没有在笑。他在准备茈。"},
+      dead:{combatId:null,combatMods:{},supportEffects:[],battleDesc:null}
+    },
+    stanceTriggers:[{event:"awaken_gojo_kai",to:"ally",rel:50},{event:"gojo_fatally_wounded",to:"dead",rel:0}],
+    eraPresence:["怀玉时期"]
   },
   geto_suguru_kai:{id:"geto_suguru_kai",name:"夏油杰",title:"咒灵操术师·高二",faction:"咒术高专",era:"怀玉时期",combatRef:"geto_suguru_kai",
     desc:"五条悟唯一的挚友与同级生。拥有吞噬并操控咒灵的咒灵操术——此刻他身边环绕着降服的咒灵群。",
