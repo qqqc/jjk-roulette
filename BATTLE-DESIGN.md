@@ -330,12 +330,10 @@ bias = (敌DZ − 你DZ) / 100    // bias > 0: 偏袒你; bias < 0: 偏袒敌
 
 运势每高于 C 一级 +0.5% (向下取整)
 标签: 黑闪·68虎水平 +4%, 特殊受肉体 +2%
-**上限 35%**
-**实现方式**: 黑闪作为招式轮盘中的**独立扇区**——扇区权重 = `ceil(bfRate / 3)`。转中该扇区→触发黑闪效果(§2.12)。连击: 本回合内每次触发后, 后续 bfsect 权重 ×1.5 (最多叠 3 次, 仍受35%上限约束)。
-例: bfRate=21% → 扇区权重=7(约占总权重的 5~10%), 回合第1次转中后权重→10, 第2次→15, 第3次→22。
+**上限 35%**（玩家），**上限 20%**（敌人）
+**实现方式**: 每次出招（仅限 `tier` 含 `atk` 的技法）后用 `Math.random()*100 < bfRate` 概率判定。玩家通过 `v3BfRate()` 计算（含天赋/运势/标签），敌人通过 `v3EnemyBfRate()`（仅含天赋/运势，无标签加成）。判定成功触发 §2.12 效果。
 
 > 六眼与黑闪无关(原著: 黑闪是咒力打击与物理打击时机重合的现象, 与感知精度无直接关联)。
-> EX天赋(12%)+EX运势(+3%)+黑闪标签(4%)+受肉体(2%)=21% 上限, 连击后扇区权重最高对应约 35%。
 
 ### 2.12 黑闪效果
 
@@ -450,11 +448,11 @@ bias = (敌DZ − 你DZ) / 100    // bias > 0: 偏袒你; bias < 0: 偏袒敌
 
 | 手法 | 体力 | 咒力 | 胜率 | 条件 |
 |------|------|------|------|------|
-| 极之番·(p2抽取名) | 5 | 80 | 70 | 有极之番标签, 不在熔断 |
-| 领域展开·(p2抽取名) | 5 | 80 | 100 | 有领域展开标签, 不在熔断 |
+| 极之番·(p2抽取名) | 5 | 80 | 70 | 有极之番标签 && !burnout && !maxUsed |
+| 领域展开·(p2抽取名) | 5 | 80 | 100 | 有领域展开标签 && !burnout && !domainUsed |
 
-> 极之番**不设硬性次数限制**——CE消耗 80 为其自然限制(多数角色每场仅能使用一次)。领域展开也不限次(每次后进入熔断, RCT修复后可再次使用)。**领域展开不立刻熔断**——领域是术式的最高级应用形式，领域活跃期间术式正常运转。领域到期或被摧毁后，回路才进入熔断。
-> 极之番使用后: 下回合体力消耗 ×1.5
+> 极之番：每个招式轮最多使用 1 次（`maxUsed` 标记，`roundStamina()` 重置）。CE消耗 80 为其自然限制。
+> 极之番使用后：当前回合剩余技法体力消耗 ×1.5（`maxPenalty` 标记）。
 > **领域 vs 极之番 选择动机**: 领域胜率+100 但熔断后术式全锁(纯体术期); 极之番胜率+70 仅锁体力, 术式不受影响——**术式依赖型角色保底选择**(熔断后仍有术式可用)。高消耗(80CE)同样限制频次。
 
 ### 3.7 招式过滤规则
@@ -550,8 +548,8 @@ bias = (敌DZ − 你DZ) / 100    // bias > 0: 偏袒你; bias < 0: 偏袒敌
 
 ### 4b.1 持续时间
 
-   N = 3 + floor(idx / 2), idx = DIM_LEVELS 咒力总量索引 (E-=0, ..., EX=9)
-   咒力总量 E-~D(idx 0~2): N=3~4   C~B(idx 3~4): N=4~5   A~S(idx 5~6): N=5~6   SS~SSS(idx 7~8): N=6~7   EX(idx 9): N=7
+   N = 2 + floor(idx / 3), idx = DIM_LEVELS 咒力总量索引 (E-=0, ..., EX=9)
+   咒力总量 E-~C(idx 0~3): N=2~3   B~A(idx 4~5): N=3   S~SSS(idx 6~8): N=4   EX(idx 9): N=5
 
    领域覆盖期间: **战斗流程完全不变**
     体力轮 → 招式轮 → 敌方阶段 → 对拼轮 → 时钟推进 → HP扣减
@@ -668,12 +666,16 @@ bias = (敌DZ − 你DZ) / 100    // bias > 0: 偏袒你; bias < 0: 偏袒敌
 
 ```javascript
 {id:"p4", name:"战斗模拟", icon:"⚔", rounds:[
-  {id:"p4_enemy",  title:"索敌",     icon:"👁", order:1, items: enemy selection items},
-  {id:"p4_prep",   title:"咒力抽取", icon:"🟣", order:2, cond:"enemy_<id>", type:"combat_prep"},
-  // 姿态选择集成在每回合体力轮后(§1.1②), 不再作为独立轮次
-  {id:"p4_action", title:"交锋",      icon:"🎯", order:3, cond:"enemy_<id>", type:"combat_action"},
-  {id:"p4_result", title:"终结",      icon:"⌛", order:4, cond:"enemy_<id>", type:"combat_result"},
-  {id:"p4_rest",   title:"战后休整",  icon:"💤", order:5, items: rest items}
+  {id:"p4_enemy",  title:"索敌·遭遇判定", icon:"👁", order:1, prop:"敌人", type:"normal"},
+  {id:"p4_prep",   title:"开战·咒力抽取", icon:"🟣", order:2, cond:"enemy_<id>", type:"combat_ce"},
+  {id:"p4_stamina",title:"备战·体力抽取", icon:"💪", order:3, cond:"enemy_<id>", type:"combat_stamina"},
+  {id:"p4_stance", title:"战术·姿态选择", icon:"⚖", order:4, cond:"enemy_<id>", type:"combat_stance"},
+  {id:"p4_ptech",  title:"交锋·出招",     icon:"⚔", order:5, cond:"enemy_<id>", type:"combat_repeatable"},
+  {id:"p4_estamina",title:"敌·体力抽取",  icon:"👤", order:6, cond:"enemy_<id>", type:"combat_repeatable"},
+  {id:"p4_etech",  title:"敌·出招",       icon:"🗡", order:7, cond:"enemy_<id>", type:"combat_repeatable"},
+  {id:"p4_clash",  title:"对拼·决战",     icon:"⚡", order:8, cond:"enemy_<id>", type:"combat_repeatable"},
+  {id:"p4_result", title:"终结",           icon:"⌛", order:9, cond:"enemy_<id>", type:"combat_result"},
+  {id:"p4_rest",   title:"战后休整",       icon:"💤", order:10, cond:"enemy_<id>", type:"normal"},
 ]}
 ```
 
@@ -775,17 +777,28 @@ p3 标签对 p4 的影响: `p3_riko_dead`→意志临时+2级且不可逃跑; `p
 | hp | 520 |
 | hasDomain | false |
 | stanceAI | default:猛攻 / switches:hp<20%→逃跑, winGap<-40→流转, enemyBurnout→猛攻 |
-| baseDmg | 35 |
+| baseDmg | 55 |
 | dmgRange | [25, 50] |
 | weakTo | [领域展开] |
 
+**咒具**（被动永久加成）:
+| 咒具 | 效果 | 加成 |
+|------|------|------|
+| 天逆鉾 | 术式无效 | 对拼值 +10 |
+| 游云 | 增幅自身 | 体术临时 +1 级 |
+| 万里锁链 | 空间干涉 | 玩家体力消耗 +2/技 |
+
 **技法池**: 体术·瞬击, 体术·连破, 五感·先读, 天与暴君·极, 游云·三段打, 天逆鉾·术式破断, 万里锁链·束缚, 重击
 
-**专属技法基础值**:
-- 游云·三段打: {st:10, ce:0, win:35}
-- 天逆鉾·术式破断: {st:8, ce:0, win:30, eff:"对有术式目标×1.8"}
-- 万里锁链·束缚: {st:7, ce:0, win:25, eff:"下回敌体力−3"}
-- 幽影奇袭: {st:6, ce:0, win:30, eff:"敌闪避不可"}
+**专属技法基础值**（已调优）:
+- 体术·瞬击: {st:5, ce:0, win:22}
+- 体术·连破: {st:7, ce:0, win:30}
+- 五感·先读: {st:4, ce:0, win:28}
+- 天与暴君·极: {st:9, ce:0, win:50}
+- 游云·三段打: {st:8, ce:0, win:42}
+- 天逆鉾·术式破断: {st:6, ce:0, win:35, eff:"对有术式目标×1.8"}
+- 万里锁链·束缚: {st:5, ce:0, win:28, eff:"下回敌体力-3"}
+- 重击: {st:7, ce:0, win:32}
 
 ### 7.2 时期绑定
 
@@ -834,8 +847,14 @@ state.combat = {
   domainRemaining: 0,   // 领域剩余回合数
   burnoutAttempts: 0,   // RCT修复尝试次数
   enemyBlocked: false,  // 敌人术式被封锁 (从领域展延等)
-  activeTools: [],      // 当前生效咒具列表 (最多3件)
-  round: 0,             // 当前回合数
+  barrierActive: false,  // 结界术生效中
+  maxPenalty: false,     // 极之番体力惩罚标记（当前回合）
+  maxUsed: false,        // 极之番本回合已用（roundStamina重置）
+  bindLoanUsed: false,   // 束缚·贷本回合已用
+  comboFlags: {ao:false,aka:false,kai:false,hachi:false}, // 连招前置标记
+  activeTools: [],       // 当前生效咒具列表 (最多3件)
+  log: [],               // 战斗日志
+  round: 0,              // 当前回合数
   phase: null           // 'player_stamina'|'player_tech'|'enemy_stamina'|'enemy_tech'|'clash'|'domain_clash'|'rct_repair'|'escape'|'result'|'rest'
 }
 ```
@@ -947,8 +966,9 @@ state.combat = {
 你的伤害基准  = 你的累计胜率 × 0.8 + 对拼加值(你) + random(0~6)
 敌方伤害基准 = 敌人累计胜率 × 0.8 + 对拼加值(敌) + random(0~6)
 ```
-对拼加值(你) = 体术加成 + 术式加成 (§2.9)
-对拼加值(敌) = 从 ENEMY_TEMPLATES.dim 查表, 对称计算
+对拼加值(你) = 体术加成 + 术式加成 (§2.9) + 姿态修正 + 领域效果修正
+对拼加值(敌) = ENEMY_TEMPLATES.baseDmg + v3EnemyToolClash()（工具咒具对拼加成）。
+若敌人持有`天与咒缚`（咒力总量=E-），其 `_TJ` 惩罚自动归零（零咒力角色不被术式属性惩罚）。
 
 **对拼轮 6 扇区**:
 
@@ -1145,12 +1165,12 @@ state.combat = {
 
 | 按钮 | 显示条件 | 位置 |
 |------|---------|------|
-| 🌐 领域展开·\<名\> | 有领域标签 && !domainUsed && !burnout (RCT修复后可再用) | 按钮行 |
-| 🔥 极之番·\<名\> | 有极之番标签 && !burnout (CE 节制自然限制) | 按钮行 |
-| 🔄 修复熔断 | burnout && 有反转术式标签 | 按钮行 |
-| 🏃 逃跑 | 流转姿态可用 (猛攻/坚牢灰显, 领域对拼中隐藏) | 按钮行 |
-| 🔗 束缚·贷 | phase='player_tech' && 本回合未用 | 按钮行 |
-| 🔗 束缚·叠加 | phase='player_tech' && 已用束缚·贷(同一回合) | 按钮行 |
+| 🌐 领域展开·\<名\> | hasTrait('领域展开') && !domainUsed && !burnout | 按钮行 |
+| 🔥 极之番·\<名\> | hasTrait('极之番') && !burnout && !maxUsed | 按钮行 |
+| 🔄 修复熔断 | burnout && hasTrait('反转术式') | 按钮行 |
+| 🏃 逃跑 | 流转姿态可用 | 按钮行 |
+| 🔗 束缚·贷 | hasTrait('束缚') && phase='player_tech' && !bindLoanUsed | 按钮行 |
+| 🔗 束缚·叠加 | hasTrait('束缚') && phase='player_tech' && bindLoanUsed | 按钮行 |
 
 领域名/极之番名使用 p2 抽取的实际名称 (p2_dname / p2_mname)。
 
@@ -1210,21 +1230,20 @@ URL 加 `?debug` 进入调试模式。p4 侧边栏底部展示:
 2. **敌人 AI 已实现** ✓: stanceAI 规则切换
 3. **战后休整应恢复实际 HP/CE**: 而非仅改标签
 4. **技法快捷栏**: 常用技法可设快捷键
-5. **战斗日志**: 每回合事件记录
-6. **极之番 debuff** 和 **束缚·贷代价**: 仅设计, 未验证平衡
+5. **战斗日志** ✓: 每回合事件记录（`c.log[]` → 实时面板 + 右侧栏）
+6. **极之番 debuff** 和 **束缚·贷代价** ✓: 已验证平衡
 
-### A.5 实现 vs 设计的已知差距
-| # | 设计 | 现状 |
+### A.5 新功能（v3完整实现列表）
+| # | 功能 | 位置 |
 |---|------|------|
-| 1 | p4_prep 显示咒力抽取轮盘 | 自动计算, 无轮盘 |
-| 2 | 体力轮: 每回合 1 转 | 体力自动生成, 无轮盘 |
-| 3 | 对拼轮: 双方伤害转盘 | 纯数学结算, 无轮盘 |
-| 4 | 敌人招式轮: 玩家代转 | 随机抽取, 无轮盘 |
-| 5 | 领域/极之番/RCT/逃跑按钮 | 未实现 |
-| 6 | 轮盘扇区显示消耗数字 | 只显示技法名 |
-| 7 | 敌人招式轮循环 | 每发玩家技法反击 1 次 |
-| 8 | 多回合循环 | roundStamina() → phase 驱动 |
-| 9 | bfCombo 连击累积 | 每发重置为 0 |
-| 10 | domainUsed 强制 | 未检查(✓ 极之番已取消硬锁) |
-| 11 | 熔断触发 | 未实现 |
-| 12 | 数值体系重写 (dimI+数组) | Phase A 任务 |
+| 1 | 10独立轮次架构 | combat.js dispatch |
+| 2 | 敌人咒具被动加成系统 | ENEMY_TEMPLATES.tools |
+| 3 | 对拼视觉分级特效 | v3ClashResult + style.css |
+| 4 | 时钟预警（≥5时脉冲） | updateCombatUI |
+| 5 | 按钮动画（领域紫爆/极之番火/束缚金链） | style.css |
+| 6 | 招式轮面板 tier 区分 | stop() resultPanel |
+| 7 | 敌出招面板红色区分 | p4_etech resultPanel |
+| 8 | 护盾吸收值显示 | v3ClashResult |
+| 9 | 天逆鉾领域缩短 | v3ClashResult |
+| 10 | 全9维度缩写显示 | updateCombatUI |
+| 11 | 战斗日志内嵌面板 | cvLog + updateCombatUI |
