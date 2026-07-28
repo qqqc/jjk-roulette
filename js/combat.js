@@ -15,11 +15,11 @@ function v3CeMax(){if(state.traits.some(function(t){return t.indexOf('天与咒�
 function v3StamCostMul(){var m=_SMUL[idxOrC(dimVal(state.dimensions['体术']))];if(state.traits.some(function(t){return t.indexOf('天与咒缚')>=0}))m=Math.max(0.2,m-0.2);return m}
 function v3CeCostMul(){if(state.traits.indexOf('六眼')>=0)return _CMUL[9];return _CMUL[idxOrC(dimVal(state.dimensions['咒力效率']))]}
 function v3WinBonus(){return _WB[idxOrC(dimVal(state.dimensions['咒力操纵']))]}
-function v3TechWinBonus(){return _TB[idxOrC(dimVal(state.dimensions['术式性能']))]}
-function v3ClashBonus(){return _MJ[idxOrC(dimVal(state.dimensions['体术']))]+_TJ[idxOrC(dimVal(state.dimensions['术式性能']))]}
+function v3TechWinBonus(){return _TB[idxOrC(dimVal(state.dimensions['术式性能']))]+v3PlayerToolTechBonus()}
+function v3ClashBonus(){return _MJ[idxOrC(dimVal(state.dimensions['体术']))]+_TJ[idxOrC(dimVal(state.dimensions['术式性能']))]+v3PlayerToolClash()}
 function v3DangerGrowth(){return _DZ[idxOrC(dimVal(state.dimensions['运势']))]}
 function v3EnemyDangerGrowth(){var e=ENEMY_TEMPLATES[state.combat.enemyId];if(!e||!e.dim)return 3;return _DZ[idxOrC(dimVal(e.dim['运势']))]}
-function v3BfRate(){var r=3+_BF[idxOrC(dimVal(state.dimensions['天赋']))];var l=dimVal(state.dimensions['运势']);if(l>3)r+=Math.floor((l-3)*0.5);if(state.skills.indexOf('黑闪·68虎水平')>=0)r+=4;if(state.traits.indexOf('特殊受肉体')>=0)r+=2;return Math.min(35,Math.max(0,r))}
+function v3BfRate(){var r=3+_BF[idxOrC(dimVal(state.dimensions['天赋']))];var l=dimVal(state.dimensions['运势']);if(l>3)r+=Math.floor((l-3)*0.5);if(state.skills.indexOf('黑闪·68虎水平')>=0)r+=4;if(state.traits.indexOf('特殊受肉体')>=0)r+=2;r+=v3PlayerToolBfBoost();return Math.min(35,Math.max(0,r))}
 function v3EnemyBfRate(){var e=ENEMY_TEMPLATES[state.combat.enemyId];if(!e||!e.dim)return 0;var r=3+_BF[idxOrC(dimVal(e.dim['天赋']))];var l=dimVal(e.dim['运势']);if(l>3)r+=Math.floor((l-3)*0.5);return Math.min(20,Math.max(0,r))}
 function v3CeDrawLower(){return _CE_DL[idxOrC(dimVal(state.dimensions['意志']))]}
 function v3EscapeRate(){return Math.min(100,50+_ESC[idxOrC(dimVal(state.dimensions['体术']))])}
@@ -28,6 +28,14 @@ function v3EnemyWinBonus(){var e=ENEMY_TEMPLATES[state.combat.enemyId];if(!e||!e
 function v3EnemyPhysIdx(){var e=ENEMY_TEMPLATES[state.combat.enemyId];if(!e||!e.dim)return 3;var idx=idxOrC(dimVal(e.dim['体术']));(e.tools||[]).forEach(function(t){if(t.effect==='增幅自身')idx=Math.min(9,idx+1)});return idx}
 function v3EnemyToolClash(){var e=ENEMY_TEMPLATES[state.combat.enemyId];if(!e||!e.tools)return 0;var s=0;e.tools.forEach(function(t){if(t.bonus&&t.bonus.clash)s+=t.bonus.clash});return s}
 function v3EnemyToolStCostPenalty(){var e=ENEMY_TEMPLATES[state.combat.enemyId];if(!e||!e.tools)return 0;var s=0;e.tools.forEach(function(t){if(t.bonus&&t.bonus.enemyStCost)s+=t.bonus.enemyStCost});return s}
+function v3PlayerToolClash(){if(!state.combat||!state.combat.active)return 0;var tools=state.results.filter(function(r){return r.prop&&r.prop.indexOf('咒具')>=0}).slice(0,3),s=0;tools.forEach(function(r){var l=r.label||'';if(l.indexOf('术式无效')>=0||l.indexOf('天逆鉾')>=0)s+=10;if(l.indexOf('增幅自身')>=0)s+=5;if(l.indexOf('追踪必中')>=0)s+=3;if(l.indexOf('隐密')>=0&&state.combat.round<=1)s+=5});return s}
+function v3PlayerToolTechBonus(){if(!state.combat||!state.combat.active)return 0;var tools=state.results.filter(function(r){return r.prop&&r.prop.indexOf('咒具')>=0}).slice(0,3),s=0;tools.forEach(function(r){var l=r.label||'';if(l.indexOf('元素附魔')>=0)s+=6});return s}
+function v3PlayerToolStPen(){if(!state.combat||!state.combat.active)return 0;var tools=state.results.filter(function(r){return r.prop&&r.prop.indexOf('咒具')>=0}).slice(0,3),s=0;tools.forEach(function(r){var l=r.label||'';if(l.indexOf('空间干涉')>=0)s+=2});return s}
+function v3PlayerToolShieldMul(){if(!state.combat||!state.combat.active)return 1;var tools=state.results.filter(function(r){return r.prop&&r.prop.indexOf('咒具')>=0}).slice(0,3);return tools.some(function(r){(r.label||'').indexOf('防护结界')>=0})?1.3:1}
+function v3PlayerToolBfBoost(){if(!state.combat||!state.combat.active)return 0;var tools=state.results.filter(function(r){return r.prop&&r.prop.indexOf('咒具')>=0}).slice(0,3);return tools.some(function(r){(r.label||'').indexOf('诅咒吸收')>=0})?2:0}
+function v3PlayerToolCurseBonus(){if(!state.combat||!state.combat.active)return false;var tools=state.results.filter(function(r){return r.prop&&r.prop.indexOf('咒具')>=0}).slice(0,3);return tools.some(function(r){var l=r.label||'';return l.indexOf('灵魂伤害')>=0||l.indexOf('释魂刀')>=0})}
+function v3PlayerToolHeal(){if(!state.combat||!state.combat.active)return 0;var tools=state.results.filter(function(r){return r.prop&&r.prop.indexOf('咒具')>=0}).slice(0,3);return tools.some(function(r){(r.label||'').indexOf('治愈')>=0})?8:0}
+function v3PlayerToolDesc(){var tools=state.results.filter(function(r){return r.prop&&r.prop.indexOf('咒具')>=0}).slice(0,3);return tools.map(function(r){var l=r.label||'',eff='';if(l.indexOf('术式无效')>=0||l.indexOf('天逆鉾')>=0)eff='对拼+10';if(l.indexOf('增幅自身')>=0)eff='对拼+5';if(l.indexOf('追踪必中')>=0)eff='对拼+3';if(l.indexOf('元素附魔')>=0)eff='术式胜率+6';if(l.indexOf('精神扰乱')>=0)eff='敌胜率减半';if(l.indexOf('空间干涉')>=0)eff='敌体力消耗+2';if(l.indexOf('隐密')>=0)eff='首回合对拼+5';if(l.indexOf('诅咒吸收')>=0)eff='黑闪率+2%';if(l.indexOf('治愈')>=0)eff='每回合回复8HP';if(l.indexOf('防护结界')>=0)eff='护盾×1.3';if(l.indexOf('结界穿透')>=0)eff='领域精密度+5';if(l.indexOf('储存咒力')>=0)eff='CE上限+30';return l+(eff?'('+eff+')':'');}).join('')}
 function v3CalcDomainDur(idx){return 2+Math.floor(idx/3)}
 function v3DrawStamina(){var i=idxOrC(dimVal(state.dimensions['体质'])),pool=Math.max(8,Math.floor(6+_STAM[i]*0.04));if(state.traits.indexOf('双面四臂')>=0)pool+=8;if(state.combat&&state.combat.yourDomainActive&&state.combat.domainEffect==='增幅自身')pool=Math.floor(pool*1.5);return pool}
 function v3EnemyDrawStamina(){var e=ENEMY_TEMPLATES[state.combat.enemyId];if(!e)return 8;var i=idxOrC(dimVal(e.dim['体质']));return Math.max(8,Math.floor(6+_STAM[i]*0.04))}
@@ -50,7 +58,7 @@ function v3BuildCombatItems(forEnemy){
     techs=techs.concat(TECHNIQUE_LIBRARY.universal);
     TECHNIQUE_LIBRARY.advanced.forEach(function(t){if(t.id==='ct_rev'){if(!hasTrait('反转术式')||!hasTrait('术式反转'))return}else if(!hasTrait(t.match||''))return;techs.push(t)});
     var innateName=null;if(state.skills.indexOf('无下限术式')>=0)innateName='无下限术式';else if(state.skills.indexOf('御厨子')>=0)innateName='御厨子';else{for(var i=0;i<state.skills.length;i++){if(TECHNIQUE_LIBRARY.innate[state.skills[i]]){innateName=state.skills[i];break}}if(!innateName&&state.skills.some(function(s){return TECHNIQUE_LIBRARY.innate[s]}))innateName='_default'}
-    if(innateName){var iTechs=TECHNIQUE_LIBRARY.innate[innateName];if(iTechs)iTechs.forEach(function(t){if(t.id==='murasaki'&&!c.comboFlags.ao&&!c.comboFlags.aka)return;if(t.id==='fuga'&&(!c.yourDomainActive||state.skills.indexOf('御厨子')<0))return;techs.push(t)})}
+    if(innateName){var iTechs=TECHNIQUE_LIBRARY.innate[innateName];if(iTechs)iTechs.forEach(function(t){if(t.id==='murasaki'&&(!c.comboFlags.ao||!c.comboFlags.aka))return;if(t.id==='fuga'&&(!c.yourDomainActive||state.skills.indexOf('御厨子')<0))return;techs.push(t)})}
     if(isHeavenlyRestricted())TECHNIQUE_LIBRARY.hrOnly.forEach(function(t){techs.push(t)});
     // 领域效果: 强控(敌防御隐藏)
     if(c.yourDomainActive&&c.domainEffect==='强控'){techs=techs.filter(function(t){return t.id!=='simple_domain'&&t.id!=='barrier'})}
@@ -75,6 +83,7 @@ function roundStamina(){
   c.stamina=v3DrawStamina();c.enemyStamina=v3EnemyDrawStamina();c.dangerZone+=v3DangerGrowth();c.enemyDangerZone+=v3EnemyDangerGrowth();c.round++;
   c.bfCombo=0;c.bfZone=false;c.selfBlocked=false;c.enemyBlocked=false;c.barrierActive=false;c.comboFlags={ao:false,aka:false,kai:false,hachi:false};c.bindLoanUsed=false;c.maxUsed=false;
   if(c.domainRemaining>0){c.domainRemaining--;if(c.domainRemaining<=0){c.yourDomainActive=false;c.enemyDomainActive=false;c.burnout=true}}
+  var heal=v3PlayerToolHeal();if(heal>0)c.hp=Math.min(v3StaminaMax(),c.hp+heal);
   if(c.maxPenalty){c.maxPenalty=false}
   if(c.enemyId){var e=ENEMY_TEMPLATES[c.enemyId];if(e&&e.stanceAI){var ai=e.stanceAI,sw=ai.switches||[],ns=ai.default;for(var i=0;i<sw.length;i++){var s=sw[i],match=false;if(s.when==='hp<20%'&&c.enemyHp<e.hp*0.2)match=true;if(s.when==='winGap<-40'&&(c.win-c.enemyWin)>40)match=true;if(s.when==='enemyBurnout'&&c.burnout)match=true;if(match){ns=s.to;break}}c.enemyStance=ns}}
   updateCombatUI()
@@ -131,7 +140,7 @@ stop=function(){
   if(rt==='combat_stamina'&&!isNaN(val)){c.stamina=val;c.phase='player_tech';refreshAll();saveState();showToast('体力:'+val);var already=state.results.filter(function(rr){return rr.roundId===rid});if(already.length===0)state.results.push({roundId:rid,rname:'💪 体力抽取',prop:'',label:'体力:'+val,desc:'',c:'#aaa',_item:{tags:[],dim:{},dimMod:{}}});var nxt=activeRounds().findIndex(function(rx){return rx.id==='p4_stance'});if(nxt>=0)goRound(nxt);return}
   if(rt==='combat_repeatable'){
     if(rid==='p4_ptech'){var tech=item._tech;if(!tech){showToast('无效技法');return}
-      c.stamina=Math.max(0,c.stamina-tech.st);if(tech.ce>0){c.ce=Math.max(0,c.ce-tech.ce);c.shield=Math.floor(c.ce*0.5)}c.win+=tech.win;if(c.bfZone){c.win+=10}
+      c.stamina=Math.max(0,c.stamina-tech.st);if(tech.ce>0){c.ce=Math.max(0,c.ce-tech.ce);c.shield=Math.floor(c.ce*0.5*v3PlayerToolShieldMul())}c.win+=tech.win;if(c.bfZone){c.win+=10}
       var isBF=false;var isAtk=tech.tier&&tech.tier.indexOf('atk')>=0;if(isAtk&&Math.random()*100<v3BfRate()&&c.bfCombo<3){isBF=true;c.bfCombo=Math.min(3,c.bfCombo+1);c.stamina+=5;c.ce+=12;var bfWin=Math.floor(v3BfRate()*2.5);c.win+=Math.max(1,bfWin);c.log.push('[T'+c.round+'] ⚡黑闪!')}
       if(tech.id==='ao')c.comboFlags.ao=true;if(tech.id==='aka')c.comboFlags.aka=true;
       if(tech.id==='rct_self')state.traits=state.traits.filter(function(t){return t.indexOf('bt_wnd_')!==0});if(tech.id==='domain_amp'){c.selfBlocked=true;c.enemyBlocked=true}if(tech.id==='barrier')c.barrierActive=true;
@@ -148,6 +157,7 @@ stop=function(){
       roundStamina();var nxt=activeRounds().findIndex(function(rx){return rx.id==='p4_stamina'});if(nxt>=0)goRound(nxt);refreshAll();saveState();return}
     return}
   if(rt==='combat_result'){v3HandleResult(item.l);refreshAll();saveState();return}
+  if(rid==='p4_rest'){var c=state.combat;if(item.l.indexOf('充分')>=0){c.hp=v3StaminaMax();c.ce=v3CeMax()}else if(item.l.indexOf('短暂')>=0){c.hp=Math.floor(v3StaminaMax()*0.6);c.ce=Math.floor(v3CeMax()*0.5)}else if(item.l.indexOf('勉强')>=0){c.hp=Math.floor(v3StaminaMax()*0.3)}updateCombatUI()}
   _origStop()
 }
 function _v3HandlePrepStop(r){
@@ -194,12 +204,12 @@ function v3ClashResult(idx){var c=state.combat,enemy=ENEMY_TEMPLATES[c.enemyId],
   // 逃跑失败惩罚
   if(c._escapeFail){eBase=Math.floor(eBase*1.3);c._escapeFail=false}
   // 咒灵易伤(RCT克制)
-  var isCurse=enemy.type==='curse';if(isCurse){var curseMul=1.5;pBase=Math.floor(pBase*curseMul)}
+  var isCurse=enemy.type==='curse';if(isCurse){var curseMul=1.5;if(v3PlayerToolCurseBonus())curseMul=1.8;pBase=Math.floor(pBase*curseMul)}
   var pDmg=Math.floor(pBase*mult),eDmg=Math.floor(eBase*eMult);var shAbs=0;
   if(c.shield>0){var abs=Math.min(c.shield,eDmg);c.shield-=abs;eDmg-=abs;shAbs=abs}
   c.hp=Math.max(0,c.hp-Math.max(0,eDmg));c.enemyHp=Math.max(0,c.enemyHp-Math.max(0,pDmg));
   c.clockBK=Math.min(6,c.clockBK+Math.floor(pDmg/(enemy.hp/6)));c.clockLB=Math.min(6,c.clockLB+Math.floor(eDmg/(v3StaminaMax()/6)*v3WillClockMul()));
-  c.shield=Math.floor(c.ce*0.5);updateCombatUI();var clashClass=idx===0?'bfx-crushing':idx===1?'bfx-hitting':idx===4?'bfx-defeated':idx===5?'bfx-deadly':'';var vsEl=document.getElementById('combatVS');if(clashClass&&vsEl)vsEl.classList.add(clashClass);setTimeout(function(){var vs=document.getElementById('combatVS');if(vs)vs.classList.remove('bfx-crushing','bfx-hitting','bfx-defeated','bfx-deadly')},800);
+  c.shield=Math.floor(c.ce*0.5*v3PlayerToolShieldMul());updateCombatUI();var clashClass=idx===0?'bfx-crushing':idx===1?'bfx-hitting':idx===4?'bfx-defeated':idx===5?'bfx-deadly':'';var vsEl=document.getElementById('combatVS');if(clashClass&&vsEl)vsEl.classList.add(clashClass);setTimeout(function(){var vs=document.getElementById('combatVS');if(vs)vs.classList.remove('bfx-crushing','bfx-hitting','bfx-defeated','bfx-deadly')},800);
   var rp=document.getElementById('resultPanel');rp.style.display='block';rp.className='result-panel';if(idx===0)rp.classList.add('bfx-crushing');if(idx===5)rp.classList.add('bfx-deadly');
   rp.innerHTML='<div class="rp-cat">⚔ 对拼结果</div><div class="rp-val">你:'+pDmg+'伤害 | 敌:'+eDmg+'伤害'+(shAbs>0?' (🛡护盾吸收:'+shAbs+')':'')+'</div><div class="rp-desc">击破:'+c.clockBK+'/6 败势:'+c.clockLB+'/6</div>';  c.log.push('[T'+c.round+' CLASH] 你:'+pDmg+' 敌:'+eDmg+' BK:'+c.clockBK+' LB:'+c.clockLB);if(c.burnout)c.log.push('[T'+c.round+'] ⚠ 熔断')
 }
@@ -247,7 +257,7 @@ function updateCombatUI(){
   combatDims.forEach(function(k){var v=e.dim?e.dim[k]:null;if(!v)return;var clr=dimColor(dimVal(v));var abbr=dimAbbr[k]||k.slice(0,2);eDH+='<span class="cv-dt"><span class="cv-dk">'+abbr+'</span><span style="color:'+clr+';font-weight:900">'+v+'</span></span>'});
   if(eDimEl){eDimEl.innerHTML=eDH||'<span style="color:var(--dim)">--</span>';eDimEl.style.fontSize='8px'}
   // 咒具行
-  var pToolEl=document.getElementById('cvPTools'),pTH='';state.results.filter(function(r){return r.prop&&r.prop.indexOf('咒具')>=0}).slice(0,3).forEach(function(r){pTH+='<span class="cv-tool">'+r.label+'</span>'});
+  var pToolEl=document.getElementById('cvPTools'),pTH='';state.results.filter(function(r){return r.prop&&r.prop.indexOf('咒具')>=0}).slice(0,3).forEach(function(r){var l=r.label||'';var eff='';if(l.indexOf('术式无效')>=0||l.indexOf('天逆鉾')>=0)eff='对拼+10';if(l.indexOf('增幅自身')>=0)eff='对拼+5';if(l.indexOf('追踪必中')>=0)eff='对拼+3';if(l.indexOf('元素附魔')>=0)eff='术式胜率+6';if(l.indexOf('精神扰乱')>=0)eff='敌胜率减半';if(l.indexOf('空间干涉')>=0)eff='敌体+2';if(l.indexOf('隐密')>=0)eff='首回对拼+5';if(l.indexOf('诅咒吸收')>=0)eff='黑闪+2%';if(l.indexOf('治愈')>=0)eff='回复8HP';if(l.indexOf('防护结界')>=0)eff='护盾×1.3';if(l.indexOf('储存咒力')>=0)eff='CE+30';pTH+='<span class="cv-tool" title="'+eff+'">'+l+'</span>'});
   if(pToolEl)pToolEl.innerHTML=pTH;
   var eToolEl=document.getElementById('cvETools'),eTH='';(e.tools||[]).forEach(function(t){eTH+='<span class="cv-tool" title="'+t.effect+'">'+t.name+'('+t.effect+')</span>'});
   if(eToolEl)eToolEl.innerHTML=eTH;
