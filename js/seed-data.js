@@ -844,7 +844,7 @@ const ENEMY_TEMPLATES={
     desc:"零咒力的身躯换来了超越人类的极致肉体。无法被咒力感知，无法被结界察觉——他就像猎杀咒术师的幽灵，悄无声息地接近，一击毙命。",
     flair:{intro:'\u300c术师？那种东西我杀过不少了。\u300d',taunt:'\u300c你的极限，我已经看穿了。\u300d',fall:'\u300c到头来……还是没能超越你啊……\u300d'},
     techniques:["体术·瞬击","体术·连破","五感·先读","天与暴君·极","游云·三段打","天逆鉾·术式破断","万里锁链·束缚","重击"],
-    uniqueTechniques:{"体术·瞬击":{st:5,ce:0,win:22},"体术·连破":{st:7,ce:0,win:30},"五感·先读":{st:4,ce:0,win:28},"天与暴君·极":{st:9,ce:0,win:50},"游云·三段打":{st:8,ce:0,win:42},"天逆鉾·术式破断":{st:6,ce:0,win:35,eff:"对有术式目标胜率×1.8"},"万里锁链·束缚":{st:5,ce:0,win:28,eff:"下回敌体力-3"},"重击":{st:7,ce:0,win:32}},
+    uniqueTechniques:{"体术·瞬击":{st:4,ce:0,win:18},"体术·连破":{st:7,ce:0,win:30},"五感·先读":{st:3,ce:0,win:12},"天与暴君·极":{st:12,ce:0,win:55},"游云·三段打":{st:8,ce:0,win:42},"天逆鉾·术式破断":{st:6,ce:0,win:35,eff:"对有术式目标胜率×1.8"},"万里锁链·束缚":{st:5,ce:0,win:28,eff:"下回敌体力-3"},"重击":{st:7,ce:0,win:32}},
     hasDomain:false,stanceAI:{default:"猛攻",switches:[{when:"hp<20%",to:"逃跑"},{when:"winGap<-40",to:"流转"},{when:"enemyBurnout",to:"猛攻"}]},baseDmg:55,dmgRange:[25,50],weakTo:["领域展开"],resistTo:[],
     tools:[
       {name:"天逆鉾",effect:"术式无效",bonus:{clash:10}},
@@ -865,7 +865,7 @@ const TECHNIQUE_LIBRARY={
     {id:"simple_domain",name:"简易领域",st:3,ce:8,win:0,tier:"def",c:"#48a",eff:"敌胜率-30%",match:"简易领域(弥虚葛笼)"},
     {id:"domain_amp",name:"领域展延",st:4,ce:12,win:18,tier:"atk_def",c:"#255",eff:"封锁敌术式1回合(自身术式也禁用)",match:"领域展延"},
     {id:"rct_self",name:"反转术式·自愈",st:3,ce:15,win:-10,tier:"heal",c:"#4c8",eff:"清除1层负伤",match:"反转术式"},
-    {id:"rct_out",name:"反转术式·外放",st:4,ce:22,win:30,tier:"heal",c:"#e62",eff:"对咒灵胜率×3",match:"反转术式外放"},
+    {id:"rct_out",name:"反转术式·外放",st:4,ce:22,win:30,tier:"atk_ce",c:"#e62",eff:"对咒灵胜率×3",match:"反转术式外放",noBf:true},
     {id:"ct_rev",name:"术式反转",st:4,ce:18,win:40,tier:"atk_ce",c:"#c84",cond:"反转术式",match:"术式反转"},
     {id:"barrier",name:"结界术",st:3,ce:9,win:0,tier:"def",c:"#339",eff:"受击伤害-20%",match:"结界术"},
     {id:"expand",name:"术式扩张",st:3,ce:12,win:28,tier:"atk_ce",c:"#639",match:"术式对象扩张"}

@@ -67,8 +67,9 @@ RCT_MANIP = [[-2,-2,-1,0,1,3,6,10,15,20],[-3,-2,-1,0,1,3,6,8,10,15],[2,1,1,0,0,0
 staminaMax = _STAM[体质] × (重伤?0.6 : 残废?0.4 : 1.0)
 staminaPool/回合 = max(8, floor(6 + staminaMax × 0.04))
   双面四臂 +8, 领域·增幅自身 ×1.5
-stamCost = max(1, floor(技法.st × 体术倍率 + 万里锁链惩罚(2)))
+stamCost = max(1, floor(技法.st × 体术倍率 + 万里锁链惩罚(2) + 玩家空间干涉咒具(2)))
   天与咒缚: 体术倍率额外 −0.2, 最低 0.2
+  roundStamina 中: v3PlayerToolHeal() 每回合 +8HP（治愈咒具）
 ```
 
 ### 2.2 咒力相关
@@ -85,6 +86,7 @@ ceCost = floor(技法.ce × 咒力效率倍率)  // 六眼 → 直接EX(0.3)
 
 ```
 技法win = 技法基础win + _WB[咒力操纵] + _TB[术式性能](仅atk_ce技法)
+  + v3PlayerToolTechBonus()（元素附魔咒具 +6, 如果持有）
   领域·增幅术式: ×2
 玩家胜率累加至c.win (每次出招后)c.win上限200
 敌人胜率累加至c.enemyWin, 同公式但使用敌人dim查表
@@ -93,7 +95,8 @@ ceCost = floor(技法.ce × 咒力效率倍率)  // 六眼 → 直接EX(0.3)
 ### 2.4 对拼伤害
 
 ```
-你的伤害基准 pBase = floor(c.win × 0.8) + _MJ[你的体术] + _TJ[你的术式性能] + random(0~6)
+你的伤害基准 pBase = floor(c.win × 0.8) + _MJ[你的体术] + _TJ[你的术式性能] + v3PlayerToolClash() + random(0~6)
+  v3PlayerToolClash(): 天逆鉾+10/增幅自身+5/追踪必中+3/隐密(首回合)+5
 敌方伤害基准 eBase = floor(c.enemyWin × 0.8) + enemy.baseDmg + random(0~6) + v3EnemyToolClash()
 
 修正链（顺序）:
@@ -105,7 +108,7 @@ ceCost = floor(技法.ce × 咒力效率倍率)  // 六眼 → 直接EX(0.3)
 6. 姿态修正: 猛攻双方×1.3, 坚牢双方×0.7 (双方姿态各自独立)
 7. 结界术: eBase×0.8
 8. 逃跑失败: eBase×1.3
-9. 咒灵易伤: pBase×1.5 (敌type==='curse')
+9. 咒灵易伤: pBase×1.5 (敌type==='curse'), 有释魂刀咒具 → ×1.8
 
 最终伤害 = floor(base × 对应扇区倍率)
 扇区倍率: [1.3/0.7, 1.1/0.9, 1.0/1.0, 0.9/1.1, 0.7/1.3, 2.0/2.0]
@@ -114,7 +117,8 @@ ceCost = floor(技法.ce × 咒力效率倍率)  // 六眼 → 直接EX(0.3)
 ### 2.5 护盾与时钟
 
 ```
-护盾值 = floor(c.ce × 0.5) // 每次出招/对拼后刷新
+护盾值 = floor(c.ce × 0.5 × v3PlayerToolShieldMul()) // 每次出招/对拼后刷新
+  v3PlayerToolShieldMul(): 有防护结界咒具→1.3, 否则1.0
 伤害结算: shield -= min(shield, 敌伤害), 剩余伤害扣HP
 击破时钟 += floor(你伤害 / (enemy.hp / 6))
 败势时钟 += floor(敌伤害 / (staminaMax / 6) × _WC[意志])
@@ -124,12 +128,12 @@ ceCost = floor(技法.ce × 咒力效率倍率)  // 六眼 → 直接EX(0.3)
 
 ```
 玩家: bfRate = 3 + _BF[天赋] + floor(max(0, 运势索引-3) × 0.5)
-  + (黑闪·68虎水平? 4 : 0) + (受肉体? 2 : 0)
-  上限 35%, 仅 atk 类技法可触发
+  + (黑闪·68虎水平? 4 : 0) + (受肉体? 2 : 0) + v3PlayerToolBfBoost()（诅咒吸收+2%）
+  上限 35%, 仅 atk 类技法可触发 (noBf 标记的技法除外，如反转术式·外放)
 敌人: enemyBfRate = 3 + _BF[敌天赋] + floor(max(0, 敌运势索引-3) × 0.5)
   上限 20%, 无标签加成
 黑闪效果: 体力+5, 咒力+12, 当前技法win ×2.5
-  Zone: 后续技法win +10%
+  Zone: 后续技法win +10%（仅本回合）
 ```
 
 ### 2.7 领域时长
@@ -175,10 +179,10 @@ HP:520  baseDmg:55
 
 ### 3.3 技法基础值（uniqueTechniques）
 ```
-体术·瞬击:       st:5  win:22
+体术·瞬击:       st:4  win:18
 体术·连破:       st:7  win:30
-五感·先读:       st:4  win:28
-天与暴君·极:     st:9  win:50
+五感·先读:       st:3  win:12
+天与暴君·极:     st:12 win:55
 游云·三段打:     st:8  win:42
 天逆鉾·术式破断: st:6  win:35  (对有术式目标 ×1.8)
 万里锁链·束缚:   st:5  win:28  (下回敌体力-3)
@@ -207,10 +211,10 @@ HP:520  baseDmg:55
 
 ### 4.2 天与咒缚专属
 ```
-体术·瞬击:    st:4  ce:0 win:18
-体术·连破:    st:7  ce:0 win:30
-五感·先读:    st:3  ce:0 win:12
-天与暴君·极:  st:12 ce:0 win:55
+体术·瞬击:    st:4  ce:0 win:18    // hrOnly基值, 甚尔uniqueTechniques同
+体术·连破:    st:7  ce:0 win:30    // hrOnly基值, 甚尔uniqueTechniques同
+五感·先读:    st:3  ce:0 win:12    // hrOnly基值, 甚尔uniqueTechniques同
+天与暴君·极:  st:12 ce:0 win:55    // hrOnly基值, 甚尔uniqueTechniques同
 ```
 
 ### 4.3 高级技巧
@@ -237,9 +241,41 @@ HP:520  baseDmg:55
 | 敌人 CE=0 | ce>0 全部不显示 |
 | 敌人被封锁 | 敌 atk_ce/ult_ce 隐藏 |
 | 坚牢姿态 | 重击/咒力强化·拳权重 ×0.5 |
-| Combo前置 | 茈(未用蒼/赫) / 開(无领域) |
+| Combo前置 | 茈(苍和赫均使用后才出现) / 開(无领域) |
 | 极之番已用 | 按钮隐藏 (每回合重置) |
 | 领域已用 | 按钮隐藏 (RCT修复后重置) |
+
+---
+
+## 6. 玩家咒具战斗加成
+
+> 最多生效 3 件（按 p2 抽取顺序）。`v3ToolCap()` 取 `state.results.prop.indexOf('咒具')>=0` 前 3 件。
+
+| 咒具效果 | 战斗加成 | 影响函数 |
+|----------|---------|---------|
+| 术式无效(天逆鉾) | 对拼 +10, 有术式敌技 win 减半 | `v3ClashBonus` |
+| 增幅自身 | 对拼 +5 | `v3ClashBonus` |
+| 追踪必中 | 对拼 +3 | `v3ClashBonus` |
+| 隐密·气息遮蔽 | 首回合对拼 +5 | `v3ClashBonus`(round==1) |
+| 元素附魔(火/冰/雷) | 术式胜率 +6 | `v3TechWinBonus` |
+| 空间干涉 | 敌体力消耗 +2 | `v3EnemyToolStCostPenalty`(复用) |
+| 诅咒吸收 | 黑闪率 +2% | `v3BfRate` |
+| 灵魂伤害(释魂刀) | 咒灵易伤 1.5→1.8 | `v3ClashResult` |
+| 储存咒力(里香戒指) | CE上限 +30 | `v3CeMax`(已有) |
+| 治愈(自己/他人) | 每回合结束 hp +8 | `roundStamina` |
+| 防护结界 | 护盾系数 ×1.3 | `shield = floor(ce×0.5×1.3)` |
+| 结界穿透 | 领域精密度 +5 | (领域对拼完善后接入) |
+
+---
+
+## 7. p4_rest 战后休整
+
+```
+充分休整: hp = staminaMax(), ce = ceMax()
+短暂休整: hp = floor(staminaMax()×0.6), ce = floor(ceMax()×0.5)
+勉强支撑: hp = floor(staminaMax()×0.3), ce 不变
+伤势恶化: —（不恢复, p4_rest 的 dimMod 单独生效）
+```
 
 ---
 

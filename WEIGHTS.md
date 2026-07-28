@@ -29,6 +29,10 @@
 
 ### 2.2 常见模式
 
+> **叠加规则**: 同一个 item 上多个 `wMods`/`addMods` **全部生效**（累加/连乘），不是"命中第一个就停"。顺序不影响结果。
+> `wMods` 之间是连乘关系: `w × m1.w × m2.w × ...`
+> `addMods` 之间是累加关系: `w + v1 + v2 + ...`
+
 ```javascript
 // 模式1: 维度过滤 (高天赋 → 高术式概率翻倍)
 {wMods:[{cond:"天赋|>=|B", w:2},{cond:"天赋|>=|S", w:3}]}
@@ -323,3 +327,58 @@ E- < E < D < C < B < A < S < SS < SSS < EX
 | p3_heian~shin | 其他时代 | 各 0 | 待开发 |
 | p4 | 战斗模拟 | 10 | ✓ |
 | p5 | 结局判定 | 1 | ✓ |
+
+---
+
+## 8. P3 怀玉时期 (p3_kai) 权重
+
+### p3_kai_event — 星浆体护送·终局
+
+| l | w | wMods | tags |
+|----|---|-------|------|
+| 先読み·看破 | 3 | 咒力操纵>=A×3, <=D×0.2 | p3_encounter_toji, p3_riko_saved |
+| 搭档倒下·理子之死 | 3 | 体术<=C×3 | p3_encounter_toji, p3_riko_dead; dimMod:体质-2 |
+| 合力迎击·咒术封杀 | 5 | 术式性能>=A×3.5 | p3_encounter_toji, p3_riko_saved, p3_advantage |
+| 里子的选择 | 2 | 魅力>=A×3.5 | p3_riko_saved (无 encounter — 避战结局) |
+
+> "里子的选择" 不触发 p4 战斗（无 encounter 标签）。p3_advantage → 第一回合跳过敌人阶段。
+
+---
+
+## 9. P4/P5 权重
+
+### p4_enemy — 索敌
+
+| l | w | cond | tags |
+|----|---|------|------|
+| (根据 p3 标签 cond 过滤, 当前仅甚尔) | — | `p3_encounter_toji` | `enemy_fushiguro_toji_kai` |
+
+### p4_result — 胜负结算
+
+动态权重由 `getResultOutcome()` 计算（NUMEROLOGY.md 无直接权重表，权重完全由战斗状态变量驱动）。
+
+### p4_rest — 战后休整
+
+| l | w |
+|----|---|
+| 充分休整 | 25 |
+| 短暂休整 | 50 |
+| 勉强支撑 | 25 |
+| 伤势恶化 | 10 |
+
+### p5 — 结局判定
+
+| l | w | cond |
+|----|---|------|
+| 8 个 tag-based 结局项 | 各 1 | 各自 cond 匹配战斗结果标签 |
+
+---
+
+## 10. 最后同步
+
+```
+BATTLE-DESIGN.md  v3.1  (2026-07-29)
+NUMEROLOGY.md     v1.2  (2026-07-29)
+WEIGHTS.md        v1.1  (2026-07-29)
+源码 commit:  df22436
+```
