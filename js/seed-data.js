@@ -851,6 +851,39 @@ const ENEMY_TEMPLATES={
       {name:"游云",effect:"增幅自身",bonus:{physMod:1}},
       {name:"万里锁链",effect:"空间干涉",bonus:{enemyStCost:2}}
     ]
+  },
+  gojo_satoru_kai:{
+    id:"gojo_satoru_kai",name:"五条悟",title:"最强·高二",type:"human",
+    dim:{体质:"A",体术:"A",咒力总量:"SSS",咒力效率:"EX",咒力操纵:"A",术式性能:"SS",意志:"A",运势:"A",天赋:"EX"},
+    hp:600,tier:"SSS",tierColor:"#4488ff",
+    desc:"东京咒术高专二年生。五条家的六眼继承者。觉醒前只会使用术式正转「苍」和无下限的自动防御——但这已经足以让他被称为「最强」。",
+    flair:{intro:'\u300c天上天下——唯我独尊。\u300d',taunt:'\u300c太弱了——还有谁？\u300d',fall:'\u300c……我被这种东西打败？\u300d'},
+    techniques:["术式顺转·苍","无限防御","苍·最大出力"],
+    uniqueTechniques:{"术式顺转·苍":{st:6,ce:40,win:45,eff:"敌闪避不可",tier:"atk_ce"},"无限防御":{st:8,ce:70,win:0,eff:"本回合受击-80%",tier:"def"},"苍·最大出力":{st:10,ce:65,win:60,eff:"对拼值+5",tier:"atk_ce"}},
+    hasDomain:false,stanceAI:{default:"猛攻",switches:[{when:"hp<20%",to:"流转"},{when:"winGap<-30",to:"猛攻"}]},baseDmg:70,dmgRange:[35,65],weakTo:["天与咒缚"],resistTo:[],
+    tools:[]
+  },
+  geto_suguru_kai:{
+    id:"geto_suguru_kai",name:"夏油杰",title:"咒灵操术师·高二",type:"human",
+    dim:{体质:"A",体术:"A",咒力总量:"SS",咒力效率:"A",咒力操纵:"SS",术式性能:"SS",意志:"A",运势:"C",天赋:"SS"},
+    hp:480,tier:"SS",tierColor:"#dd8855",
+    desc:"东京咒术高专二年生。咒灵操术使用者——可吞噬并操控咒灵。此刻他身边环绕着数十只降服的咒灵，每一只都是他力量的延伸。",
+    flair:{intro:'\u300c理念之争——只能用术式来回答。\u300d',taunt:'\u300c让我看看你值不值得我召唤特级咒灵。\u300d',fall:'\u300c……这就是——我的极限。\u300d'},
+    techniques:["咒灵召来","复数咒灵","特级咒灵·解放","结界术"],
+    uniqueTechniques:{"咒灵召来":{st:5,ce:20,win:25,eff:"随机1只咒灵攻击",tier:"atk_ce"},"复数咒灵":{st:8,ce:40,win:38,eff:"敌闪避不可",tier:"atk_ce"},"特级咒灵·解放":{st:12,ce:60,win:55,eff:"对拼值+8",tier:"ult_ce"},"结界术":{st:6,ce:30,win:0,eff:"受击-30%",tier:"def"}},
+    hasDomain:false,stanceAI:{default:"流转",switches:[{when:"hp<30%",to:"猛攻"},{when:"winGap<-50",to:"坚牢"}]},baseDmg:50,dmgRange:[30,55],weakTo:["天与咒缚"],resistTo:[],
+    tools:[]
+  },
+  kuroi_misato:{
+    id:"kuroi_misato",name:"黑井美里",title:"星浆体随从",type:"human",
+    dim:{体质:"C",体术:"C",咒力总量:"D",咒力效率:"C",咒力操纵:"C",术式性能:"E-",意志:"S",运势:"D",天赋:"D"},
+    hp:120,tier:"C",tierColor:"#4488aa",
+    desc:"天内理子的侍从兼守护者。她不需要最强的术式——她只需要在理子倒下之前，自己不倒下。",
+    flair:{intro:'\u300c理子大人——请退后。\u300d',taunt:'\u300c想碰她，先过我这一关。\u300d',fall:'\u300c理子大人……快走……\u300d'},
+    techniques:["防御姿态","舍身守护","普通攻击"],
+    uniqueTechniques:{"防御姿态":{st:5,ce:0,win:0,eff:"护盾×2本回合",tier:"def"},"舍身守护":{st:8,ce:0,win:30,eff:"若理子在场+10胜率",tier:"atk"},"普通攻击":{st:4,ce:0,win:12,tier:"atk"}},
+    hasDomain:false,stanceAI:{default:"坚牢",switches:[{when:"hp<30%",to:"猛攻"}]},baseDmg:25,dmgRange:[15,30],weakTo:[],resistTo:[],
+    tools:[]
   }
 };
 
