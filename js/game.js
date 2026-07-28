@@ -294,7 +294,7 @@ function goRound(i){
   if(i>=ar.length){showToast('该轮次不存在');return}
   // 已完成的轮次：跳转并显示历史结果+重抽按钮
   if(isRoundDone(ar[i])){
-    curRound=i;refreshAll();wheel.angle=0;state.targetAngle=0;wheel.draw();
+    curRound=i;refreshAll();if(wheel){wheel.angle=0;state.targetAngle=0;wheel.draw()};
     const rr=state.results.find(r=>r.roundId===ar[i].id);
     if(rr){const panel=document.getElementById('resultPanel');panel.style.display='block';panel.style.borderLeft=`4px solid ${rr.c||'#333'}`;panel.innerHTML=`<div class="rp-cat">${rr.rname}</div><div class="rp-val" style="color:${rr.c||'#333'}">${rr.label}</div><div class="rp-desc">${rr.desc||''}</div>`;document.getElementById('btnReroll').style.display='block'}
     return;
@@ -302,7 +302,7 @@ function goRound(i){
   // 禁止跳过：只能抽第一个未完成的轮次
   const firstUndone=ar.findIndex(r=>!isRoundDone(r));
   if(i>firstUndone){showToast('请按顺序抽取');return}
-  curRound=i;refreshAll();wheel.angle=0;state.targetAngle=0;wheel.draw();document.getElementById('resultPanel').style.display='none';
+  curRound=i;refreshAll();if(wheel){wheel.angle=0;state.targetAngle=0;wheel.draw()};document.getElementById('resultPanel').style.display='none';
 }
 function rebuildSkills(){state.skills=[];state.results.forEach(rr=>{if(rr.roundId&&(/(_skill|_eff|_de)\d+$/.test(rr.roundId)||rr.roundId.endsWith('_tech_h')||rr.roundId.endsWith('_tech_c'))&&rr.label)state.skills.push(rr.label)})}
 function rebuildPers(){state.persDrawn=[];state.results.forEach(rr=>{if(rr.roundId&&/_pers\d+$/.test(rr.roundId)&&rr.label)state.persDrawn.push(rr.label)})}
@@ -407,7 +407,7 @@ function reroll(){
     var oc=state.combat;state.combat={active:true,enemyId:oc.enemyId,stance:oc.stance||"猛攻",stamina:0,ce:oc.ce,win:0,shield:Math.floor(oc.ce*0.5),hp:oc.hp,enemyStamina:0,enemyCe:oc.enemyCe,enemyWin:0,enemyHp:oc.enemyHp||ENEMY_TEMPLATES[oc.enemyId].hp,clockBK:oc.clockBK||0,clockLB:oc.clockLB||0,dangerZone:oc.dangerZone||0,enemyDangerZone:oc.enemyDangerZone||0,burnout:false,bfCombo:0,domainUsed:false,enemyBlocked:false,round:oc.round||0,phase:null,log:oc.log||[],comboFlags:{ao:false,aka:false,kai:false,hachi:false},bindLoanUsed:false};
     updateCombatUI();
   }
-  refreshAll();wheel.angle=0;state.targetAngle=0;wheel.draw();
+  refreshAll();if(wheel){wheel.angle=0;state.targetAngle=0;wheel.draw()}
   document.getElementById('resultPanel').style.display='none';
   document.getElementById('btnNext').style.display='none';document.getElementById('btnReroll').style.display='none';showToast('🔄 已重抽');
 }
