@@ -283,7 +283,7 @@ function updateCombatUI(){
   // 敌人条
   var eHpPct=Math.max(0,Math.min(100,c.enemyHp/Math.max(1,e.hp)*100));document.getElementById('cvEHpBar').style.width=eHpPct+'%';document.getElementById('cvEHpVal').textContent=c.enemyHp;
   var eShPct=(c.enemyShield||0)>0?Math.min(100,(c.enemyShield||0)/Math.max(1,c.enemyHp)*100):0;document.getElementById('cvEShBar').style.width=eShPct+'%';document.getElementById('cvEShVal').textContent=Math.floor(c.enemyShield||0);
-  var eCeMx=v3EnemyDrawCe(),eCePct=v3EnemyDrawCe()>0?Math.min(100,c.enemyCe/Math.max(1,eCeMx)*100):0;document.getElementById('cvECeBar').style.width=eCePct+'%';document.getElementById('cvECeVal').textContent=c.enemyCe;
+  var eCeMx=v3EnemyCeMax(),eCePct=eCeMx>0?Math.min(100,c.enemyCe/Math.max(1,eCeMx)*100):0;document.getElementById('cvECeBar').style.width=eCePct+'%';document.getElementById('cvECeVal').textContent=c.enemyCe;
   document.getElementById('cvEStVal').textContent=c.enemyStamina;document.getElementById('cvEWinVal').textContent=c.enemyWin;document.getElementById('cvEDZVal').textContent=Math.floor(c.enemyDangerZone)+'%';
   // 姿态 & 熔断 & 领域徽章
   document.getElementById('cvStanceBadge').textContent=c.stance?(c.stance==='猛攻'?'🔥猛攻':c.stance==='流转'?'🌊流转':'⛰坚牢'):'⚖未定';document.getElementById('cvStanceBadge').style.display=c.stance?'inline-block':'none';
