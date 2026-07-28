@@ -889,8 +889,22 @@ const ENEMY_TEMPLATES={
 };
 
 // ========================================================= STORY CHARACTERS (P0: 怀玉时期5角色) =========================================================
+// 每个角色必需字段:
+//   id, name, title      — 标识
+//   faction              — 阵营: 咒术高专/御三家/诅咒师/咒灵/佣兵/星浆体
+//   era                  — 主要时代
+//   combatRef            — ENEMY_TEMPLATES[id] 引用 (null=非战斗角色)
+//   defaultStance        — 4身份→初始立场: hostile/neutral/ally
+//   defaultRelation      — 4身份→初始关系值: -100~+100
+//   stanceTemplates      — 4状态模板: hostile{combatId,combatMods,battleDesc} / neutral / ally{supportEffects} / dead
+//     supportEffects[]   — 盟友增益: {type:"dimBuff"|"dmgBoost"|"dmgReduce"|"sharedTech"|"shield"|"healRate", base:N, dim:维度名?, tech:技法名?, icon:emoji}
+//   stanceTriggers[]     — 事件→立场转变: {event:标签名, to:立场, rel:关系变化}
+//   eraPresence[]        — 出现时代列表。多时代角色每期可能用不同 combatRef
+// P1(状态引擎)消费: initCharacters/updateCharacterStances/applyCharTags/relationMultiplier
+// 战斗: hostile→combatId→initCombat() | ally→supportEffects→applyAllyBuffs()
 const STORY_CHARACTERS={
   fushiguro_toji_kai:{id:"fushiguro_toji_kai",name:"伏黑甚尔",title:"术师杀手",faction:"佣兵",era:"怀玉时期",combatRef:"fushiguro_toji_kai",
+    desc:"天与咒缚零咒力——换来了超越人类的极限肉体。无法被咒力感知，像猎杀咒术师的幽灵。",
     defaultStance:{咒术师:"hostile",诅咒师:"neutral",咒灵:"hostile",凡人:"neutral"},
     defaultRelation:{咒术师:-30,诅咒师:10,咒灵:-40,凡人:0},
     stanceTemplates:{
@@ -903,6 +917,7 @@ const STORY_CHARACTERS={
     eraPresence:["怀玉时期"]
   },
   gojo_satoru_kai:{id:"gojo_satoru_kai",name:"五条悟",title:"最强·高二",faction:"咒术高专",era:"怀玉时期",combatRef:"gojo_satoru_kai",
+    desc:"五条家六眼继承者，东京高专二年生。觉醒前只有术式正转「苍」——但已经够被称为最强了。",
     defaultStance:{咒术师:"ally",诅咒师:"hostile",咒灵:"hostile",凡人:"neutral"},
     defaultRelation:{咒术师:20,诅咒师:-40,咒灵:-60,凡人:0},
     stanceTemplates:{
@@ -912,9 +927,10 @@ const STORY_CHARACTERS={
       dead:{combatId:null,combatMods:{},supportEffects:[],battleDesc:null}
     },
     stanceTriggers:[{event:"protect_riko",to:"ally",rel:30},{event:"assassinate_riko",to:"hostile",rel:-70},{event:"awaken_gojo_kai",to:"ally",rel:0},{event:"gojo_fatally_wounded",to:"dead",rel:0}],
-    eraPresence:["怀玉时期"]
+    eraPresence:["怀玉时期","0卷时期","高专时期","涩谷事变","死灭回游","新宿决战"]
   },
   geto_suguru_kai:{id:"geto_suguru_kai",name:"夏油杰",title:"咒灵操术师·高二",faction:"咒术高专",era:"怀玉时期",combatRef:"geto_suguru_kai",
+    desc:"五条悟唯一的挚友与同级生。拥有吞噬并操控咒灵的咒灵操术——此刻他身边环绕着降服的咒灵群。",
     defaultStance:{咒术师:"ally",诅咒师:"hostile",咒灵:"hostile",凡人:"neutral"},
     defaultRelation:{咒术师:20,诅咒师:-30,咒灵:-80,凡人:5},
     stanceTemplates:{
@@ -924,9 +940,10 @@ const STORY_CHARACTERS={
       dead:{combatId:null,combatMods:{},supportEffects:[],battleDesc:null}
     },
     stanceTriggers:[{event:"protect_riko",to:"ally",rel:25},{event:"assassinate_riko",to:"hostile",rel:-60},{event:"geto_shaken",to:"neutral",rel:-40},{event:"geto_fallen",to:"hostile",rel:-100},{event:"geto_stopped",to:"ally",rel:15}],
-    eraPresence:["怀玉时期"]
+    eraPresence:["怀玉时期","0卷时期"]
   },
   amanai_riko:{id:"amanai_riko",name:"天内理子",title:"星浆体",faction:"星浆体",era:"怀玉时期",combatRef:null,
+    desc:"14岁的少女，被天元大人选为五百年一遇的星浆体。她的身体将承载天元的不朽——这是她的命运，由不由她选择。",
     defaultStance:{咒术师:"neutral",诅咒师:"neutral",咒灵:"neutral",凡人:"neutral"},
     defaultRelation:{咒术师:10,诅咒师:-10,咒灵:-30,凡人:20},
     stanceTemplates:{
@@ -939,6 +956,7 @@ const STORY_CHARACTERS={
     eraPresence:["怀玉时期"]
   },
   kuroi_misato:{id:"kuroi_misato",name:"黑井美里",title:"星浆体随从",faction:"星浆体",era:"怀玉时期",combatRef:"kuroi_misato",
+    desc:"理子的侍从兼守护者。她的术式不出色——但她的意志是纯钢。",
     defaultStance:{咒术师:"neutral",诅咒师:"hostile",咒灵:"hostile",凡人:"neutral"},
     defaultRelation:{咒术师:5,诅咒师:-20,咒灵:-40,凡人:5},
     stanceTemplates:{
