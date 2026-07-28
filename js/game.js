@@ -599,11 +599,9 @@ function selectOrigin(type){
   state.introDone=true;
   const r=rd();if(!r)return;
   state.results.push({roundId:r.id,rname:`${r.icon} ${r.title}`,prop:r.prop,label:'穿越者',desc:'',c:'#c9a84c',_item:{tags:[],dim:{},dimMod:{}}});
-  document.getElementById('originPick').style.display='none';
   saveState();
   refreshAfterSpin();
   goNext();
-  document.getElementById('originPick').style.display='none';
   if(isPhaseDone()&&curPhase<DATA.phases.length-1)document.getElementById('btnPhase').style.display='block';
 }
 function introToast(type){showToast(type+'暂未开放')}
