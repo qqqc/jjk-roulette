@@ -168,7 +168,7 @@ function refreshRound(){
     document.querySelector('.ptr-label').style.visibility='hidden';document.querySelector('.ptr-label').textContent='';
     wheel=null;
     const op=document.getElementById('originPick');op.style.display='block';
-    if(done){op.querySelectorAll('.op-card').forEach(c=>{c.style.pointerEvents='none';c.style.opacity='.5'});const ac=op.querySelector('.op-card.active');if(ac){ac.style.opacity='1';const h=ac.querySelector('.opc-hint');if(h)h.textContent='✅ 已选择'};document.getElementById('btnReroll').style.display='block'}
+    if(done){op.querySelectorAll('.op-card').forEach(c=>{c.style.pointerEvents='none'});const ac=op.querySelector('.op-card.active');if(ac){ac.style.opacity='1';const h=ac.querySelector('.opc-hint');if(h)h.textContent='✅ 已选择'};document.getElementById('btnReroll').style.display='block'}
     else{op.querySelectorAll('.op-card').forEach(c=>{c.style.pointerEvents='';c.style.opacity=''});document.getElementById('btnReroll').style.display='none'}
     document.getElementById('resultPanel').style.display='none';document.getElementById('btnChar').style.display='none';return;
   }
