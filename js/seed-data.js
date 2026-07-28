@@ -878,8 +878,8 @@ const ENEMY_TEMPLATES={
   },
   gojo_satoru_kai:{
     id:"gojo_satoru_kai",name:"五条悟",title:"最强·高二",type:"human",
-    dim:{体质:"A",体术:"A",咒力总量:"SSS",咒力效率:"EX",咒力操纵:"A",术式性能:"SS",意志:"A",运势:"A",天赋:"EX"},
-    hp:600,tier:"SSS",tierColor:"#4488ff",
+    dim:{体质:"S",体术:"A",咒力总量:"SSS",咒力效率:"EX",咒力操纵:"A",术式性能:"SS",意志:"A",运势:"A",天赋:"EX"},
+    hp:300,tier:"SSS",tierColor:"#4488ff",shieldMul:0.8,
     desc:"东京咒术高专二年生。五条家的六眼继承者。觉醒前只会使用术式正转「苍」和无下限的自动防御——但这已经足以让他被称为「最强」。",
     flair:{intro:'\u300c天上天下——唯我独尊。\u300d',taunt:'\u300c太弱了——还有谁？\u300d',fall:'\u300c……我被这种东西打败？\u300d'},
     techniques:["术式顺转·苍","无限防御","苍·最大出力"],
@@ -889,8 +889,8 @@ const ENEMY_TEMPLATES={
   },
   geto_suguru_kai:{
     id:"geto_suguru_kai",name:"夏油杰",title:"咒灵操术师·高二",type:"human",
-    dim:{体质:"A",体术:"A",咒力总量:"SS",咒力效率:"A",咒力操纵:"SS",术式性能:"SS",意志:"A",运势:"C",天赋:"SS"},
-    hp:480,tier:"SS",tierColor:"#dd8855",
+    dim:{体质:"B",体术:"A",咒力总量:"SS",咒力效率:"A",咒力操纵:"SS",术式性能:"SS",意志:"A",运势:"C",天赋:"SS"},
+    hp:160,tier:"SS",tierColor:"#dd8855",
     desc:"东京咒术高专二年生。咒灵操术使用者——可吞噬并操控咒灵。此刻他身边环绕着数十只降服的咒灵，每一只都是他力量的延伸。",
     flair:{intro:'\u300c理念之争——只能用术式来回答。\u300d',taunt:'\u300c让我看看你值不值得我召唤特级咒灵。\u300d',fall:'\u300c……这就是——我的极限。\u300d'},
     techniques:["咒灵召来","复数咒灵","特级咒灵·解放","结界术"],
@@ -911,8 +911,8 @@ const ENEMY_TEMPLATES={
   },
   gojo_satoru_awakened:{
     id:"gojo_satoru_awakened",name:"五条悟",title:"觉醒·最强",type:"human",
-    dim:{体质:"S",体术:"S",咒力总量:"SSS",咒力效率:"EX",咒力操纵:"SS",术式性能:"SSS",意志:"S",运势:"S",天赋:"EX"},
-    hp:800,tier:"EX",tierColor:"#8800ff",
+    dim:{体质:"SS",体术:"S",咒力总量:"SSS",咒力效率:"EX",咒力操纵:"SS",术式性能:"SSS",意志:"S",运势:"S",天赋:"EX"},
+    hp:400,tier:"EX",tierColor:"#8800ff",shieldMul:1.0,
     desc:"天上天下·唯我独尊。被甚尔「杀死」后以反转术式复活——六眼与无下限术式的真正力量在此觉醒。苍、赫、茈——三色光芒在指尖绽放。",
     flair:{intro:'\u300c天上天下——唯我独尊。\u300d',taunt:'\u300c你太慢了——什么都看不见吗？\u300d',fall:'\u300c哼——能让我用出茈，你值得骄傲了。\u300d'},
     techniques:["术式顺转·苍","术式反转·赫","虚式·茈","无限防御"],
@@ -966,7 +966,7 @@ const STORY_CHARACTERS={
       ally:{combatId:null,combatMods:{},supportEffects:[{type:"dimBuff",dim:"咒力效率",base:1,icon:"🔮"},{type:"dmgBoost",base:25,icon:"💣"},{type:"sharedTech",tech:"苍",icon:"🌀"}],battleDesc:"五条站在你身边。'别拖我后腿。'——他说这话的时候在笑。"},
       dead:{combatId:null,combatMods:{},supportEffects:[],battleDesc:null}
     },
-    stanceTriggers:[{event:"怀玉_理子_存活",to:"ally",rel:30},{event:"怀玉_理子_死亡",to:"hostile",rel:-70},{event:"怀玉_五条_完整觉醒",to:"ally",rel:0},{event:"怀玉_五条_死亡",to:"dead",rel:0}],
+    stanceTriggers:[{event:"怀玉_理子_存活",to:"ally",rel:30},{event:"怀玉_理子_死亡",to:"hostile",rel:-70},{event:"怀玉_五条_完整觉醒",to:"ally",rel:0},{event:"怀玉_五条_死亡",to:"hostile",rel:-100},{event:"怀玉_绑_知情",to:"hostile",rel:-50},{event:"怀玉_F8_亲手",to:"hostile",rel:-100}],
     eraPresence:["怀玉时期","0卷时期","高专时期","涩谷事变","死灭回游","新宿决战"]
   },
   gojo_satoru_awakened:{id:"gojo_satoru_awakened",name:"五条悟",title:"觉醒·最强",faction:"咒术高专",era:"怀玉时期",combatRef:"gojo_satoru_awakened",
@@ -979,7 +979,7 @@ const STORY_CHARACTERS={
       ally:{combatId:null,combatMods:{},supportEffects:[{type:"dimBuff",dim:"咒力效率",base:2,icon:"🔮"},{type:"dmgBoost",base:40,icon:"💣"},{type:"sharedTech",tech:"苍",icon:"🌀"},{type:"shield",base:30,icon:"🛡"}],battleDesc:"五条站在你身边。'站在我身后。'——他说这话的时候没有在笑。他在准备茈。"},
       dead:{combatId:null,combatMods:{},supportEffects:[],battleDesc:null}
     },
-    stanceTriggers:[{event:"怀玉_五条_完整觉醒",to:"ally",rel:50},{event:"怀玉_五条_死亡",to:"dead",rel:0}],
+    stanceTriggers:[{event:"怀玉_五条_完整觉醒",to:"ally",rel:50},{event:"怀玉_五条_死亡",to:"hostile",rel:-100}],
     eraPresence:["怀玉时期"]
   },
   geto_suguru_kai:{id:"geto_suguru_kai",name:"夏油杰",title:"咒灵操术师·高二",faction:"咒术高专",era:"怀玉时期",combatRef:"geto_suguru_kai",
@@ -992,7 +992,7 @@ const STORY_CHARACTERS={
       ally:{combatId:null,combatMods:{},supportEffects:[{type:"dimBuff",dim:"咒力操纵",base:1,icon:"🔧"},{type:"dmgReduce",base:15,icon:"🛡"},{type:"sharedTech",tech:"结界术",icon:"🧱"}],battleDesc:"夏油向你点了点头。咒灵群在他的身后展开——你的阵地不需要担心了。"},
       dead:{combatId:null,combatMods:{},supportEffects:[],battleDesc:null}
     },
-    stanceTriggers:[{event:"怀玉_理子_存活",to:"ally",rel:25},{event:"怀玉_理子_死亡",to:"hostile",rel:-60},{event:"怀玉_夏油_动摇",to:"neutral",rel:-40},{event:"怀玉_夏油_堕落",to:"hostile",rel:-100},{event:"怀玉_夏油_阻止",to:"ally",rel:15}],
+    stanceTriggers:[{event:"怀玉_理子_存活",to:"ally",rel:25},{event:"怀玉_理子_死亡",to:"hostile",rel:-60},{event:"怀玉_夏油_动摇",to:"neutral",rel:-40},{event:"怀玉_夏油_堕落",to:"hostile",rel:-100},{event:"怀玉_夏油_阻止",to:"hostile",rel:-100}],
     eraPresence:["怀玉时期","0卷时期"]
   },
   amanai_riko:{id:"amanai_riko",name:"天内理子",title:"星浆体",faction:"星浆体",era:"怀玉时期",combatRef:null,
