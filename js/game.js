@@ -393,7 +393,7 @@ function skipInput(){
 }
 function goNext(){
   const ar=activeRounds();for(let i=0;i<ar.length;i++){if(!isRoundDone(ar[i])&&ar[i].id!==rd().id){curRound=i;break}}
-  refreshAll();wheel.angle=0;state.targetAngle=0;wheel.draw();document.getElementById('resultPanel').style.display='none';
+  refreshAll();if(wheel){wheel.angle=0;state.targetAngle=0;wheel.draw()}document.getElementById('resultPanel').style.display='none';
 }
 function goNextPhase(){const next=skipToNextAvailablePhase(curPhase+1);if(next>curPhase&&next<DATA.phases.length)switchPhase(next)}
 function reroll(){
@@ -419,9 +419,9 @@ function resetGame(){
   if(state.results.length>0&&!confirm('确定重置本轮？所有已抽取结果和角色特质将清除。'))return;
   state.results=[];state.traits=[];state.dimensions=initDimensions();state.skills=[];state.persDrawn=[];
   endCombat();
-  curPhase=0;curRound=0;state.targetAngle=0;wheel.angle=0;
+  curPhase=0;curRound=0;state.targetAngle=0;if(wheel)wheel.angle=0;
   localStorage.removeItem('jjk_state');
-  refreshAll();wheel.draw();document.getElementById('resultPanel').style.display='none';
+  refreshAll();if(wheel)wheel.draw();document.getElementById('resultPanel').style.display='none';
   document.getElementById('btnNext').style.display='none';document.getElementById('btnReroll').style.display='none';showToast('↺ 已重置');
 }
 function spin(){
