@@ -83,7 +83,7 @@ function roundStamina(){
   var c=state.combat;if(!c||!c.active)return;c.phase='player_stamina';c.win=0;c.enemyWin=0;
   c.stamina=v3DrawStamina();c.enemyStamina=v3EnemyDrawStamina();c.dangerZone+=v3DangerGrowth();c.enemyDangerZone+=v3EnemyDangerGrowth();c.round++;
   c.bfCombo=0;c.bfZone=false;c.selfBlocked=false;c.enemyBlocked=false;c.barrierActive=false;c.comboFlags={ao:false,aka:false,kai:false,hachi:false};c.bindLoanUsed=false;c.maxUsed=false;
-  if(c.domainRemaining>0){c.domainRemaining--;if(c.domainRemaining<=0){c.yourDomainActive=false;c.enemyDomainActive=false;c.burnout=true}}
+  if(c.domainRemaining>0){c.domainRemaining--;if(c.domainRemaining<=0){c.yourDomainActive=false;c.burnout=true}}
   var heal=v3PlayerToolHeal();if(heal>0)c.hp=Math.min(v3StaminaMax(),c.hp+heal);
   if(c.enemyDomainRemaining>0){c.enemyDomainRemaining--;if(c.enemyDomainRemaining<=0){c.enemyDomainActive=false;showToast('敌领域消退!')}}
   if(c.maxPenalty){c.maxPenalty=false}
