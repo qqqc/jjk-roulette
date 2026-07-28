@@ -126,8 +126,8 @@ function refreshRound(){
   if(sp){if(r.type==='stance'){sp.style.display='block';document.getElementById('btnSpin').style.display='none';document.getElementById('btnNext').style.display='none';document.getElementById('resultPanel').style.display='none'}else if(state.combat&&state.combat.phase==='player_stance'){}else{sp.style.display='none'}}
   document.getElementById('roundTitle').innerHTML=`<span style="font-size:18px">${r.icon}</span> 第${getCurrentRoundIndex()+1}转：${r.title}`;
   if(r.type==='combat_ce'){
-    document.getElementById('wheelWrap').style.display='block';document.getElementById('btnSpin').style.display='block';document.getElementById('btnSpin').textContent='🟣 抽取咒力';document.getElementById('btnSpin').disabled=false;
-    if(typeof v3BuildCeSectors==='function'){var ceS=v3BuildCeSectors();if(ceS){wheel=buildWheel(ceS);wheel.angle=0;state.targetAngle=0;initParticles();wheel.draw()}}
+    document.getElementById('wheelWrap').style.display='block';document.getElementById('btnSpin').style.display='block';document.getElementById('btnSpin').textContent=(r.id==='p4_eprep'?'👾 敌咒力抽取':'🟣 抽取咒力');document.getElementById('btnSpin').disabled=false;
+    var wheelFn=(r.id==='p4_eprep'&&typeof v3BuildEnemyCeWheel==='function')?v3BuildEnemyCeWheel:v3BuildCeSectors;if(typeof wheelFn==='function'){var ceS=wheelFn();if(ceS){wheel=buildWheel(ceS);wheel.angle=0;state.targetAngle=0;initParticles();wheel.draw()}}
     document.getElementById('moralPick').style.display='none';document.getElementById('inputRound').style.display='none';document.getElementById('btnReroll').style.display='none';document.getElementById('stancePick').style.display='none';return;
   }
   if(r.type==='combat_stamina'){
@@ -610,6 +610,8 @@ function introToast(type){showToast(type+'暂未开放')}
 (function init(){
   const db=document.getElementById('dotsBg');for(let i=0;i<20;i++){const d=document.createElement('div');d.className='dot';d.style.left=Math.random()*100+'%';d.style.width=d.style.height=(1.5+Math.random()*3)+'px';d.style.animationDuration=(10+Math.random()*20)+'s';d.style.animationDelay=Math.random()*20+'s';d.style.background=Math.random()<.5?'var(--glow)':'var(--gold)';db.appendChild(d)}
   document.querySelectorAll('.btm-tabs .bt').forEach(b=>b.addEventListener('click',()=>setTab(b.dataset.t)));
+  // debug: ?era=kai → auto-pick怀玉时期
+  try{const usp=new URLSearchParams(window.location.search);if(usp.get('era')==='kai'){const tr=DATA.phases.find(p=>p.id==='p1').rounds.find(r=>r.id==='p1_time');if(tr){const ki=tr.items.find(i=>i.l==='怀玉时期');if(ki)ki.w=999}}if(usp.get('debug')){window._debug=true}}catch(e){}
   // load saved state
   try{const s=JSON.parse(localStorage.getItem('jjk_state'));if(s){curPhase=s.curPhase||0;curRound=s.curRound||0;if(curPhase>=DATA.phases.length){curPhase=0;curRound=0}state.results=s.results||[];state.traits=s.traits||[];state.dimensions=s.dimensions||initDimensions();  state.introDone=s.introDone||false}}catch(e){}
   if(state.introDone&&curPhase===0){curPhase=1;curRound=0}

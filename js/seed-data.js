@@ -807,6 +807,7 @@ const SEED_DATA={phases:[
        {l:"伏黑甚尔·天与暴君",w:12,c:"#ffcc00",d:"天与咒缚的极致——零咒力换来了超越人类的肉体。",tags:["enemy_fushiguro_toji_kai"]}
      ]},
      {id:"p4_prep",title:"开战·咒力抽取",icon:"🟣",order:2,cond:"enemy_fushiguro_toji_kai",type:"combat_ce",items:[]},
+     {id:"p4_eprep",title:"敌·咒力抽取",icon:"👾",order:2.5,cond:"enemy_fushiguro_toji_kai",type:"combat_ce",items:[]},
      {id:"p4_stamina",title:"备战·体力抽取",icon:"💪",order:3,cond:"enemy_fushiguro_toji_kai",type:"combat_stamina",items:[]},
      {id:"p4_stance",title:"战术·姿态选择",icon:"⚖",order:4,cond:"enemy_fushiguro_toji_kai",type:"combat_stance",items:[]},
      {id:"p4_ptech",title:"交锋·出招",icon:"⚔",order:5,cond:"enemy_fushiguro_toji_kai",type:"combat_repeatable",items:[]},
